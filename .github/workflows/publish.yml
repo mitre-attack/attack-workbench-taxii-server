@@ -1,0 +1,23 @@
+name: publish
+on:
+  push:
+    branches: [main, develop]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    name: Publish Docker image to container registry
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Build the Docker image
+        run: |
+          echo $GITHUB_TOKEN | docker login ghcr.io -u mitre-attack --password-stdin
+          docker build . --tag ghcr.io/mitre-attack/attack-workbench-taxii-server:$TAG
+          docker push ghcr.io/mitre-attack/attack-workbench-taxii-server:$TAG
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref == 'refs/head/master' && 'latest' || 'develop' }}
+
+

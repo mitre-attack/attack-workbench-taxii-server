@@ -1,0 +1,38 @@
+[
+  {
+    "_id": 0,
+    "type": "brown",
+    "created": "2018-03-06T01:55:46 +05:00",
+    "spec_version": 2
+  },
+  {
+    "_id": 1,
+    "type": "blue",
+    "created": "2015-05-11T02:22:02 +04:00",
+    "spec_version": 2
+  },
+  {
+    "_id": 2,
+    "type": "brown",
+    "created": "2015-04-10T11:36:51 +04:00",
+    "spec_version": 2.1
+  },
+  {
+    "_id": 3,
+    "type": "green",
+    "created": "2020-03-16T07:49:01 +04:00",
+    "spec_version": 2
+  },
+  {
+    "_id": 4,
+    "type": "green",
+    "created": "2015-01-08T09:50:19 +05:00",
+    "spec_version": 2.1
+  },
+  {
+    "_id": 5,
+    "type": "green",
+    "created": "2017-05-23T09:58:38 +04:00",
+    "spec_version": 2
+  }
+]

@@ -10,7 +10,7 @@ export class TaxiiErrorException
   readonly httpStatus: number; // httpStatus is set by each subclass's identically named static variable, i.e., httpStatus
   readonly title: string; // title is the only required field
   readonly description?: string;
-  readonly details?: Error | Object;
+  readonly details?: Error | Record<string, unknown>;
   readonly errorCode?: string; // This implementation does not currently use the errorCode field, but it can be set if desired.
   readonly externalDetails?: string = DEFAULT_EXT_DETAILS; // Defaults to the public URL of the TAXII 2.1 specification document
 

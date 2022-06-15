@@ -1,7 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { ObjectRepository } from "./object.repository";
 import { ObjectFiltersDto } from "../filter/dto";
-import { TaxiiNotFoundException } from "src/common/exceptions";
+import {
+  TaxiiNotFoundException,
+  TaxiiServiceNotImplementedException,
+} from "src/common/exceptions";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { FilterService } from "../filter";
 import { StixBundleInterface } from "src/stix/dto/interfaces/stix-bundle.interface";
@@ -27,8 +30,10 @@ export class ObjectService {
   }
 
   /**
-   *
-   * @param filters
+   * Retrieves all STIX objects in a collection bundle. Primarily used to retrieve collections by ATT&CK domains, e.g.,
+   * "enterprise-attack", "ics-attack", "mobile-attack", etc.
+   * @param filters TAXII 2.1 filters such as `match` and `added_after` can be passed to limit the response to a subset of
+   *               STIX objects which match the search criteria
    */
   async findByCollection(
     filters?: ObjectFiltersDto
@@ -107,11 +112,31 @@ export class ObjectService {
       : this.filterService.sortAscending(objects, filters);
   }
 
-  // TODO NOT IMPLEMENTED
-  // POST {api-root}/collection-_dto/{id}/objects/
-  addObjects(objects: Array<Object>) {}
+  /**
+   * The 'Add Objects' endpoint is not implemented because this TAXII 2.1 implementation was primarily designed to be
+   * coupled with the ATT&CK Workbench, and add/POST functionality is already implemented through the ATT&CK Workbench
+   * REST API & Front End SPA.
+   */
+  addObjects() {
+    throw new TaxiiServiceNotImplementedException({
+      title: "'Add Objects' is not implemented",
+      description: "This TAXII 2.1 implementation does not support the Add Objects (5.5) endpoint. If coupled with " +
+          "Workbench however, objects can be added via the ATT&CK Workbench Front End and/or REST API.",
+      externalDetails: "https://docs.oasis-open.org/cti/taxii/v2.1/csprd02/taxii-v2.1-csprd02.html#_Toc16526040"
+    });
+  }
 
-  // TODO NOT IMPLEMENTED
-  // DELETE {api-root}/collection-_dto/{id}/objects/{object-id}/
-  deleteObject(object: Object) {}
+  /**
+   * The 'Delete An Object' endpoint is not implemented because this TAXII 2.1 implementation was primarily designed to be
+   * coupled with the ATT&CK Workbench, and add/POST functionality is already implemented through the ATT&CK Workbench
+   * REST API & Front End SPA.
+   */
+  deleteAnObject() {
+    throw new TaxiiServiceNotImplementedException({
+      title: "'Delete An Object' is not implemented",
+      description: "This TAXII 2.1 implementation does not support the 'Delete An Object' (5.7) endpoint. If coupled with " +
+          "Workbench however, objects can be deleted via the ATT&CK Workbench Front End and/or REST API.",
+      externalDetails: "https://docs.oasis-open.org/cti/taxii/v2.1/csprd02/taxii-v2.1-csprd02.html#_Toc16526042"
+    });
+  }
 }

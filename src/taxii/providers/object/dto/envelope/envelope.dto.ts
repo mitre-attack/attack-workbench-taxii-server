@@ -1,8 +1,8 @@
 // import {StixObjectDto} from "../stix";
-import {Exclude} from "class-transformer";
-import {ApiProperty} from "@nestjs/swagger";
-import {SwaggerDocumentation as SWAGGER} from "./envelope.dto.swagger.json";
-import {StixObjectPropertiesInterface} from "../../../../../stix/dto/interfaces/stix-object-properties.interface";
+import { Exclude } from "class-transformer";
+import { ApiProperty } from "@nestjs/swagger";
+import { SwaggerDocumentation as SWAGGER } from "./envelope.dto.swagger.json";
+import { StixObjectPropertiesInterface } from "../../../../../stix/dto/interfaces/stix-object-properties.interface";
 
 /**
  * This class represents LinkedNode<Array<StixObjectDto>>. Its only purpose is to feed Swagger. There are no
@@ -26,26 +26,25 @@ import {StixObjectPropertiesInterface} from "../../../../../stix/dto/interfaces/
  */
 @Exclude()
 export class EnvelopeDto {
+  @ApiProperty({
+    description: SWAGGER.Objects.description,
+    type: SWAGGER.Objects.type,
+    required: SWAGGER.Objects.required,
+    name: "objects",
+  })
+  objects: StixObjectPropertiesInterface[];
 
-    @ApiProperty({
-        description: SWAGGER.Objects.description,
-        type: SWAGGER.Objects.type,
-        required: SWAGGER.Objects.required,
-        name: "objects"
-    })
-    objects: StixObjectPropertiesInterface[];
+  @ApiProperty({
+    description: SWAGGER.More.description,
+    type: SWAGGER.More.type,
+    required: SWAGGER.More.required,
+  })
+  more: boolean;
 
-    @ApiProperty({
-        description: SWAGGER.More.description,
-        type: SWAGGER.More.type,
-        required: SWAGGER.More.required
-    })
-    more: boolean;
-
-    @ApiProperty({
-        description: SWAGGER.Next.description,
-        type: SWAGGER.Next.type,
-        required: SWAGGER.Next.required
-    })
-    next: string;
+  @ApiProperty({
+    description: SWAGGER.Next.description,
+    type: SWAGGER.Next.type,
+    required: SWAGGER.Next.required,
+  })
+  next: string;
 }

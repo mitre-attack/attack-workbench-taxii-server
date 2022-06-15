@@ -1,4 +1,4 @@
 export enum CACHE_OPTIONS {
-    DEFAULT = 'default',
-    MEMCACHED = 'memcached'
+  DEFAULT = "default",
+  MEMCACHED = "memcached",
 }

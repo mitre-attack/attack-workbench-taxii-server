@@ -1,3 +1,3 @@
 export interface WorkbenchConnectOptionsInterface {
-    baseUrl?: string;
+  baseUrl?: string;
 }

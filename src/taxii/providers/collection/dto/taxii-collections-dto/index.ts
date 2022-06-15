@@ -1,1 +1,1 @@
-export * from './taxii-collections.dto';
+export * from "./taxii-collections.dto";

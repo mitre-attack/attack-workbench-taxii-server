@@ -1,2 +1,2 @@
-export * from './taxii-config.module';
-export * from './taxii-config.service';
+export * from "./taxii-config.module";
+export * from "./taxii-config.service";

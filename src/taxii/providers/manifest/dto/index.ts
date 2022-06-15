@@ -1,2 +1,2 @@
-export * from './manifest.dto';
-export * from './manifest-record.dto';
+export * from "./manifest.dto";
+export * from "./manifest-record.dto";

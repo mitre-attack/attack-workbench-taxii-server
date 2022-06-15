@@ -1,7 +1,7 @@
 export enum STIX_REPO_TYPE {
-    WORKBENCH = "workbench",
-    TYPE_ORM = "orm",
-    FILE_BASED = "file"
+  WORKBENCH = "workbench",
+  TYPE_ORM = "orm",
+  FILE_BASED = "file",
 }
 
 /**

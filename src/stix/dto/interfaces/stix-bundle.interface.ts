@@ -1,7 +1,7 @@
-import {StixObjectPropertiesInterface} from "./stix-object-properties.interface";
+import { StixObjectPropertiesInterface } from "./stix-object-properties.interface";
 
 export class StixBundleInterface {
-    type: string;
-    id: string;
-    objects?: Array<StixObjectPropertiesInterface>
+  type: string;
+  id: string;
+  objects?: Array<StixObjectPropertiesInterface>;
 }

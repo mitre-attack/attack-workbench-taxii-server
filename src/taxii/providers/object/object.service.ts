@@ -120,9 +120,11 @@ export class ObjectService {
   addObjects() {
     throw new TaxiiServiceNotImplementedException({
       title: "'Add Objects' is not implemented",
-      description: "This TAXII 2.1 implementation does not support the Add Objects (5.5) endpoint. If coupled with " +
-          "Workbench however, objects can be added via the ATT&CK Workbench Front End and/or REST API.",
-      externalDetails: "https://docs.oasis-open.org/cti/taxii/v2.1/csprd02/taxii-v2.1-csprd02.html#_Toc16526040"
+      description:
+        "This TAXII 2.1 implementation does not support the Add Objects (5.5) endpoint. If coupled with " +
+        "Workbench however, objects can be added via the ATT&CK Workbench Front End and/or REST API.",
+      externalDetails:
+        "https://docs.oasis-open.org/cti/taxii/v2.1/csprd02/taxii-v2.1-csprd02.html#_Toc16526040",
     });
   }
 
@@ -134,9 +136,11 @@ export class ObjectService {
   deleteAnObject() {
     throw new TaxiiServiceNotImplementedException({
       title: "'Delete An Object' is not implemented",
-      description: "This TAXII 2.1 implementation does not support the 'Delete An Object' (5.7) endpoint. If coupled with " +
-          "Workbench however, objects can be deleted via the ATT&CK Workbench Front End and/or REST API.",
-      externalDetails: "https://docs.oasis-open.org/cti/taxii/v2.1/csprd02/taxii-v2.1-csprd02.html#_Toc16526042"
+      description:
+        "This TAXII 2.1 implementation does not support the 'Delete An Object' (5.7) endpoint. If coupled with " +
+        "Workbench however, objects can be deleted via the ATT&CK Workbench Front End and/or REST API.",
+      externalDetails:
+        "https://docs.oasis-open.org/cti/taxii/v2.1/csprd02/taxii-v2.1-csprd02.html#_Toc16526042",
     });
   }
 }

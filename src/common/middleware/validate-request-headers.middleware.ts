@@ -116,8 +116,8 @@ export class ValidateRequestHeadersMiddleware implements NestMiddleware {
    * @private
    */
   private isValidMediaType(mediaType: MediaTypeObject): boolean {
-    let typeMatch: boolean = mediaType.type == MEDIATYPE_TYPE_FIELD;
-    let subTypeMatch: boolean = mediaType.subType == MEDIATYPE_SUBTYPE_FIELD;
+    const typeMatch: boolean = mediaType.type == MEDIATYPE_TYPE_FIELD;
+    const subTypeMatch: boolean = mediaType.subType == MEDIATYPE_SUBTYPE_FIELD;
 
     if (typeMatch && subTypeMatch) {
       // type and subType match, so now we must determine if the version was specified

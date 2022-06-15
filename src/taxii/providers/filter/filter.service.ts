@@ -34,18 +34,18 @@ export class FilterService {
     // and by match query parameters (e.g., ?match[id]=x, ?match[type]=y; i.e., only including objects that
     // contained the specified property indicated in the MatchDto
     if (filters) {
-      let { addedAfter, match } = filters;
+      const { addedAfter, match } = filters;
       // let {id, type, version, specVersion} = match;
 
       // A placeholder array to store objects that match at least one search param. This array will be returned.
-      let filteredObjects: StixObjectPropertiesInterface[] = [];
+      const filteredObjects: StixObjectPropertiesInterface[] = [];
 
       // Iterate over the unfiltered objects and check for match conditions. The current iteration will break if
       // a match dis-qualifier is triggered. If we make if to the end of the iteration without breaking, assume
       // that the object is a match and include it in the return/response. This is an out-of-place sort.
       for (let i = 0; i < stixObjects.length; i++) {
         // This is the current STIX object to check
-        let currObject: StixObjectPropertiesInterface = stixObjects[i];
+        const currObject: StixObjectPropertiesInterface = stixObjects[i];
 
         if (match) {
           const { id, type, version, specVersion } = match;

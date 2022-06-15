@@ -41,7 +41,7 @@ export class EnvelopeService {
     });
 
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.
-    let stixObjects: StixObjectPropertiesInterface[] =
+    const stixObjects: StixObjectPropertiesInterface[] =
       await this.objectsService.findByCollection(filters);
 
     // Paginate the array of STIX objects and return the requested page & page count

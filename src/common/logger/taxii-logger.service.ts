@@ -131,17 +131,17 @@ export class TaxiiLoggerService extends ConsoleLogger {
 
   private createLoggerPlus(
     logLevel: LogLevel = this.appConfigService.LOG_LEVEL,
-    file: boolean = false,
-    http: boolean = false,
-    slack: boolean = false,
-    sentry: boolean = false
+    file = false,
+    http = false,
+    slack = false,
+    sentry = false
   ): LoggerService {
     // Initialize Winston transports
     const transports = [];
 
     if (file) {
       // add file transport method
-      let timestamp = new Date().toJSON().slice(0, 10); // timestamp on 2022-Feb-17 looks like '2022-02-17'
+      const timestamp = new Date().toJSON().slice(0, 10); // timestamp on 2022-Feb-17 looks like '2022-02-17'
       transports.push(
         new winston.transports.File({
           format: winston.format.combine(

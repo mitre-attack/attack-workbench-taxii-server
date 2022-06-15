@@ -1,7 +1,7 @@
 import { IdentifierDto } from "src/common/models/identifier";
 
 // @ts-ignore
-let testBundle = {
+const testBundle = {
   type: "test",
   id: new IdentifierDto(),
   objects: [

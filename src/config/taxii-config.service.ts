@@ -138,7 +138,7 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
     const encodedKey = this.configService.get("app.sslPrivateKeyBase64Encoded");
     if (isDefined(encodedKey)) {
       const buffer = Buffer.from(encodedKey, "base64");
-      if (!!buffer.toString("ascii")) {
+      if (buffer.toString("ascii")) {
         return buffer;
       }
     }
@@ -150,7 +150,7 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
 
     if (isDefined(encodedKey)) {
       const buffer = Buffer.from(encodedKey, "base64");
-      if (!!buffer.toString("ascii")) {
+      if (buffer.toString("ascii")) {
         return buffer;
       }
     }

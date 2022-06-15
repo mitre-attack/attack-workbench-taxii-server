@@ -151,5 +151,5 @@ export class TaxiiCollectionDto {
   @IsOptional()
   @IsArray()
   @Type(() => String) // TODO determine how to declare type decorator on array
-  mediaTypes: String[];
+  mediaTypes: string[];
 }

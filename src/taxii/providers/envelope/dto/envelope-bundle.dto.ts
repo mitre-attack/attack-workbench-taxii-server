@@ -44,8 +44,8 @@ export class EnvelopeBundleDto
      * property matches $added_after, then we should return the next envelope.
      */
     for (let i = 0; i < this.pages.length; i++) {
-      let curEnvelope: EnvelopeDto = this.pages[i];
-      let curOldestObjectInEnvelope =
+      const curEnvelope: EnvelopeDto = this.pages[i];
+      const curOldestObjectInEnvelope =
         curEnvelope.items[curEnvelope.items.length - 1].created;
       if (curOldestObjectInEnvelope == addedAfter) {
         /** If the date matches the supplied added_after query parameter, then try to serve the *next*
@@ -77,8 +77,8 @@ export class EnvelopeBundleDto
          * Get the next subset of STIX objects ready. They will be stored in a new envelope and pushed onto the
          * the 'objects' array. Set more=false and next=undefined because it will be the last envelope in the list
          */
-        let stop: number = i + delimiter;
-        let newEnvelope: EnvelopeDto = new EnvelopeDto({
+        const stop: number = i + delimiter;
+        const newEnvelope: EnvelopeDto = new EnvelopeDto({
           id: new IdentifierDto().toString(),
           more: false,
           next: undefined,

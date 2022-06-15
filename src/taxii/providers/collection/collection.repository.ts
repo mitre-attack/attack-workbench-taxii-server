@@ -40,7 +40,7 @@ export class CollectionRepository {
       await this.stixRepo.getCollections();
 
     // Transform STIX to TAXII
-    let taxiiCollections = new TaxiiCollectionsDto();
+    const taxiiCollections = new TaxiiCollectionsDto();
     stixCollections.forEach((stixCollection) => {
       const taxiiCollection = new TaxiiCollectionDto(stixCollection.stix);
       taxiiCollections.push(taxiiCollection);

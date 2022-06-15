@@ -18,7 +18,7 @@ export class CollectionService {
    */
   async findAll(): Promise<TaxiiCollectionsDto> {
     // Fetch all STIX collection-_dto from the Workbench REST API and deserialize into JSON
-    let taxiiCollections: TaxiiCollectionsDto =
+    const taxiiCollections: TaxiiCollectionsDto =
       await this.stixCollectionsRepo.findAll();
 
     if (!taxiiCollections) {

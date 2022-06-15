@@ -144,7 +144,7 @@ export class WorkbenchRepository
    * Retrieves a list of all available STIX objects
    */
   async getAllStixObjects(): Promise<WorkbenchStixObjectDto[]> {
-    const url: string = `${this._baseUrl}/api/attack-objects`;
+    const url = `${this._baseUrl}/api/attack-objects`;
     let response: Array<WorkbenchStixObjectDto>;
     response = await this.getFromCache(url); // TODO deserialize first i.e., run the WB response through plainToInstance
     if (response) {
@@ -186,7 +186,7 @@ export class WorkbenchRepository
   async getCollections(
     collectionId?: string
   ): Promise<WorkbenchCollectionDto[]> {
-    let url: string = `${this._baseUrl}/api/collections/`;
+    let url = `${this._baseUrl}/api/collections/`;
     if (collectionId) {
       url += collectionId;
     }
@@ -200,7 +200,7 @@ export class WorkbenchRepository
     response = await this.fetchHttp(url);
 
     // Deserialize the response data into Array<WorkbenchCollectionDto>
-    let collections: WorkbenchCollectionDto[] = [];
+    const collections: WorkbenchCollectionDto[] = [];
 
     /**
      * Each object in the array is transformed into a WorkbenchCollectionDto and then pushed to the
@@ -224,7 +224,7 @@ export class WorkbenchRepository
   async getCollectionBundle(
     collectionId: string
   ): Promise<WorkbenchCollectionBundleDto> {
-    const url: string = `${this._baseUrl}/api/collection-bundles?collectionId=${collectionId}`;
+    const url = `${this._baseUrl}/api/collection-bundles?collectionId=${collectionId}`;
 
     // Fetch the data from either the cache (in the case of a cache hit) or Workbench (cache miss)
     let response: WorkbenchCollectionBundleDto;
@@ -258,9 +258,9 @@ export class WorkbenchRepository
   async getAnObject(
     collectionId: string,
     stixId: string,
-    versions: boolean = false
+    versions = false
   ): Promise<WorkbenchStixObjectDto[]> {
-    let url: string = `${this._baseUrl}`;
+    let url = `${this._baseUrl}`;
     const prefix = stixId.split("--")[0];
     switch (prefix) {
       case StixIdentityPrefix.ATTACK_PATTERN: {

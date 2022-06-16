@@ -25,5 +25,4 @@ it("can create an instance of CollectionRepository", async () => {
 
   const collectionRepo = module.get(CollectionRepository);
   expect(collectionRepo).toBeDefined();
-
 });

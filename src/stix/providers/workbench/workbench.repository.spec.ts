@@ -6,7 +6,7 @@ import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
 import { TaxiiConfigModule } from "src/config";
 
 it("can create an instance of WorkbenchRepository", async () => {
-  const stixModule = await Test.createTestingModule({
+  const module = await Test.createTestingModule({
     imports: [
       TaxiiConfigModule,
       TaxiiLoggerModule,
@@ -19,6 +19,6 @@ it("can create an instance of WorkbenchRepository", async () => {
     providers: [WorkbenchRepository],
   }).compile();
 
-  const workbenchRepo = stixModule.get(WorkbenchRepository);
+  const workbenchRepo = module.get(WorkbenchRepository);
   expect(workbenchRepo).toBeDefined();
 });

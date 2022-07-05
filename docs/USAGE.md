@@ -54,6 +54,7 @@ At present, the following environment variables are supported:
 | `TAXII_CORS_ENABLED`         | bool  | false                                                                                     | Specifies whether CORS should be enabled on the server                                                                                                                                                                                  |
 | `TAXII_STIX_SRC_URL`         | str   | http://localhost:3000                                                                     | Specifies the address and port on which the Workbench REST API is listening.                                                                                                                                                            |
 | `TAXII_STIX_DATA_SRC`        | str   | workbench                                                                                 | Specifies how the server will source/ingest STIX data. At the moment, only 'workbench' is supported.                                                                                                                                    |
+| `TAXII_WORKBENCH_AUTH_HEADER`| str   | dGF4aWktc2VydmVyOnNlY3JldC1zcXVpcnJlbA==                                 | Specifies the base64-encoded portion of the Authorization header that should be used on HTTP requests to the Workbench REST API.                                                                                                                                 |
 | `TAXII_LOG_LEVEL`            | str   | info                                                                                      | Default winston logging level. Conforms to RFC5424                                                                                                                                                                                      |
 | `TAXII_LOG_TO_FILE`          | bool  | false                                                                                     | Specifies whether the server should write logs to file (in addition to stdout)                                                                                                                                                          |
 | `TAXII_HTTPS_ENABLED`        | bool  | true                                                                                      | Specifies whether the server should use HTTPS (SSL/TLS)                                                                                                                                                                                 |
@@ -75,7 +76,7 @@ the Workbench REST API:
 1. Basic Auth must be enabled on the Workbench REST API and a service account & API key must be pre-provisioned for the 
 TAXII server. An example is provided [here](https://github.com/center-for-threat-informed-defense/attack-workbench-rest-api/blob/develop/resources/sample-configurations/test-service-basic-apikey.json).
 
-2. On the TAXII server, `TAXII_WORKBENCH_AUTHORIZATION_HEADER` must be set to the aforementioned encoded service account 
+2. On the TAXII server, `TAXII_WORKBENCH_AUTH_HEADER` must be set to the aforementioned encoded service account 
 name and API key. The values must be base64 encoded from the string format `service-name:api-key`.
 
 _e.g._, The Workbench REST API has configured a basic authorization service account for the TAXII server. 
@@ -121,11 +122,11 @@ The TAXII server is configured to send HTTP requests to the Workbench REST API w
 ```
 
 The base64 encoded portion of the authorization string is injected to the TAXII server using environment variable 
-`TAXII_WORKBENCH_AUTHORIZATION_HEADER`.
+`TAXII_WORKBENCH_AUTH_HEADER`.
 
 ```js
 {
-  Authorization: `Basic ${env.TAXII_WORKBENCH_AUTHORIZATION_HEADER}`
+  Authorization: `Basic ${env.TAXII_WORKBENCH_AUTH_HEADER}`
 }
 ```
 

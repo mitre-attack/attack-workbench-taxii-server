@@ -62,6 +62,7 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
       useType: this.STIX_DATA_SRC,
       workbench: {
         baseUrl: this.WORKBENCH_REST_API_URL,
+        authorization: this.WORKBENCH_AUTH_HEADER
       },
     };
   }
@@ -124,6 +125,10 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
 
   get WORKBENCH_REST_API_URL(): string {
     return this.configService.get<string>("app.workbenchRestApiUrl");
+  }
+
+  get WORKBENCH_AUTH_HEADER(): string {
+    return this.configService.get<string>("app.workbenchAuthHeader");
   }
 
   get STIX_DATA_SRC(): string {

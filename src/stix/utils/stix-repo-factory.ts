@@ -45,7 +45,9 @@ const useWorkbenchRepository = (
 ): DynamicModule => {
   return {
     module: StixModule,
-    imports: [HttpModule],
+    imports: [HttpModule.register({
+      headers: { Authorization: `Basic ${options.authorization}` }
+    })],
     providers: [
       {
         provide: STIX_REPO_TOKEN,

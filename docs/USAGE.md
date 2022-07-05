@@ -66,6 +66,70 @@ At present, the following environment variables are supported:
 | `TAXII_SSL_PUBLIC_KEY`       | str   | -                                                                                         | Base64 encoded string containing the SSL/TLS public key.                                                                                                                                                                                |
 
 
+## Authorization
+
+If the TAXII server is configured to source STIX from the `WorkbenchRepository`, then the TAXII server must authenticate 
+to the Workbench REST API using Basic Auth. There are two steps to enabling the TAXII server to authenticate to
+the Workbench REST API:
+
+1. Basic Auth must be enabled on the Workbench REST API and a service account & API key must be pre-provisioned for the 
+TAXII server. An example is provided [here](https://github.com/center-for-threat-informed-defense/attack-workbench-rest-api/blob/develop/resources/sample-configurations/test-service-basic-apikey.json).
+
+2. On the TAXII server, `TAXII_WORKBENCH_AUTHORIZATION_HEADER` must be set to the aforementioned encoded service account 
+name and API key. The values must be base64 encoded from the string format `service-name:api-key`.
+
+_e.g._, The Workbench REST API has configured a basic authorization service account for the TAXII server. 
+The username is `taxii-server` and the key is `secret-squirrel`.
+
+```json5
+// rest-api-service-config.json
+
+{
+  "serviceAuthn": {
+    "basicApikey": {
+      "enable": true,
+      "serviceAccounts": [
+        {
+          "name": "taxii-server",
+          "apikey": "secret-squirrel",
+          "serviceRole": "read-only"
+        }
+      ]
+    }
+  }
+}
+```
+
+The Workbench REST API expects clients to authenticate with `Authorization` header 
+`Basic dGF4aWktc2VydmVyOnNlY3JldC1zcXVpcnJlbA==`. 
+
+The string is a base-64 encoded string generated from the UTF-8 string value, `taxii-server:secret-squirrel`.
+
+```json
+{
+  "decoded": "taxii-server:secret-squirrel",
+  "encoded": "dGF4aWktc2VydmVyOnNlY3JldC1zcXVpcnJlbA=="
+}
+```
+
+The TAXII server is configured to send HTTP requests to the Workbench REST API with the following header:
+
+```json
+{
+  "Authorization": "Basic dGF4aWktc2VydmVyOnNlY3JldC1zcXVpcnJlbA=="
+}
+```
+
+The base64 encoded portion of the authorization string is injected to the TAXII server using environment variable 
+`TAXII_WORKBENCH_AUTHORIZATION_HEADER`.
+
+```js
+{
+  Authorization: `Basic ${env.TAXII_WORKBENCH_AUTHORIZATION_HEADER}`
+}
+```
+
+
 ## HTTPS (TLS)
 
 SSL/TLS can be enabled or disabled by setting the `TAXII_HTTPS_ENABLED` environment variable.

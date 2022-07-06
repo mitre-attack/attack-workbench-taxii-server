@@ -22,6 +22,9 @@ it("can create an instance of EnvelopeService", async () => {
       // StixModule is used by CollectionRepository
       StixModule.register({
         useType: "workbench",
+        workbench: {
+          authorization: "fake-api-key"
+        }
       }),
     ],
     providers: [

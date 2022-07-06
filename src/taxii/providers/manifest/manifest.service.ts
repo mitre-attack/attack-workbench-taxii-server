@@ -5,7 +5,7 @@ import { ObjectFiltersDto } from "../filter/dto";
 import { StixObjectPropertiesInterface } from "src/stix/dto/interfaces/stix-object-properties.interface";
 import { MatchDto } from "src/common/models/match/match.dto";
 import { ManifestRecordService } from "./manifest-record.service";
-import { PaginationService } from "../pagination/pagination.service";
+import { PaginationService } from "../pagination";
 import { ManifestDto } from "./dto";
 
 @Injectable()

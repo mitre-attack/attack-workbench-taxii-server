@@ -29,6 +29,8 @@ export const configuration = registerAs("app", () => ({
   corsEnabled: process.env.TAXII_CORS_ENABLED || DEFAULTS.DEFAULT_CORS_ENABLED,
   workbenchRestApiUrl:
     process.env.TAXII_STIX_SRC_URL || DEFAULTS.DEFAULT_WORKBENCH_REST_API_URL,
+  workbenchAuthHeader:
+      process.env.TAXII_WORKBENCH_AUTH_HEADER || DEFAULTS.DEFAULT_WORKBENCH_AUTH_HEADER,
   stixDataSrc:
     process.env.TAXII_STIX_DATA_SRC || DEFAULTS.DEFAULT_STIX_DATA_SRC,
   logLevel: process.env.TAXII_LOG_LEVEL || DEFAULTS.DEFAULT_LOG_LEVEL,
@@ -84,6 +86,10 @@ export const validationSchema = Joi.object({
 
   WORKBENCH_REST_API_URL: Joi.string().default(
     DEFAULTS.DEFAULT_WORKBENCH_REST_API_URL
+  ),
+
+  WORKBENCH_AUTH_HEADER: Joi.string().default(
+      DEFAULTS.DEFAULT_WORKBENCH_AUTH_HEADER
   ),
 
   STIX_DATA_SRC: Joi.string()

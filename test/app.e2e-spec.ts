@@ -6,11 +6,15 @@ import { STIX_REPO_TOKEN } from "../src/stix/constants";
 import { TaxiiConfigModule, TaxiiConfigService } from "../src/config";
 import { AppModule } from "../src/app.module";
 import { DiscoveryService } from "src/taxii/providers/discovery/discovery.service";
-import { EnvelopeDto } from "../src/taxii/providers";
-import * as util from "util";
 import { Response } from "supertest";
-import Expect = jest.Expect;
 
+/**
+ * `expect` works by throwing an `Error` when an expectation fails. The `message` property of the `Error` is what gets
+ * printed in the test report. This function slightly modifies the `message` property by appending a pretty-printed
+ * copy of the `Response` body and headers.
+ * @param err This is what gets thrown by `expect` when an expectation fails
+ * @param res This is the `Response` object that was mocked during the failed test.
+ */
 function formatError(err: Error, res: Response) {
   return `${err.message}\n\nResponse Headers: ${JSON.stringify(
     res.headers,
@@ -21,8 +25,6 @@ function formatError(err: Error, res: Response) {
 
 describe("CollectionsController", () => {
   let app: INestApplication;
-
-  let response: Response;
 
   // The provider in the STIX module (usually WorkbenchRepository) will be overridden with a mock provider that serves
   // fake STIX data
@@ -296,6 +298,10 @@ describe("CollectionsController", () => {
       });
   });
 
+  /**
+   * A simple test that validates that basic pagination is working.
+   * A request is sent with URL query parameter `limit=5`. The expected response will include exactly 5 objects.
+   */
   it("Pagination is working", (done) => {
     request(app.getHttpServer())
       .get("/collections/mock-collection-id/objects/?limit=5")
@@ -319,6 +325,9 @@ describe("CollectionsController", () => {
       });
   });
 
+  /**
+   * Close the application after all tests are done
+   */
   afterAll(async () => {
     await app.close();
   });

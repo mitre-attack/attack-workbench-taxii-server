@@ -76,7 +76,8 @@ export class CollectionsController {
     type: TaxiiCollectionDto,
   })
   @Get("/:collectionId/")
-  @UseInterceptors(SetMediaType, ClassSerializerInterceptor)
+  // @UseInterceptors(SetMediaType, ClassSerializerInterceptor)
+  // NOTE: ^ These interceptors are already activated at the module scope so this is redundant/unnecessary
   async getACollection(
     @Param("collectionId") collectionId: string
   ): Promise<TaxiiCollectionDto> {
@@ -120,7 +121,7 @@ export class CollectionsController {
     description: "A TAXII Envelope containing STIX objects",
     type: EnvelopeDto,
   })
-  @Get("/:collectionId/providers/")
+  @Get("/:collectionId/objects/")
   @UseInterceptors(
     new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.ENVELOPE })
   )
@@ -148,7 +149,7 @@ export class CollectionsController {
     description: "A TAXII Envelope containing a specific STIX object",
     type: EnvelopeDto,
   })
-  @Get("/:collectionId/providers/:objectId")
+  @Get("/:collectionId/objects/:objectId")
   @UseInterceptors(
     new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.ENVELOPE })
   )
@@ -174,7 +175,7 @@ export class CollectionsController {
 
   // TODO implement in future release
   @ApiOkResponse({ description: "Add a new object to a specific collection" })
-  @Post("/:collectionId/providers/")
+  @Post("/:collectionId/objects/")
   async addObjects(@Param("collectionId") collectionId: string): Promise<any> {
     this.logger.warn(
       `${this.addObjects.name} is not implemented`,
@@ -189,7 +190,7 @@ export class CollectionsController {
 
   // TODO implement in future release
   @ApiOkResponse({ description: "Delete a specific object from a collection" })
-  @Delete("/:collectionId/providers/:objectId/")
+  @Delete("/:collectionId/objects/:objectId/")
   async deleteAnObject(
     @Param("collectionId") collectionId: string,
     @Param("objectId") objectId: string
@@ -208,7 +209,7 @@ export class CollectionsController {
     description: "Get a list of object version from a collection",
     type: VersionDto,
   })
-  @Get("/:collectionId/providers/:objectId/versions/")
+  @Get("/:collectionId/objects/:objectId/versions/")
   @UseInterceptors(
     new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.VERSIONS })
   )

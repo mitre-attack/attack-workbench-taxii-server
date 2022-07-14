@@ -1,14 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { StixRepositoryAbstract } from "../stix.repository.abstract";
 import { StixRepositoryInterface } from "../stix.repository.interface";
-import { TaxiiLoggerService as Logger } from "src/common/logger";
-import { TaxiiConfigService } from "src/config";
 import { WorkbenchCollectionBundleDto } from "../workbench/dto/workbench-collection-bundle.dto";
 import fs from "fs";
-import { HttpService } from "@nestjs/axios";
 
 @Injectable()
-export class GithubRepository
+export class FileRepository
   extends StixRepositoryAbstract
   implements StixRepositoryInterface
 {
@@ -16,24 +13,30 @@ export class GithubRepository
   mobile_collection: WorkbenchCollectionBundleDto;
   ics_collection: WorkbenchCollectionBundleDto;
 
-  constructor(
-    private readonly logger: Logger,
-    private readonly config: TaxiiConfigService,
-    private readonly http: HttpService
-  ) {
+  constructor() {
     super();
 
-    fs.readFile(`${__dirname}/data/enterprise-attack.json`, (err, data) => {
+    fs.readFile("data/enterprise-attack.json", (err, data) => {
       if (err) throw err;
       this.enterprise_collection = JSON.parse(data.toString());
     });
+
+    fs.readFile("data/ics-attack.json", (err, data) => {
+      if (err) throw err;
+      this.ics_collection = JSON.parse(data.toString());
+    });
+
+    fs.readFile("data/mobile-attack.json", (err, data) => {
+      if (err) throw err;
+      this.mobile_collection = JSON.parse(data.toString());
+    });
   }
 
-  getAllStixObjects() {}
+  // getAllStixObjects() {}
 
-  getAnObject(collectionId: string, stixId: string, versions: boolean) {}
+  // getAnObject(collectionId: string, stixId: string, versions: boolean) {}
 
-  getCollectionBundle(collectionId: string) {}
+  // getCollectionBundle(collectionId: string) {}
 
-  getCollections(collectionId?: string) {}
+  // getCollections(collectionId?: string) {}
 }

@@ -103,7 +103,8 @@ $ ./run.sh
 
 #### Requirements
 
-- [Node.js](https://nodejs.org) version `14.16.1` or greater
+- [Node.js](https://nodejs.org) version `14.20.0` or greater
+- [Node.js](https://nodejs.org) version must support `AsyncLocalStorage`
  
 #### Installation
 

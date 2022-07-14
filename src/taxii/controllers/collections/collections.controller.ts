@@ -76,8 +76,6 @@ export class CollectionsController {
     type: TaxiiCollectionDto,
   })
   @Get("/:collectionId/")
-  // @UseInterceptors(SetMediaType, ClassSerializerInterceptor)
-  // NOTE: ^ These interceptors are already activated at the module scope so this is redundant/unnecessary
   async getACollection(
     @Param("collectionId") collectionId: string
   ): Promise<TaxiiCollectionDto> {

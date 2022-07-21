@@ -29,7 +29,7 @@ export class TaxiiCacheModule {
           driver: Memcache,
           // http://memcache-plus.com/initialization.html - see options
           options: {
-            hosts: options.hosts,
+            hosts: [options.host],
             maxValueSize: options.maxValueSize, // 52428800 == 50m or 50MB, 10485760 == 10m or 10MB
             reconnect: options.reconnect,
           },

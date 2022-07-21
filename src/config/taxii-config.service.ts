@@ -21,9 +21,7 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
     switch (cacheType) {
       // ** MEMCACHED OPTIONS ** //
       case CACHE_OPTIONS.MEMCACHED: {
-        const cacheHosts: string[] = this.configService
-          .get<string>("app.cacheHost")
-          .split(",");
+        const cacheHost = this.configService.get<string>("app.cacheHost");
         const maxValueSize: number = this.configService.get<number>(
           "app.cacheMaxValueSize"
         );
@@ -33,7 +31,7 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
 
         return {
           type: cacheType,
-          hosts: cacheHosts,
+          host: cacheHost,
           ttl: ttl,
           maxValueSize: maxValueSize,
           reconnect: reconnect,
@@ -62,7 +60,7 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
       useType: this.STIX_DATA_SRC,
       workbench: {
         baseUrl: this.WORKBENCH_REST_API_URL,
-        authorization: this.WORKBENCH_AUTH_HEADER
+        authorization: this.WORKBENCH_AUTH_HEADER,
       },
     };
   }

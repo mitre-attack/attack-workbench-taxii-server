@@ -14,19 +14,5 @@ import { TaxiiConfigModule } from "src/config";
   ],
   exports: [TaxiiLoggerService],
   imports: [WinstonModule],
-  //    WinstonModule.forRoot({
-  // transports: [
-  //   new winston.transports.Console({
-  //     format: winston.format.combine(
-  //         winston.format.timestamp(),
-  //         winston.format.ms(),
-  //         nestWinstonModuleUtilities.format.nestLike('MyApp', { prettyPrint: true }),
-  //     ),
-  //   }),
-  //   // other transports...
-  // ],
-  // other options
-  //  }),
-  //],
 })
 export class TaxiiLoggerModule {}

@@ -2,7 +2,7 @@ import { CacheModule, DynamicModule, Global, Module } from "@nestjs/common";
 import { CACHE_OPTIONS } from "./constants";
 
 // ** memcached dependencies ** //
-import * as Memcache from "@feedfm/memcache-plus";
+import * as Memcache from "memcache-plus";
 import * as memcachedStore from "cache-manager-memcached-store";
 
 // ** interfaces ** //

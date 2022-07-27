@@ -1,10 +1,9 @@
 import { CACHE_OPTIONS } from "./constants";
-import { CacheModule, DynamicModule, Inject, Injectable } from "@nestjs/common";
-// import { CACHE_CONNECT_OPTIONS } from "./taxii-cache.module";
+import { CacheModule, DynamicModule, Injectable } from "@nestjs/common";
 import { Cache } from "cache-manager";
 
 // ** memcached dependencies ** //
-import * as Memcache from "memcache-pp";
+import * as Memcache from "memcache-plus";
 import * as memcachedStore from "cache-manager-memcached-store";
 
 @Injectable()

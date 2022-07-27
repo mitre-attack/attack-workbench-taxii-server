@@ -29,7 +29,7 @@ export class TaxiiCacheModule {
             hosts: [options.host], // the address of the memcached server
             maxValueSize: options.maxValueSize, // the maximum size of a given cache entry
             reconnect: options.reconnect, // whether the client should attempt to reconnect if there is a disconnect
-            netTimeout: 6000, // the amount of time (ms) the client will wait for a response
+            netTimeout: options.netTimeout, // the amount of time (ms) the client will wait for a response
           },
           ttl: options.ttl,
         });

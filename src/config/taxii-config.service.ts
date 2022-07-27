@@ -39,6 +39,9 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
           ttl: this.configService.get<number>("app.cacheTimeToLive"),
           maxValueSize: this.configService.get<number>("app.cacheMaxValueSize"),
           reconnect: this.configService.get<boolean>("app.cacheReconnect"),
+          netTimeout: Number(
+            this.configService.get<number>("app.cacheNetTimeout")
+          ),
         };
       }
       // ** DEFAULT CACHE OPTIONS ** //

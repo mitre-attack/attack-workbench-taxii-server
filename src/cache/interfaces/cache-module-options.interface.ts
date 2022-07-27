@@ -18,4 +18,9 @@ export interface CacheConnectOptions {
    * a disconnection
    */
   reconnect?: boolean;
+
+  /**
+   * The maximum time (ms) that the cache client will await a response from the memcached server
+   */
+  netTimeout?: number;
 }

@@ -39,22 +39,65 @@ export class WorkbenchRepository
 
   /**
    * Utility function to cache Workbench responses
-   * @param key Keys will always be the full Workbench REST API endpoint (URL) that generated the response
+   * @param url Keys will always be the full Workbench REST API endpoint (URL) that generated the response
    * @param item The entire HTTP response retrieved from the connected Workbench REST API
    * @private
    */
-  private async addToCache(key: string, item: any): Promise<void> {
-    return await this.cacheManager.set(key, item, { ttl: this._cacheTtl });
+  private async addToCache(url: string, item: any): Promise<any> {
+    const cacheKey = this.generateKeyFromUrl(url);
+    this.logger.debug(`Writing STIX data at cache index: '${cacheKey}'.`);
+
+    try {
+      return await this.cacheManager.set(cacheKey, item, {
+        ttl: this._cacheTtl,
+      });
+    } catch (e) {
+      this.logger.error(
+        `An error occurred while writing STIX data to cache index '${cacheKey}'.`
+      );
+      this.logger.error(e.message);
+      this.logger.error(e.stack);
+      throw e;
+    }
+  }
+
+  private generateKeyFromUrl(url: string): string {
+    return url.slice(this._baseUrl.length);
   }
 
   /**
    * Utility function to retrieve cached responses from the cache
-   * @param key Index by which cached responses are retrieved. Keys will always be the full Workbench REST API
+   * @param url Index by which cached responses are retrieved. Keys will always be the full Workbench REST API
    *            endpoint (URL) that generated the response
    * @private
    */
-  private async getFromCache(key: string): Promise<any> {
-    return await this.cacheManager.get(key);
+  private async getFromCache(url: string): Promise<any> {
+    const cacheKey = this.generateKeyFromUrl(url);
+
+    this.logger.debug(`Requesting STIX data from cache index '${cacheKey}'.`);
+    let cacheResponse;
+    try {
+      // get the STIX data from the cache
+      cacheResponse = await this.cacheManager.get(cacheKey);
+    } catch (e) {
+      // an error occurred while attempting to read from the cache
+      this.logger.debug(
+        `An error occurred while retrieving data from cache at index '${cacheKey}'.`
+      );
+      this.logger.error(e.message);
+      this.logger.error(e.stack);
+      throw e;
+    }
+    // cache read operation succeeded!
+    if (cacheResponse) {
+      this.logger.debug(
+        `Cache hit at index '${cacheKey}'. Returning cached STIX data.`
+      );
+      return cacheResponse;
+    }
+    this.logger.debug(
+      `Cache miss at index '${cacheKey}'. Returning cached STIX data.`
+    );
   }
 
   /**
@@ -192,7 +235,7 @@ export class WorkbenchRepository
     }
 
     // Fetch the data from either the cache (in the case of a cache hit) or Workbench (cache miss)
-    let response: Array<WorkbenchStixObjectDto>;
+    let response: WorkbenchStixObjectDto[];
     response = await this.getFromCache(url);
     if (response) {
       return response;
@@ -228,13 +271,36 @@ export class WorkbenchRepository
 
     // Fetch the data from either the cache (in the case of a cache hit) or Workbench (cache miss)
     let response: WorkbenchCollectionBundleDto;
-    response = await this.getFromCache(url);
-    if (response) {
-      // cache hit - return the cached data
-      return response;
+
+    try {
+      response = await this.getFromCache(url);
+
+      if (response) {
+        // cache hit - return the cached data
+        return response;
+      } else {
+        // cache miss - get the data from workbench
+        response = await this.fetchHttp(url);
+      }
+    } catch (e) {
+      // cache malfunction - fallback to getting the data from workbench
+      response = await this.fetchHttp(url);
     }
-    // cache miss - get the data from workbench
-    response = await this.fetchHttp(url);
+
+    // return this.getFromCache(url)
+    //   .then(async (response) => {
+    //     if (response) {
+    //       return this.doTheRest(response, url);
+    //     } else {
+    //       response = await this.fetchHttp(url);
+    //       return this.doTheRest(response, url);
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     throw err;
+    //   });
+
+    this.logger.debug(`Retrieved STIX data! Data will be deserialized.`);
 
     // Deserialize the response body
     const collectionBundle: WorkbenchCollectionBundleDto = plainToInstance(
@@ -247,6 +313,21 @@ export class WorkbenchRepository
     await this.addToCache(url, collectionBundle);
     return collectionBundle;
   }
+
+  // async doTheRest(response, url): Promise<WorkbenchCollectionBundleDto> {
+  //   this.logger.debug(`Retrieved STIX data! Data will be deserialized.`);
+  //
+  //   // Deserialize the response body
+  //   const collectionBundle: WorkbenchCollectionBundleDto = plainToInstance(
+  //     WorkbenchCollectionBundleDto,
+  //     response,
+  //     { excludeExtraneousValues: true }
+  //   );
+  //
+  //   // Cache the response by URL then return
+  //   await this.addToCache(url, collectionBundle);
+  //   return collectionBundle;
+  // }
 
   /**
    * Retrieves a single STIX object. Optionally supports retrieving multiple versions of the STIX object.

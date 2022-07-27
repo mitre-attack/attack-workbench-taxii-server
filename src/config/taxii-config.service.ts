@@ -21,35 +21,39 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
     switch (cacheType) {
       // ** MEMCACHED OPTIONS ** //
       case CACHE_OPTIONS.MEMCACHED: {
-        const cacheHost = this.configService.get<string>("app.cacheHost");
-        const maxValueSize: number = this.configService.get<number>(
-          "app.cacheMaxValueSize"
-        );
-        const ttl: number = this.configService.get<number>("app.cacheTtl");
-        const reconnect: boolean =
-          this.configService.get<boolean>("app.cacheReconnect");
-
+        // const cacheHost = this.configService.get<string>("app.cacheHost");
+        // const maxValueSize: number = this.configService.get<number>(
+        //   "app.cacheMaxValueSize"
+        // );
+        // const ttl: number = this.configService.get<number>(
+        //   "app.cacheTimeToLive"
+        // );
+        // const reconnect: boolean =
+        //   this.configService.get<boolean>("app.cacheReconnect");
+        const cacheServer = `${this.configService.get<string>(
+          "app.cacheHost"
+        )}:${this.configService.get<string>("app.cachePort")}`;
         return {
           type: cacheType,
-          host: cacheHost,
-          ttl: ttl,
-          maxValueSize: maxValueSize,
-          reconnect: reconnect,
+          host: cacheServer,
+          ttl: this.configService.get<number>("app.cacheTimeToLive"),
+          maxValueSize: this.configService.get<number>("app.cacheMaxValueSize"),
+          reconnect: this.configService.get<boolean>("app.cacheReconnect"),
         };
       }
       // ** DEFAULT CACHE OPTIONS ** //
       case CACHE_OPTIONS.DEFAULT: {
-        const ttl: number = this.configService.get<number>("app.cacheTtl");
+        // const ttl: number = this.configService.get<number>("app.cacheTtl");
         return {
           type: cacheType,
-          ttl: ttl,
+          ttl: this.configService.get<number>("app.cacheTtl"),
         };
       }
       // ** DEFAULT CACHE OPTIONS ** //
       default: {
-        const ttl: number = this.configService.get<number>("app.cacheTtl");
+        // const ttl: number = this.configService.get<number>("app.cacheTtl");
         return {
-          ttl: ttl,
+          ttl: this.configService.get<number>("app.cacheTtl"),
         };
       }
     }

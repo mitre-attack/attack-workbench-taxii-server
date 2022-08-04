@@ -260,27 +260,27 @@ The TAXII server provides a dynamic cache provider that supports two types of ca
 WARNING: This functionality is still in development and has not been fully tested yet.
 ```
 
-The TAXII server can be configured to use `memcached` by setting environment variable `TAXII_CACHE_TYPE` to `memcached`.
+The TAXII server can be configured to use Memcached by setting environment variable `TAXII_CACHE_TYPE` to `memcached`.
 
 ```shell
 $ export TAXII_CACHE_TYPE=memcached
 ```
-If `memcached` is enabled, then a separate instance of `memcached` must be running. While external cache implementations 
-are outside the scope of the TAXII server, a `memcached` Docker image has been provided which allows the following cache 
-server parameters to be configured via environment variables:
-- `TAXII_CACHE_MAX_ITEM_SIZE`: Maps to the `memcached -I` flag. Specifies the maximum size permitted for storing an object 
-  within the memcached instance. This value is used by both the `memcached` instance and the TAXII server because the 
-  values must match. Defaults to `50m`.
-- `TAXII_CACHE_MEM_SIZE`: Maps to the `memcached -m` flag. Sets the amount of memory allocated to memcached for object 
-  storage. Defaults to `4096` MB.
 
-To initialize a containerized instance of memcached:
-```shell
-$ cd memcached
-$ docker image build --tag attack-workbench-taxii-server-cache .
-$ docker run --name attack-workbench-taxii-server-cache -p 11211:11211 -d attack-workbench-taxii-server-cache
-```
-Alternatively, you can just run [memcached/run.sh](../memcached/run.sh) to build and deploy a memcached container.
+While external cache implementations are outside the scope of the TAXII server, a containerized instance of `memcached` 
+can easily be spun-up by using the Docker Compose template located in the [attack-workbench-deployment](https://github.com/mitre-attack/attack-workbench-deployment) 
+repository. 
+
+The following configuration parameters can be set via environment variables when `memcached` is enabled:
+- `TAXII_CACHE_HOST`: The IP address or FQDN of the Memcached server
+- `TAXII_CACHE_PORT`: The port on which the Memcached server is listening
+- `TAXII_CACHE_TTL`: The duration of time that an item should remain in the cache before removal
+- `TAXII_CACHE_MAX_ITEM_SIZE`: The maximum size of each item allowed in the cache. This value also sets the corresponding server-side setting (i.e., Maps to the `memcached -I` flag.)
+- `TAXII_CACHE_MEM_SIZE`: Sets the amount of memory allocated to memcached for object  storage. (e.g., Maps to the `memcached -m` flag.) This setting only applies to the Memcached server; not the TAXII app!
+
+Note that the TAXII application can only map to one instance of Memcached. Multiple Memcached servers cannot be used.
+
+The following configuration parameters can be set via environment variables when the in-memory (`default`) cache is enabled:
+- `TAXII_CACHE_TTL`: The duration of time that an item should remain in the cache before removal
 
 
 ## Scripts
@@ -291,11 +291,8 @@ Alternatively, you can just run [memcached/run.sh](../memcached/run.sh) to build
 - `start`: starts the server.
 - `start:prod`: starts the server with Swagger enabled.
 - `start:dev`: starts the server in "hot-reload" mode. Useful for development.
-
-```text
-WARNING: Any package.json scripts not explicitly mentioned here are still in development and have not been fully tested 
-yet (namely, the test and lint related scripts).
-```
+- `test:e2e`: starts the end-to-end HTTP tests to ensure that all available TAXII endpoints are working as expected.
+- `test`: executes a series of unit tests to ensure that all Nest.js components/modules are working as expected.
 
 Lastly, [run.sh](../run.sh) and [encode.js](../scripts/encodePem.js) are provided to simplify various aspects of the 
 deployment process. 

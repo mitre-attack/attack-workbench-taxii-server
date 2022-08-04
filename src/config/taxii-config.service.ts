@@ -21,37 +21,42 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
     switch (cacheType) {
       // ** MEMCACHED OPTIONS ** //
       case CACHE_OPTIONS.MEMCACHED: {
-        const cacheHosts: string[] = this.configService
-          .get<string>("app.cacheHost")
-          .split(",");
-        const maxValueSize: number = this.configService.get<number>(
-          "app.cacheMaxValueSize"
-        );
-        const ttl: number = this.configService.get<number>("app.cacheTtl");
-        const reconnect: boolean =
-          this.configService.get<boolean>("app.cacheReconnect");
-
+        // const cacheHost = this.configService.get<string>("app.cacheHost");
+        // const maxValueSize: number = this.configService.get<number>(
+        //   "app.cacheMaxValueSize"
+        // );
+        // const ttl: number = this.configService.get<number>(
+        //   "app.cacheTimeToLive"
+        // );
+        // const reconnect: boolean =
+        //   this.configService.get<boolean>("app.cacheReconnect");
+        const cacheServer = `${this.configService.get<string>(
+          "app.cacheHost"
+        )}:${this.configService.get<string>("app.cachePort")}`;
         return {
           type: cacheType,
-          hosts: cacheHosts,
-          ttl: ttl,
-          maxValueSize: maxValueSize,
-          reconnect: reconnect,
+          host: cacheServer,
+          ttl: this.configService.get<number>("app.cacheTimeToLive"),
+          maxValueSize: this.configService.get<number>("app.cacheMaxValueSize"),
+          reconnect: this.configService.get<boolean>("app.cacheReconnect"),
+          netTimeout: Number(
+            this.configService.get<number>("app.cacheNetTimeout")
+          ),
         };
       }
       // ** DEFAULT CACHE OPTIONS ** //
       case CACHE_OPTIONS.DEFAULT: {
-        const ttl: number = this.configService.get<number>("app.cacheTtl");
+        // const ttl: number = this.configService.get<number>("app.cacheTtl");
         return {
           type: cacheType,
-          ttl: ttl,
+          ttl: this.configService.get<number>("app.cacheTtl"),
         };
       }
       // ** DEFAULT CACHE OPTIONS ** //
       default: {
-        const ttl: number = this.configService.get<number>("app.cacheTtl");
+        // const ttl: number = this.configService.get<number>("app.cacheTtl");
         return {
-          ttl: ttl,
+          ttl: this.configService.get<number>("app.cacheTtl"),
         };
       }
     }
@@ -62,7 +67,7 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
       useType: this.STIX_DATA_SRC,
       workbench: {
         baseUrl: this.WORKBENCH_REST_API_URL,
-        authorization: this.WORKBENCH_AUTH_HEADER
+        authorization: this.WORKBENCH_AUTH_HEADER,
       },
     };
   }

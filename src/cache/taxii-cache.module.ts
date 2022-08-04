@@ -2,14 +2,11 @@ import { CacheModule, DynamicModule, Global, Module } from "@nestjs/common";
 import { CACHE_OPTIONS } from "./constants";
 
 // ** memcached dependencies ** //
-import * as Memcache from "memcache-pp";
+import * as Memcache from "memcache-plus";
 import * as memcachedStore from "cache-manager-memcached-store";
 
 // ** interfaces ** //
 import { CacheConnectOptions } from "./interfaces/cache-module-options.interface";
-
-// ** tokens ** //
-export const CACHE_CONNECT_OPTIONS = "CACHE_CONNECT_OPTIONS";
 
 @Global()
 @Module({})
@@ -29,9 +26,10 @@ export class TaxiiCacheModule {
           driver: Memcache,
           // http://memcache-plus.com/initialization.html - see options
           options: {
-            hosts: options.hosts,
-            maxValueSize: options.maxValueSize, // 52428800 == 50m or 50MB, 10485760 == 10m or 10MB
-            reconnect: options.reconnect,
+            hosts: [options.host], // the address of the memcached server
+            maxValueSize: options.maxValueSize, // the maximum size of a given cache entry
+            reconnect: options.reconnect, // whether the client should attempt to reconnect if there is a disconnect
+            netTimeout: options.netTimeout, // the amount of time (ms) the client will wait for a response
           },
           ttl: options.ttl,
         });

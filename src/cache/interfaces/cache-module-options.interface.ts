@@ -1,9 +1,6 @@
 export interface CacheConnectOptions {
   type?: string;
-  /**
-   * An array of at least one IP address or FQDN that Memcached is listening on
-   */
-  hosts?: string[];
+
   /**
    * One IP address or FQDN string that Memcached is listening on
    */
@@ -21,4 +18,9 @@ export interface CacheConnectOptions {
    * a disconnection
    */
   reconnect?: boolean;
+
+  /**
+   * The maximum time (ms) that the cache client will await a response from the memcached server
+   */
+  netTimeout?: number;
 }

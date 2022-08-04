@@ -10,3 +10,9 @@ export enum STIX_REPO_TYPE {
  * OrmRepository). These include any repository/DAO classes in TaxiiModule (e.g., CollectionRepository).
  */
 export const STIX_REPO_TOKEN = "STIX_REPO_TOKEN";
+
+/**
+ * WORKBENCH_OPTIONS is used to inject options (WorkbenchConnectOptionsInterface) from the configuration during
+ * application bootstrap initialization. See 'Dynamic Providers' Nest.JS documentation for details.
+ */
+export const WORKBENCH_OPTIONS = "WORKBENCH_OPTIONS";

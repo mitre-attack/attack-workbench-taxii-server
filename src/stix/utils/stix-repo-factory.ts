@@ -1,5 +1,9 @@
 import { StixModule } from "../stix.module";
-import { STIX_REPO_TOKEN, STIX_REPO_TYPE } from "../constants";
+import {
+  STIX_REPO_TOKEN,
+  STIX_REPO_TYPE,
+  WORKBENCH_OPTIONS,
+} from "../constants";
 import { WorkbenchRepository } from "../providers/workbench/workbench.repository";
 import { DynamicModule } from "@nestjs/common";
 import { HttpModule } from "@nestjs/axios";
@@ -51,12 +55,11 @@ const useWorkbenchRepository = (
       }),
     ],
     providers: [
-      {
-        provide: STIX_REPO_TOKEN,
-        useClass: WorkbenchRepository,
-      },
+      { provide: WORKBENCH_OPTIONS, useValue: options },
+      { provide: STIX_REPO_TOKEN, useClass: WorkbenchRepository },
+      WorkbenchRepository,
     ],
-    exports: [STIX_REPO_TOKEN],
+    exports: [STIX_REPO_TOKEN, WorkbenchRepository],
   };
 };
 

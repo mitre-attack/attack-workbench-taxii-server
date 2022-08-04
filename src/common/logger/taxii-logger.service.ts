@@ -70,7 +70,12 @@ export class TaxiiLoggerService extends ConsoleLogger {
   }
 
   private formatMessageToString(message: any): any {
-    const reqId = this.ctx["x-request-id"];
+    let reqId: string;
+    try {
+      reqId = this.ctx["x-request-id"];
+    } catch (e) {
+      reqId = "NO REQUEST ID";
+    }
     return reqId ? `[${reqId}]  ${message}` : message;
   }
 

@@ -68,6 +68,7 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
       workbench: {
         baseUrl: this.WORKBENCH_REST_API_URL,
         authorization: this.WORKBENCH_AUTH_HEADER,
+        cacheTtl: this.CACHE_TTL,
       },
     };
   }

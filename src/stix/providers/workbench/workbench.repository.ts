@@ -8,7 +8,6 @@ import {
 } from "src/common/exceptions";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { Cache } from "cache-manager";
-import { TaxiiConfigService } from "src/config";
 import { WorkbenchCollectionDto } from "./dto/workbench-collection.dto";
 import { plainToClass, plainToInstance } from "class-transformer";
 import { StixRepositoryInterface } from "../stix.repository.interface";
@@ -16,24 +15,27 @@ import { StixRepositoryAbstract } from "../stix.repository.abstract";
 import { WorkbenchCollectionBundleDto } from "./dto/workbench-collection-bundle.dto";
 import { WorkbenchStixObjectDto } from "./dto/workbench-stix-object.dto";
 import { StixIdentityPrefix, WorkbenchRESTEndpoint } from "./constants";
+import { WorkbenchConnectOptionsInterface } from "./interfaces/workbench-connect-options.interface";
+import { WORKBENCH_OPTIONS } from "../../constants";
 
 @Injectable()
 export class WorkbenchRepository
   extends StixRepositoryAbstract
   implements StixRepositoryInterface
 {
-  private readonly _baseUrl: string;
-  private readonly _cacheTtl: number;
+  private readonly baseUrl: string;
+  private readonly cacheTtl: number;
 
   constructor(
     private readonly logger: Logger,
     private readonly httpService: HttpService,
-    private readonly config: TaxiiConfigService,
+    @Inject(WORKBENCH_OPTIONS)
+    private readonly options: WorkbenchConnectOptionsInterface,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {
     super();
-    this._baseUrl = config.WORKBENCH_REST_API_URL;
-    this._cacheTtl = config.CACHE_TTL;
+    this.baseUrl = options.baseUrl;
+    this.cacheTtl = options.cacheTtl;
     logger.setContext(WorkbenchRepository.name);
   }
 
@@ -49,7 +51,7 @@ export class WorkbenchRepository
 
     try {
       return await this.cacheManager.set(cacheKey, item, {
-        ttl: this._cacheTtl,
+        ttl: this.cacheTtl,
       });
     } catch (e) {
       this.logger.error(
@@ -62,7 +64,7 @@ export class WorkbenchRepository
   }
 
   private generateKeyFromUrl(url: string): string {
-    return url.slice(this._baseUrl.length);
+    return url.slice(this.baseUrl.length);
   }
 
   /**
@@ -187,7 +189,7 @@ export class WorkbenchRepository
    * Retrieves a list of all available STIX objects
    */
   async getAllStixObjects(): Promise<WorkbenchStixObjectDto[]> {
-    const url = `${this._baseUrl}/api/attack-objects`;
+    const url = `${this.baseUrl}/api/attack-objects`;
     let response: Array<WorkbenchStixObjectDto>;
     response = await this.getFromCache(url); // TODO deserialize first i.e., run the WB response through plainToInstance
     if (response) {
@@ -229,7 +231,7 @@ export class WorkbenchRepository
   async getCollections(
     collectionId?: string
   ): Promise<WorkbenchCollectionDto[]> {
-    let url = `${this._baseUrl}/api/collections/`;
+    let url = `${this.baseUrl}/api/collections/`;
     if (collectionId) {
       url += collectionId;
     }
@@ -267,7 +269,7 @@ export class WorkbenchRepository
   async getCollectionBundle(
     collectionId: string
   ): Promise<WorkbenchCollectionBundleDto> {
-    const url = `${this._baseUrl}/api/collection-bundles?collectionId=${collectionId}`;
+    const url = `${this.baseUrl}/api/collection-bundles?collectionId=${collectionId}`;
 
     // Fetch the data from either the cache (in the case of a cache hit) or Workbench (cache miss)
     let response: WorkbenchCollectionBundleDto;
@@ -341,7 +343,7 @@ export class WorkbenchRepository
     stixId: string,
     versions = false
   ): Promise<WorkbenchStixObjectDto[]> {
-    let url = `${this._baseUrl}`;
+    let url = `${this.baseUrl}`;
     const prefix = stixId.split("--")[0];
     switch (prefix) {
       case StixIdentityPrefix.ATTACK_PATTERN: {

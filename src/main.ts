@@ -7,6 +7,20 @@ import { TaxiiConfigModule, TaxiiConfigService } from "./config";
 import * as https from "https";
 import { RequestMethod, ValidationPipe } from "@nestjs/common";
 import * as http from "http";
+import { WorkbenchRepository } from "./stix/providers/workbench/workbench.repository";
+import { WorkbenchCollectionDto } from "./stix/providers/workbench/dto/workbench-collection.dto";
+
+async function primeTheCache(app: NestApplication) {
+  console.log("PRIMING THE CACHE...");
+  const provider = await app.resolve(WorkbenchRepository);
+
+  const collections: WorkbenchCollectionDto[] = await provider.getCollections();
+
+  for (const collection of collections) {
+    await provider.getCollectionBundle(collection.stix.id);
+  }
+  console.log("CACHE IS READY!");
+}
 
 /**
  * Starts the Nest.js application
@@ -29,7 +43,6 @@ async function bootstrap() {
   );
   const tempConfigService: TaxiiConfigService =
     tempConfigApp.get(TaxiiConfigService);
-
   // ** Initialize the core TAXII application ** //
 
   // * NOTE: We're able to influence the behavior of the AppModule by injecting user-definable parameters into the
@@ -46,6 +59,8 @@ async function bootstrap() {
     //                                                              config)
     new ExpressAdapter(server)
   );
+
+  await primeTheCache(app);
 
   // ** Set the API ROOT ** //
   app.setGlobalPrefix(tempConfigService.API_ROOT_PATH, {

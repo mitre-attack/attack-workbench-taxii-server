@@ -2,11 +2,8 @@ import { Module } from "@nestjs/common";
 import { CollectionService } from "./collection.service";
 import { CollectionRepository } from "./collection.repository";
 import { MongooseModule } from "@nestjs/mongoose";
-import {
-  TaxiiCollection,
-  TaxiiCollectionSchema,
-} from "./schema/taxii-collection.schema";
-import { CollectionCronService } from "./collection.cron";
+import { TaxiiCollection, TaxiiCollectionSchema } from "./schema";
+import { CollectionCronService } from "./collection.cron.service";
 
 @Module({
   imports: [

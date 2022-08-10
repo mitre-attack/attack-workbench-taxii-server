@@ -23,14 +23,14 @@ export class CollectionService {
 
     if (!taxiiCollections) {
       throw new TaxiiNotFoundException({
-        title: "Stix Collections Not Found",
+        title: "TAXII Collections Not Found",
         description:
-          "The STIX Collections Repo did not return any collection objects. Ensure that STIX data exists in the stix.",
+          "The TAXII server did not return any collection objects. Ensure that STIX repository is populated.",
       });
     }
 
     this.logger.debug(
-      `Retrieved ${taxiiCollections.length} STIX Collections from the repository`,
+      `Retrieved ${taxiiCollections.length} TAXII collections from the repository`,
       this.constructor.name
     );
 
@@ -47,13 +47,13 @@ export class CollectionService {
 
     if (!taxiiCollection) {
       throw new TaxiiNotFoundException({
-        title: "No STIX Collection Found",
-        description: `No STIX Collection with the ID ${id} was found.`,
+        title: "No TAXII Collection Found",
+        description: `No TAXII collection with the ID ${id} was found.`,
       });
     }
 
     this.logger.debug(
-      `Retrieved STIX Collection ${taxiiCollection.id} from the repository`,
+      `Retrieved TAXII collection ${taxiiCollection.id} from the repository`,
       this.constructor.name
     );
 

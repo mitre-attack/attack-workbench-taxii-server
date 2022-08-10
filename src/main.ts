@@ -60,7 +60,7 @@ async function bootstrap() {
     new ExpressAdapter(server)
   );
 
-  await primeTheCache(app);
+  // await primeTheCache(app);
 
   // ** Set the API ROOT ** //
   app.setGlobalPrefix(tempConfigService.API_ROOT_PATH, {

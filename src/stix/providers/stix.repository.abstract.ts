@@ -7,7 +7,9 @@ export abstract class StixRepositoryAbstract
 {
   // ** ALL METHODS SHOULD BE OVERRIDDEN ** //
 
-  getAllStixObjects(): Promise<StixObjectInterface[]> {
+  getAllStixObjects(
+    excludeExtraneousValues?: boolean
+  ): Promise<StixObjectInterface[]> {
     return;
   }
   getCollections(collectionId?: string): Promise<StixObjectInterface[]> {

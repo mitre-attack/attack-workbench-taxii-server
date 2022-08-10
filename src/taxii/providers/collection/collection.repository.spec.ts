@@ -19,8 +19,9 @@ it("can create an instance of CollectionRepository", async () => {
       StixModule.register({
         useType: "workbench",
         workbench: {
-          authorization: "fake-api-key"
-        }
+          authorization: "fake-api-key",
+          cacheTtl: 500, // default = 500ms
+        },
       }),
     ],
     providers: [CollectionRepository],

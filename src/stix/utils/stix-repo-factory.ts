@@ -11,6 +11,7 @@ import { OrmRepository } from "../providers/database/orm.repository";
 import { FileRepository } from "../providers/file/file.repository";
 import { StixConnectOptions } from "../interfaces";
 import { WorkbenchConnectOptionsInterface } from "../providers/workbench/interfaces/workbench-connect-options.interface";
+import { MongooseModule } from "@nestjs/mongoose";
 
 /**
  * The StixRepoFactory is responsible for instantiating the StixModule. `options.useType` is matriculated from main.ts

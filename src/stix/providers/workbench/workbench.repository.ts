@@ -188,7 +188,9 @@ export class WorkbenchRepository
   /**
    * Retrieves a list of all available STIX objects
    */
-  async getAllStixObjects(): Promise<WorkbenchStixObjectDto[]> {
+  async getAllStixObjects(
+    excludeExtraneousValues = true
+  ): Promise<WorkbenchStixObjectDto[]> {
     const url = `${this.baseUrl}/api/attack-objects`;
     let response: Array<WorkbenchStixObjectDto>;
     response = await this.getFromCache(url); // TODO deserialize first i.e., run the WB response through plainToInstance
@@ -215,7 +217,7 @@ export class WorkbenchRepository
         //      (2) transform the property from plain JSON objects to an instance of the specified DTO class.
         //      (e.g., the stix.created property is converted from a string to an instance of TimestampDto.
         plainToInstance(WorkbenchStixObjectDto, elem, {
-          excludeExtraneousValues: true,
+          excludeExtraneousValues: excludeExtraneousValues,
         })
       );
     });

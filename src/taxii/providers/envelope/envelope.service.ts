@@ -5,7 +5,7 @@ import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { ObjectFiltersDto } from "../filter/dto";
 import "object-hash";
 import { TaxiiNotFoundException } from "src/common/exceptions";
-import { StixObjectPropertiesInterface } from "src/stix/dto/interfaces/stix-object-properties.interface";
+import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 import { EnvelopeDto } from "./dto";
 import { PaginationService } from "../pagination";
 

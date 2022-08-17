@@ -1,13 +1,12 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
+import { StixObjectInterface } from "src/stix/interfaces/stix-object.interface";
+import { WorkbenchCollectionBundleDto } from "src/stix/dto/workbench-collection-bundle.dto";
 import { STIX_REPO_TOKEN } from "src/stix/constants";
-import { StixRepositoryAbstract } from "src/stix/providers/stix.repository.abstract";
-import { StixBundleInterface } from "src/stix/dto/interfaces/stix-bundle.interface";
-import { StixObjectInterface } from "src/stix/dto/interfaces/stix-object.interface";
 import { StixRepositoryInterface } from "src/stix/providers/stix.repository.interface";
 
 @Injectable()
-export class ObjectRepository {
+export class ObjectWorkbenchRepository {
   /**
    * Instantiates an instance of the ObjectRepository service class
    * @param logger
@@ -17,7 +16,7 @@ export class ObjectRepository {
     private readonly logger: Logger,
     @Inject(STIX_REPO_TOKEN) private readonly stixRepo: StixRepositoryInterface
   ) {
-    logger.setContext(ObjectRepository.name);
+    logger.setContext(ObjectWorkbenchRepository.name);
   }
 
   /**
@@ -32,7 +31,10 @@ export class ObjectRepository {
    * Gets all STIX objects in a given collection
    * @param collectionId The unique identifier of the STIX collection
    */
-  async findByCollection(collectionId: string): Promise<StixBundleInterface> {
+  // async findByCollection(collectionId: string): Promise<StixBundleInterface> {
+  async findByCollection(
+    collectionId: string
+  ): Promise<WorkbenchCollectionBundleDto> {
     return await this.stixRepo.getCollectionBundle(collectionId);
   }
 

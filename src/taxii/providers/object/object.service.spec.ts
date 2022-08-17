@@ -1,7 +1,7 @@
 import { Test } from "@nestjs/testing";
 import { FilterModule } from "../filter/filter.module";
 import { ObjectService } from "./object.service";
-import { ObjectRepository } from "./object.repository";
+import { ObjectWorkbenchRepository } from "./object.repository";
 import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
 import { StixModule } from "src/stix/stix.module";
 import { CacheModule } from "@nestjs/common";
@@ -24,7 +24,7 @@ it("can create an instance of ObjectService", async () => {
         },
       }),
     ],
-    providers: [ObjectService, ObjectRepository],
+    providers: [ObjectService, ObjectWorkbenchRepository],
   }).compile();
 
   const objectService = module.get(ObjectService);

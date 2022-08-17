@@ -3,7 +3,7 @@ import { Injectable } from "@nestjs/common";
 // import { Cache } from "cache-manager";
 // import { TaxiiConfigService } from "src/config";
 // import { ObjectService } from "../object";
-import { StixObjectPropertiesInterface } from "src/stix/dto/interfaces/stix-object-properties.interface";
+import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 import { ManifestRecordDto } from "./dto";
 
 @Injectable()

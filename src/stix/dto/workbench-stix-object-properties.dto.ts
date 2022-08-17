@@ -6,8 +6,8 @@ import {
   IsString,
   IsUUID,
 } from "class-validator";
-import { StixObjectPropertiesInterface } from "src/stix/dto/interfaces/stix-object-properties.interface";
-import { StixGranularMarkingDto } from "../../../dto/stix-granular-marking.dto";
+import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
+import { StixGranularMarkingDto } from "./stix-granular-marking.dto";
 import { StixExternalReferencesDto } from "src/stix/dto/stix-external-references.dto";
 
 export class WorkbenchStixObjectPropertiesDto
@@ -15,14 +15,14 @@ export class WorkbenchStixObjectPropertiesDto
 {
   // ** Common STIX properties ** //
   // [3.2 Common Properties](https://docs.oasis-open.org/cti/stix/v2.1/csprd01/stix-v2.1-csprd01.html#_Toc16070605)
-  @Expose() @IsUUID() id?: any;
-  @Expose() @IsString() type?: any;
+  @Expose() @IsUUID() id: any;
+  @Expose() @IsString() type: any;
   @Expose() @IsString() name?: any;
+  @Expose() @IsString() created: Date;
   @Expose() @IsString() description?: any;
   @Expose() @IsString() spec_version?: any;
   @Expose() @IsUUID() create_by_ref?: any;
-  @Expose() @IsString() created: any;
-  @Expose() @IsString() modified?: any;
+  @Expose() @IsString() modified: Date;
   @Expose() @IsBoolean() revoked?: any;
   @Expose() @IsArray() labels?: any;
   @Expose() @IsNumber() confidence?: any;

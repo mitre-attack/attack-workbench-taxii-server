@@ -8,21 +8,16 @@ import {
 } from "src/common/exceptions";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { Cache } from "cache-manager";
-import { WorkbenchCollectionDto } from "./dto/workbench-collection.dto";
+import { WorkbenchCollectionDto } from "../../dto/workbench-collection.dto";
 import { plainToClass, plainToInstance } from "class-transformer";
-import { StixRepositoryInterface } from "../stix.repository.interface";
-import { StixRepositoryAbstract } from "../stix.repository.abstract";
-import { WorkbenchCollectionBundleDto } from "./dto/workbench-collection-bundle.dto";
-import { WorkbenchStixObjectDto } from "./dto/workbench-stix-object.dto";
-import { StixIdentityPrefix, WorkbenchRESTEndpoint } from "./constants";
-import { WorkbenchConnectOptionsInterface } from "./interfaces/workbench-connect-options.interface";
+import { WorkbenchCollectionBundleDto } from "../../dto/workbench-collection-bundle.dto";
+import { WorkbenchStixObjectDto } from "../../dto/workbench-stix-object.dto";
+import { StixIdentityPrefix, WorkbenchRESTEndpoint } from "../../constants";
+import { WorkbenchConnectOptionsInterface } from "../../interfaces/workbench-connect-options.interface";
 import { WORKBENCH_OPTIONS } from "../../constants";
 
 @Injectable()
-export class WorkbenchRepository
-  extends StixRepositoryAbstract
-  implements StixRepositoryInterface
-{
+export class WorkbenchRepository {
   private readonly baseUrl: string;
   private readonly cacheTtl: number;
 
@@ -33,7 +28,6 @@ export class WorkbenchRepository
     private readonly options: WorkbenchConnectOptionsInterface,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {
-    super();
     this.baseUrl = options.baseUrl;
     this.cacheTtl = options.cacheTtl;
     logger.setContext(WorkbenchRepository.name);
@@ -222,7 +216,12 @@ export class WorkbenchRepository
       );
     });
     // Cache the response by URL then return
-    await this.addToCache(url, allStixObjects);
+    try {
+      await this.addToCache(url, allStixObjects);
+    } catch (e) {
+      this.logger.error("Failed to cache ATT&CK objects");
+      this.logger.error(e.message);
+    }
     return allStixObjects;
   }
 

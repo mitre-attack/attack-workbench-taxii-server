@@ -7,7 +7,7 @@ import { EnvelopeService } from "./envelope.service";
 import { PaginationService } from "../pagination";
 import { ObjectService } from "../object";
 import { FilterService } from "../filter";
-import { ObjectRepository } from "../object/object.repository";
+import { ObjectWorkbenchRepository } from "../object/object.repository";
 
 it("can create an instance of EnvelopeService", async () => {
   const module = await Test.createTestingModule({
@@ -32,7 +32,7 @@ it("can create an instance of EnvelopeService", async () => {
       EnvelopeService,
       PaginationService,
       ObjectService,
-      ObjectRepository,
+      ObjectWorkbenchRepository,
       FilterService,
     ],
   }).compile();

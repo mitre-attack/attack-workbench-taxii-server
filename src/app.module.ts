@@ -33,7 +33,8 @@ export class AppModule {
 
         ScheduleModule.forRoot(),
 
-        MongooseModule.forRoot("mongodb://localhost/nest"),
+        // MongooseModule.forRoot("mongodb://localhost/taxii", { strict: false }),
+        MongooseModule.forRoot("mongodb://localhost/taxii"),
 
         TaxiiCacheModule.forRoot(connectOptions.cacheConnectOptions),
 

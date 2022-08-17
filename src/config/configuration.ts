@@ -1,31 +1,30 @@
 import { registerAs } from "@nestjs/config";
 import * as Joi from "@hapi/joi";
-import { STIX_REPO_TYPE } from "../stix/constants";
 import * as DEFAULTS from "./defaults";
 import { CACHE_OPTIONS } from "../cache/constants";
 
 export const configuration = registerAs("app", () => ({
-  address:                    process.env.TAXII_APP_ADDRESS           || DEFAULTS.DEFAULT_APP_ADDRESS,
-  port:                       process.env.TAXII_APP_PORT              || DEFAULTS.DEFAULT_APP_PORT,
-  maxContentLength:           process.env.TAXII_MAX_CONTENT_LENGTH    || DEFAULTS.DEFAULT_MAX_CONTENT_LENGTH,
-  apiRootPath:                process.env.TAXII_API_ROOT_PATH         || DEFAULTS.DEFAULT_API_ROOT_PATH,
-  apiRootTitle:               process.env.TAXII_API_ROOT_TITLE        || DEFAULTS.DEFAULT_API_ROOT_TITLE,
-  apiRootDescription:         process.env.TAXII_API_ROOT_DESCRIPTION  || DEFAULTS.DEFAULT_API_ROOT_DESCRIPTION,
-  contact:                    process.env.TAXII_CONTACT               || DEFAULTS.DEFAULT_CONTACT,
-  cacheType:                  process.env.TAXII_CACHE_TYPE            || DEFAULTS.DEFAULT_CACHE_TYPE,
-  cacheHost:                  process.env.TAXII_CACHE_HOST            || DEFAULTS.DEFAULT_CACHE_HOST,
-  cachePort:                  process.env.TAXII_CACHE_PORT            || DEFAULTS.DEFAULT_CACHE_PORT,
-  cacheTimeToLive:            process.env.TAXII_CACHE_TTL             || DEFAULTS.DEFAULT_CACHE_TTL,
-  cacheMaxValueSize:          process.env.TAXII_CACHE_MAX_ITEM_SIZE   || DEFAULTS.DEFAULT_CACHE_MAX_ITEM_SIZE,
-  cacheReconnect:             process.env.TAXII_CACHE_RECONNECT       || DEFAULTS.DEFAULT_CACHE_RECONNECT,
-  cacheNetTimeout:            process.env.TAXII_CACHE_NET_TIMEOUT     || DEFAULTS.DEFAULT_CACHE_NET_TIMEOUT,
-  corsEnabled:                process.env.TAXII_CORS_ENABLED          || DEFAULTS.DEFAULT_CORS_ENABLED,
-  workbenchRestApiUrl:        process.env.TAXII_STIX_SRC_URL          || DEFAULTS.DEFAULT_WORKBENCH_REST_API_URL,
-  workbenchAuthHeader:        process.env.TAXII_WORKBENCH_AUTH_HEADER || DEFAULTS.DEFAULT_WORKBENCH_AUTH_HEADER,
-  stixDataSrc:                process.env.TAXII_STIX_DATA_SRC         || DEFAULTS.DEFAULT_STIX_DATA_SRC,
-  logLevel:                   process.env.TAXII_LOG_LEVEL             || DEFAULTS.DEFAULT_LOG_LEVEL,
-  logToFile:                  process.env.TAXII_LOG_TO_FILE           || DEFAULTS.DEFAULT_LOG_TO_FILE,
-  httpsEnabled:               process.env.TAXII_HTTPS_ENABLED         || DEFAULTS.DEFAULT_HTTPS_ENABLED,
+  address:                    process.env.TAXII_APP_ADDRESS,           //|| DEFAULTS.DEFAULT_APP_ADDRESS,
+  port:                       process.env.TAXII_APP_PORT,              //|| DEFAULTS.DEFAULT_APP_PORT,
+  maxContentLength:           process.env.TAXII_MAX_CONTENT_LENGTH,    //|| DEFAULTS.DEFAULT_MAX_CONTENT_LENGTH,
+  apiRootPath:                process.env.TAXII_API_ROOT_PATH,         //|| DEFAULTS.DEFAULT_API_ROOT_PATH,
+  apiRootTitle:               process.env.TAXII_API_ROOT_TITLE,        //|| DEFAULTS.DEFAULT_API_ROOT_TITLE,
+  apiRootDescription:         process.env.TAXII_API_ROOT_DESCRIPTION,  //|| DEFAULTS.DEFAULT_API_ROOT_DESCRIPTION,
+  contact:                    process.env.TAXII_CONTACT,               //|| DEFAULTS.DEFAULT_CONTACT,
+  cacheType:                  process.env.TAXII_CACHE_TYPE,            //|| DEFAULTS.DEFAULT_CACHE_TYPE,
+  cacheHost:                  process.env.TAXII_CACHE_HOST,            //|| DEFAULTS.DEFAULT_CACHE_HOST,
+  cachePort:                  process.env.TAXII_CACHE_PORT,            //|| DEFAULTS.DEFAULT_CACHE_PORT,
+  cacheTimeToLive:            process.env.TAXII_CACHE_TTL,             //|| DEFAULTS.DEFAULT_CACHE_TTL,
+  cacheMaxValueSize:          process.env.TAXII_CACHE_MAX_ITEM_SIZE,   //|| DEFAULTS.DEFAULT_CACHE_MAX_ITEM_SIZE,
+  cacheReconnect:             process.env.TAXII_CACHE_RECONNECT,       //|| DEFAULTS.DEFAULT_CACHE_RECONNECT,
+  cacheNetTimeout:            process.env.TAXII_CACHE_NET_TIMEOUT,     //|| DEFAULTS.DEFAULT_CACHE_NET_TIMEOUT,
+  corsEnabled:                process.env.TAXII_CORS_ENABLED,          //|| DEFAULTS.DEFAULT_CORS_ENABLED,
+  workbenchRestApiUrl:        process.env.TAXII_STIX_SRC_URL,          //|| DEFAULTS.DEFAULT_WORKBENCH_REST_API_URL,
+  workbenchAuthHeader:        process.env.TAXII_WORKBENCH_AUTH_HEADER, //|| DEFAULTS.DEFAULT_WORKBENCH_AUTH_HEADER,
+  logLevel:                   process.env.TAXII_LOG_LEVEL,             //|| DEFAULTS.DEFAULT_LOG_LEVEL,
+  logToFile:                  process.env.TAXII_LOG_TO_FILE,           //|| DEFAULTS.DEFAULT_LOG_TO_FILE,
+  httpsEnabled:               process.env.TAXII_HTTPS_ENABLED,         //|| DEFAULTS.DEFAULT_HTTPS_ENABLED,
+  hydrateCache:               process.env.TAXII_HYDRATE_CACHE,         //|| DEFAULTS.DEFAULT_HYDRATE_CACHE,
   logToHttpHost:              process.env.TAXII_LOG_TO_HTTP_HOST,     // no default key
   logToHttpPort:              process.env.TAXII_LOG_TO_HTTP_PORT,     // no default key
   logToHttpPath:              process.env.TAXII_LOG_TO_HTTP_PATH,     // no default key
@@ -83,10 +82,6 @@ export const validationSchema = Joi.object({
     DEFAULTS.DEFAULT_WORKBENCH_AUTH_HEADER
   ),
 
-  STIX_DATA_SRC: Joi.string()
-    .valid(STIX_REPO_TYPE)
-    .default(DEFAULTS.DEFAULT_STIX_DATA_SRC),
-
   LOG_LEVEL: Joi.string()
     .valid("log", "error", "warn", "debug", "verbose")
     .default(DEFAULTS.DEFAULT_LOG_LEVEL),
@@ -108,4 +103,6 @@ export const validationSchema = Joi.object({
   SSL_PRIVATE_KEY: Joi.string().base64(),
 
   SSL_PUBLIC_KEY: Joi.string().base64(),
+
+  HYDRATE_CACHE: Joi.boolean().default(DEFAULTS.DEFAULT_HYDRATE_CACHE)
 });

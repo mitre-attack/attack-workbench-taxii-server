@@ -9,7 +9,7 @@ import {
 import { Exclude, Expose, Type } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
 import { SwaggerDocumentation as SWAGGER } from "./taxii-collection.dto.swagger.json";
-import { StixObjectPropertiesInterface } from "src/stix/dto/interfaces/stix-object-properties.interface";
+import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 
 @Exclude()
 export class TaxiiCollectionDto {

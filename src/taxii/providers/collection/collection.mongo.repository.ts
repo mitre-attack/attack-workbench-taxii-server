@@ -1,15 +1,10 @@
-import { Inject, Injectable } from "@nestjs/common";
-// import { StixObjectInterface } from "src/stix/dto/interfaces/stix-object.interface";
+import { Injectable } from "@nestjs/common";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
-import { STIX_REPO_TOKEN } from "src/stix/constants";
-import { StixRepositoryAbstract } from "src/stix/providers/stix.repository.abstract";
 import { TaxiiCollectionDto, TaxiiCollectionsDto } from "./dto";
 import { InjectModel } from "@nestjs/mongoose";
-import {
-  TaxiiCollection,
-  TaxiiCollectionDocument,
-} from "./schema/taxii-collection.schema";
+import { TaxiiCollection, TaxiiCollectionDocument } from "./schema";
 import { Model } from "mongoose";
+import { WorkbenchRepository } from "src/stix/providers/workbench/workbench.repository";
 
 @Injectable()
 export class CollectionRepository {
@@ -21,7 +16,7 @@ export class CollectionRepository {
    */
   constructor(
     private readonly logger: Logger,
-    @Inject(STIX_REPO_TOKEN) private readonly stixRepo: StixRepositoryAbstract,
+    private readonly stixRepo: WorkbenchRepository,
     @InjectModel(TaxiiCollection.name)
     private collectionModel: Model<TaxiiCollectionDocument>
   ) {

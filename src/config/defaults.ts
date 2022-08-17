@@ -1,4 +1,3 @@
-import { STIX_REPO_TYPE } from "../stix/constants";
 import { CACHE_OPTIONS } from "../cache/constants";
 
 export const DEFAULT_APP_ADDRESS = "0.0.0.0";
@@ -20,7 +19,7 @@ export const DEFAULT_CORS_ENABLED = false;
 export const DEFAULT_WORKBENCH_REST_API_URL = "http://localhost:3000";
 export const DEFAULT_WORKBENCH_AUTH_HEADER =
   "dGF4aWktc2VydmVyOnNlY3JldC1zcXVpcnJlbA=="; // taxii-server:secret-squirrel
-export const DEFAULT_STIX_DATA_SRC = STIX_REPO_TYPE.WORKBENCH;
 export const DEFAULT_LOG_LEVEL = "info";
 export const DEFAULT_LOG_TO_FILE = false;
 export const DEFAULT_HTTPS_ENABLED = true;
+export const DEFAULT_HYDRATE_CACHE = true;

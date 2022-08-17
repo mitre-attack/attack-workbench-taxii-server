@@ -1,6 +1,6 @@
 import { StixRepositoryInterface } from "./stix.repository.interface";
-import { StixObjectInterface } from "../dto/interfaces/stix-object.interface";
-import { StixBundleInterface } from "../dto/interfaces/stix-bundle.interface";
+import { StixObjectInterface } from "../interfaces/stix-object.interface";
+import { StixBundleInterface } from "../interfaces/stix-bundle.interface";
 
 export abstract class StixRepositoryAbstract
   implements StixRepositoryInterface

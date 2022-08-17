@@ -1,17 +1,23 @@
 import { Module } from "@nestjs/common";
 import { CollectionService } from "./collection.service";
-import { CollectionRepository } from "./collection.repository";
+import { CollectionWorkbenchRepository } from "./collection.workbench.repository";
 import { MongooseModule } from "@nestjs/mongoose";
 import { TaxiiCollection, TaxiiCollectionSchema } from "./schema";
-import { CollectionCronService } from "./collection.cron.service";
+import { StixModule } from "src/stix/stix.module";
+// import { CollectionCollectorService } from "src/stix/providers/resource-collectors/collection-collector.service";
 
 @Module({
   imports: [
+    StixModule,
     MongooseModule.forFeature([
       { name: TaxiiCollection.name, schema: TaxiiCollectionSchema },
     ]),
   ],
-  providers: [CollectionService, CollectionRepository, CollectionCronService],
+  providers: [
+    CollectionService,
+    CollectionWorkbenchRepository,
+    // CollectionCollectorService,
+  ],
   exports: [CollectionService],
 })
 export class CollectionModule {}

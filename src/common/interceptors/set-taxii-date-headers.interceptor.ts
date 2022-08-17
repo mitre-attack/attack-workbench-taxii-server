@@ -8,7 +8,7 @@ import {
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { Response } from "express";
-import { StixObjectPropertiesInterface } from "src/stix/dto/interfaces/stix-object-properties.interface";
+import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 import { ManifestRecordDto } from "src/taxii/providers/manifest/dto";
 
 export enum TaxiiDateFrom {

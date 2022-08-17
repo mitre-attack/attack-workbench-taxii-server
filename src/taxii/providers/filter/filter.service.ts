@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ObjectFiltersDto } from "./dto";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
-import { StixObjectPropertiesInterface } from "src/stix/dto/interfaces/stix-object-properties.interface";
+import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 
 @Injectable()
 export class FilterService {
@@ -69,11 +69,15 @@ export class FilterService {
           // check match[version]
           if (version) {
             if (currObject.modified) {
-              if (currObject.modified !== match.version) {
+              if (
+                new Date(currObject.modified).toISOString() !== match.version
+              ) {
                 continue; // skip this loop iteration
               }
             } else if (currObject.created) {
-              if (currObject.created !== match.version) {
+              if (
+                new Date(currObject.created).toISOString() !== match.version
+              ) {
                 continue; // skip this loop iteration
               }
             }
@@ -91,7 +95,7 @@ export class FilterService {
 
         // check added_after (include those objected added after the specified timestamp)
         if (addedAfter) {
-          if (currObject.created <= addedAfter) {
+          if (new Date(currObject.created).toISOString() <= addedAfter) {
             /**
              * We only want to store objects that are *newer* than (i.e., that come before) the added_after
              * date. So, we can say that an object should be skipped if it comes before (i.e., is older

@@ -1,15 +1,15 @@
-import { StixExternalReferencesDto } from "../stix-external-references.dto";
-import { StixGranularMarkingDto } from "../stix-granular-marking.dto";
+import { StixExternalReferencesDto } from "../dto/stix-external-references.dto";
+import { StixGranularMarkingDto } from "../dto/stix-granular-marking.dto";
 
 export interface StixObjectPropertiesInterface {
   // ** Common STIX properties ** //
   // [3.2 Common Properties](https://docs.oasis-open.org/cti/stix/v2.1/csprd01/stix-v2.1-csprd01.html#_Toc16070605)
-  id?: string;
-  type?: string;
+  id: string;
+  type: string;
   spec_version?: string;
   create_by_ref?: string;
-  created?: string;
-  modified?: string;
+  created: Date;
+  modified: Date;
   revoked?: boolean;
   labels?: Array<string>;
   confidence?: number;

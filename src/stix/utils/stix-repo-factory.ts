@@ -1,17 +1,14 @@
 import { StixModule } from "../stix.module";
-import {
-  STIX_REPO_TOKEN,
-  STIX_REPO_TYPE,
-  WORKBENCH_OPTIONS,
-} from "../constants";
+import { STIX_REPO_TOKEN, WORKBENCH_OPTIONS } from "../constants";
 import { WorkbenchRepository } from "../providers/workbench/workbench.repository";
 import { DynamicModule } from "@nestjs/common";
 import { HttpModule } from "@nestjs/axios";
-import { OrmRepository } from "../providers/database/orm.repository";
-import { FileRepository } from "../providers/file/file.repository";
+// import { OrmRepository } from "../providers/database/orm.repository";
+// import { FileRepository } from "../providers/file/file.repository";
 import { StixConnectOptions } from "../interfaces";
-import { WorkbenchConnectOptionsInterface } from "../providers/workbench/interfaces/workbench-connect-options.interface";
-import { MongooseModule } from "@nestjs/mongoose";
+import { WorkbenchConnectOptionsInterface } from "../interfaces/workbench-connect-options.interface";
+import { ObjectCollectorService } from "../providers/resource-collectors/object-collector.service";
+// import { MongooseModule } from "@nestjs/mongoose";
 
 /**
  * The StixRepoFactory is responsible for instantiating the StixModule. `options.useType` is matriculated from main.ts
@@ -21,22 +18,23 @@ import { MongooseModule } from "@nestjs/mongoose";
  */
 export class StixRepoFactory {
   static register(options: StixConnectOptions): DynamicModule {
-    switch (options.useType) {
-      case STIX_REPO_TYPE.WORKBENCH: {
-        return useWorkbenchRepository(options.workbench);
-      }
-
-      case STIX_REPO_TYPE.TYPE_ORM: {
-        return useOrmRepository();
-      }
-
-      case STIX_REPO_TYPE.FILE_BASED: {
-        return useFileBasedRepository();
-      }
-
-      default:
-        return useWorkbenchRepository(options.workbench);
-    }
+    return useWorkbenchRepository(options.workbench);
+    // switch (options.useType) {
+    //     case STIX_REPO_TYPE.WORKBENCH: {
+    //         return useWorkbenchRepository(options.workbench);
+    //     }
+    //
+    //     case STIX_REPO_TYPE.TYPE_ORM: {
+    //         return useOrmRepository();
+    //     }
+    //
+    //     case STIX_REPO_TYPE.FILE_BASED: {
+    //         return useFileBasedRepository();
+    //     }
+    //
+    //     default:
+    //         return useWorkbenchRepository(options.workbench);
+    // }
   }
 }
 
@@ -68,32 +66,32 @@ const useWorkbenchRepository = (
  * Instantiates an instance of the StixModule with OrmRepository as the provider.
  * NOTE: OrmRepository is not implemented. This is primarily here for future release. See src/stix/README.md.
  */
-const useOrmRepository = (): DynamicModule => {
-  return {
-    module: StixModule,
-    providers: [
-      {
-        provide: STIX_REPO_TOKEN,
-        useClass: OrmRepository,
-      },
-    ],
-    exports: [STIX_REPO_TOKEN],
-  };
-};
+// const useOrmRepository = (): DynamicModule => {
+//     return {
+//         module: StixModule,
+//         providers: [
+//             {
+//                 provide: STIX_REPO_TOKEN,
+//                 useClass: OrmRepository,
+//             },
+//         ],
+//         exports: [STIX_REPO_TOKEN],
+//     };
+// };
 
 /**
  * Instantiates an instance of the StixModule with FileRepository as the provider.
  * NOTE: FileRepository is not implemented. This is primarily here for future release. See src/stix/README.md.
  */
-const useFileBasedRepository = (): DynamicModule => {
-  return {
-    module: StixModule,
-    providers: [
-      {
-        provide: STIX_REPO_TOKEN,
-        useClass: FileRepository,
-      },
-    ],
-    exports: [STIX_REPO_TOKEN],
-  };
-};
+// const useFileBasedRepository = (): DynamicModule => {
+//     return {
+//         module: StixModule,
+//         providers: [
+//             {
+//                 provide: STIX_REPO_TOKEN,
+//                 useClass: FileRepository,
+//             },
+//         ],
+//         exports: [STIX_REPO_TOKEN],
+//     };
+// };

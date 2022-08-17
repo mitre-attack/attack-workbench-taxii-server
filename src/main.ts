@@ -7,19 +7,12 @@ import { TaxiiConfigModule, TaxiiConfigService } from "./config";
 import * as https from "https";
 import { RequestMethod, ValidationPipe } from "@nestjs/common";
 import * as http from "http";
-import { WorkbenchRepository } from "./stix/providers/workbench/workbench.repository";
-import { WorkbenchCollectionDto } from "./stix/providers/workbench/dto/workbench-collection.dto";
+import { ObjectCollectorService } from "src/stix/providers/resource-collectors/object-collector.service";
 
-async function primeTheCache(app: NestApplication) {
-  console.log("PRIMING THE CACHE...");
-  const provider = await app.resolve(WorkbenchRepository);
-
-  const collections: WorkbenchCollectionDto[] = await provider.getCollections();
-
-  for (const collection of collections) {
-    await provider.getCollectionBundle(collection.stix.id);
-  }
-  console.log("CACHE IS READY!");
+async function hydrate(app: NestApplication): Promise<void> {
+  console.log("Start cache hydration...");
+  const provider = await app.get(ObjectCollectorService);
+  await provider.findAndStoreStixObjects();
 }
 
 /**
@@ -60,8 +53,6 @@ async function bootstrap() {
     new ExpressAdapter(server)
   );
 
-  // await primeTheCache(app);
-
   // ** Set the API ROOT ** //
   app.setGlobalPrefix(tempConfigService.API_ROOT_PATH, {
     // * NOTE: Per the TAXII 2.1 spec, the Discovery route (GET /taxii2/) must not be prefixed with {api-root}, so we
@@ -91,6 +82,11 @@ async function bootstrap() {
 
   // ** Initialize the Nest application ** //
   await app.init();
+
+  // Start the 'get-attack-objects' cron job to pre-populate the TAXII DB (MongoDB) with STIX
+  if (tempConfigService.HYDRATE_CACHE === "true") {
+    await hydrate(app);
+  }
 
   // ** Start the web server ** //
   try {

@@ -17,7 +17,6 @@ export interface TaxiiConfigServiceInterface {
   get CORS_ENABLED();
   get WORKBENCH_REST_API_URL();
   get WORKBENCH_AUTH_HEADER();
-  get STIX_DATA_SRC();
   get HTTPS_ENABLED();
   get SSL_PRIVATE_KEY();
   get SSL_PUBLIC_KEY();

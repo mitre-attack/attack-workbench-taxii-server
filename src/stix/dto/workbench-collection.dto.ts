@@ -1,6 +1,6 @@
 import { WorkbenchStixObjectPropertiesDto } from "./workbench-stix-object-properties.dto";
 import { Expose, Type } from "class-transformer";
-import { StixObjectInterface } from "src/stix/dto/interfaces/stix-object.interface";
+import { StixObjectInterface } from "src/stix/interfaces/stix-object.interface";
 
 export class WorkbenchCollectionDto implements StixObjectInterface {
   // The commented-out properties will also be returned from Workbench (GET /api/collection) requests, but will be

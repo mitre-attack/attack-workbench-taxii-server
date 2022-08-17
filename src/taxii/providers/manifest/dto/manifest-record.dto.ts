@@ -2,7 +2,7 @@ import { Exclude, Expose, Type } from "class-transformer";
 import { IsString } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { SwaggerDocumentation as SWAGGER } from "./manifest-record.dto.swagger.json";
-import { StixObjectPropertiesInterface } from "src/stix/dto/interfaces/stix-object-properties.interface";
+import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 
 /**
  * The manifest-record type captures metadata about a single version of an object, indicated by the id property. The
@@ -56,8 +56,8 @@ export class ManifestRecordDto {
 
   constructor(stixObject: StixObjectPropertiesInterface) {
     this.id = stixObject.id;
-    this.dateAdded = stixObject.created;
+    this.dateAdded = new Date(stixObject.created).toISOString();
     this.mediaType = "application/stix+taxii;version=2.1"; // TODO This value MUST be one of the media types listed on the collection resource.
-    this.version = stixObject.modified;
+    this.version = new Date(stixObject.modified).toISOString();
   }
 }

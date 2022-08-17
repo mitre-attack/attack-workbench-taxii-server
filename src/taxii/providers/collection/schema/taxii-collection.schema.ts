@@ -5,7 +5,11 @@ export type TaxiiCollectionDocument = TaxiiCollection & Document;
 
 @Schema()
 export class TaxiiCollection {
-  @Prop({ required: true })
+  @Prop({
+    required: true,
+    unique: true,
+    message: "collection_id must be unique",
+  })
   id: string;
 
   @Prop({ required: true })

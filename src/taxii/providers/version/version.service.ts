@@ -5,7 +5,7 @@ import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { ObjectFiltersDto } from "../filter/dto";
 import { MatchDto } from "src/common/models/match/match.dto";
 import { TaxiiNotFoundException } from "src/common/exceptions";
-import { StixObjectPropertiesInterface } from "src/stix/dto/interfaces/stix-object-properties.interface";
+import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 
 @Injectable()
 export class VersionService {
@@ -54,7 +54,9 @@ export class VersionService {
      * This implementation assumes that all STIX objects will properties `modified`, `created`, or both.
      */
     const objectVersions: string[] = objects.map((object) =>
-      object.modified ? object.modified : object.created
+      object.modified
+        ? new Date(object.modified).toISOString()
+        : new Date(object.created).toISOString()
     );
 
     if (!objectVersions) {

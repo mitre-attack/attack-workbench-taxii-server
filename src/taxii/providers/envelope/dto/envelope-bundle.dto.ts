@@ -3,7 +3,7 @@ import { EnvelopeDto } from "./envelope.dto";
 import { Type } from "class-transformer";
 import { ObjectFiltersDto } from "src/taxii/providers/filter/dto";
 import { IdentifierDto } from "src/common/models/identifier";
-import { StixObjectPropertiesInterface } from "src/stix/dto/interfaces/stix-object-properties.interface";
+import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 
 export class EnvelopeBundleDto
   implements PaginationBundleInterface<EnvelopeDto>
@@ -47,7 +47,7 @@ export class EnvelopeBundleDto
       const curEnvelope: EnvelopeDto = this.pages[i];
       const curOldestObjectInEnvelope =
         curEnvelope.items[curEnvelope.items.length - 1].created;
-      if (curOldestObjectInEnvelope == addedAfter) {
+      if (new Date(curOldestObjectInEnvelope).toISOString() == addedAfter) {
         /** If the date matches the supplied added_after query parameter, then try to serve the *next*
                  envelope after this one, because the user wants all objects after the specified added_after date **/
         if (curEnvelope.more) {

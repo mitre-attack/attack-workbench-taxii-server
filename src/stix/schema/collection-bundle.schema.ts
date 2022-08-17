@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document } from "mongoose";
-import { StixObjectPropertiesInterface } from "../dto/interfaces/stix-object-properties.interface";
+import { StixObjectPropertiesInterface } from "../interfaces/stix-object-properties.interface";
 
 export type CollectionBundleDocument = CollectionBundle & Document;
 

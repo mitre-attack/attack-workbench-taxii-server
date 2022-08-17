@@ -1,7 +1,6 @@
 import { Injectable, LogLevel } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as fs from "fs";
-// import {LOG_LEVELS} from "../constants";
 import { CACHE_OPTIONS } from "../cache/constants";
 import { TaxiiConfigServiceInterface } from "./interfaces/taxii-config.service.interface";
 import { CacheConnectOptions } from "../cache/interfaces/cache-module-options.interface";
@@ -64,7 +63,6 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
 
   createStixConnectOptions(): StixConnectOptions {
     return {
-      useType: this.STIX_DATA_SRC,
       workbench: {
         baseUrl: this.WORKBENCH_REST_API_URL,
         authorization: this.WORKBENCH_AUTH_HEADER,
@@ -137,10 +135,6 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
     return this.configService.get<string>("app.workbenchAuthHeader");
   }
 
-  get STIX_DATA_SRC(): string {
-    return this.configService.get<string>("app.stixDataSrc");
-  }
-
   get HTTPS_ENABLED(): boolean {
     return this.configService.get<string>("app.httpsEnabled") === "true";
   }
@@ -194,5 +188,9 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
 
   get LOG_TO_SENTRY_DSN(): string {
     return this.configService.get<string>("app.logToSentryDsn");
+  }
+
+  get HYDRATE_CACHE(): string {
+    return this.configService.get<string>("app.hydrateCache");
   }
 }

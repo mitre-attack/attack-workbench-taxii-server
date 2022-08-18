@@ -1,14 +1,16 @@
 import { Injectable } from "@nestjs/common";
-import { CollectionWorkbenchRepository } from "./collection.workbench.repository";
+// import { CollectionWorkbenchRepository } from "./collection.workbench.repository";
 import { TaxiiCollectionDto, TaxiiCollectionsDto } from "./dto";
 import { TaxiiNotFoundException } from "src/common/exceptions";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
+import { CollectionRepository } from "./collection.mongo.repository";
 
 @Injectable()
 export class CollectionService {
   constructor(
     private readonly logger: Logger,
-    private readonly stixCollectionsRepo: CollectionWorkbenchRepository
+    // private readonly stixCollectionsRepo: CollectionWorkbenchRepository,
+    private readonly stixCollectionsRepo: CollectionRepository
   ) {
     this.logger.setContext(CollectionService.name);
   }
@@ -44,6 +46,10 @@ export class CollectionService {
   async findOne(id: string): Promise<TaxiiCollectionDto> {
     const taxiiCollection: TaxiiCollectionDto =
       await this.stixCollectionsRepo.findOne(id);
+
+    this.logger.debug(
+      `Retrieved TAXII Collection: ${JSON.stringify(taxiiCollection, null, 4)}`
+    );
 
     if (!taxiiCollection) {
       throw new TaxiiNotFoundException({

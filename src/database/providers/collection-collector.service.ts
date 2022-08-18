@@ -3,22 +3,20 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 import { InjectModel } from "@nestjs/mongoose";
 import { Logger } from "@nestjs/common";
 import { LoggerService } from "@nestjs/common/services/logger.service";
-import { Model } from "mongoose";
+import { FilterQuery, Model } from "mongoose";
 import { StixObjectInterface } from "src/stix/interfaces/stix-object.interface";
-import {
-  TaxiiCollection,
-  TaxiiCollectionDocument,
-} from "src/taxii/providers/collection/schema";
+import { TaxiiCollection, TaxiiCollectionDocument } from "src/database/schema";
 import { TaxiiCollectionDto } from "src/taxii/providers/collection/dto";
 // import { WorkbenchRepository } from "../workbench/workbench.repository";
-import { STIX_REPO_TOKEN } from "../../constants";
-import { StixRepositoryInterface } from "../stix.repository.interface";
+import { STIX_REPO_TOKEN } from "../../stix/constants";
+import { StixRepositoryInterface } from "../../stix/providers/stix.repository.interface";
+import { GET_STIX_COLLECTIONS_JOB_TOKEN } from "../constants";
 
-function sleep(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
+// function sleep(ms) {
+//   return new Promise((resolve) => {
+//     setTimeout(resolve, ms);
+//   });
+// }
 
 @Injectable()
 export class CollectionCollectorService {
@@ -32,12 +30,12 @@ export class CollectionCollectorService {
     private collectionModel: Model<TaxiiCollectionDocument>
   ) {}
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_30_MINUTES, {
+    name: GET_STIX_COLLECTIONS_JOB_TOKEN,
+  })
   async findAndStoreStixCollections(): Promise<void> {
-    console.time("hydrateObjects");
-    this.logger.debug(
-      "Start job to populate the 'taxiicollections' database collection"
-    );
+    // console.time("hydrateObjects");
+    this.logger.debug("Starting database collection hydration");
 
     // If the collections are not present in the DB, then fallback to retrieving them directly
     // from the STIX repository (Workbench)
@@ -62,8 +60,20 @@ export class CollectionCollectorService {
         this.logger.debug(
           `Pushing TAXII collection ${stixCollection.stix.id} to the database`
         );
-        const model = new this.collectionModel(taxiiCollection);
-        await model.save();
+        const filter: FilterQuery<TaxiiCollection> = {
+          id: { $eq: taxiiCollection.id },
+        };
+        await this.collectionModel
+          .updateOne(filter, taxiiCollection, {
+            upsert: true,
+            strict: true,
+          })
+          .exec();
+        this.logger.debug(
+          `Synchronized STIX collection '${taxiiCollection.id}' to TAXII database`
+        );
+        // const model = new this.collectionModel(taxiiCollection);
+        // await model.save();
       } catch (e) {
         // Handle I/O exceptions thrown by Mongoose
         this.logger.error(
@@ -71,11 +81,7 @@ export class CollectionCollectorService {
         );
         this.logger.error(e);
       }
-      await sleep(1000);
     }
-    this.logger.debug(
-      "Completed job to populate the 'taxiicollections' database collection"
-    );
-    console.timeEnd("hydrateObjects");
+    // console.timeEnd("hydrateObjects");
   }
 }

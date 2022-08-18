@@ -4,11 +4,10 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { StixObjectInterface } from "src/stix/interfaces/stix-object.interface";
 import { WorkbenchStixObjectDto } from "src/stix/dto/workbench-stix-object.dto";
-import { AttackObject } from "../../schema/attack-object.schema";
-import { STIX_REPO_TOKEN } from "../../constants";
-import { StixRepositoryInterface } from "../stix.repository.interface";
-
-export const GET_ATTACK_OBJECTS = "get-attack-objects";
+import { AttackObject } from "../schema";
+import { STIX_REPO_TOKEN } from "../../stix/constants";
+import { StixRepositoryInterface } from "../../stix/providers/stix.repository.interface";
+import { GET_ATTACK_OBJECTS_JOB_TOKEN } from "../constants";
 
 @Injectable()
 export class ObjectCollectorService {
@@ -22,7 +21,7 @@ export class ObjectCollectorService {
     @InjectModel(AttackObject.name) private stixObjectModel: Model<AttackObject>
   ) {}
 
-  @Cron(CronExpression.EVERY_30_MINUTES, { name: GET_ATTACK_OBJECTS })
+  @Cron(CronExpression.EVERY_30_MINUTES, { name: GET_ATTACK_OBJECTS_JOB_TOKEN })
   async findAndStoreStixObjects() {
     this.logger.debug("Starting database object hydration");
     /**

@@ -7,12 +7,17 @@ import { TaxiiConfigModule, TaxiiConfigService } from "./config";
 import * as https from "https";
 import { RequestMethod, ValidationPipe } from "@nestjs/common";
 import * as http from "http";
-import { ObjectCollectorService } from "src/stix/providers/resource-collectors/object-collector.service";
+import { ObjectCollectorService } from "src/database/providers/object-collector.service";
+import { CollectionCollectorService } from "./database/providers/collection-collector.service";
 
 async function hydrate(app: NestApplication): Promise<void> {
   console.log("Start cache hydration...");
-  const provider = await app.get(ObjectCollectorService);
-  await provider.findAndStoreStixObjects();
+
+  const collectionCollectorService = await app.get(CollectionCollectorService);
+  await collectionCollectorService.findAndStoreStixCollections();
+
+  const objectCollectorService = await app.get(ObjectCollectorService);
+  await objectCollectorService.findAndStoreStixObjects();
 }
 
 /**

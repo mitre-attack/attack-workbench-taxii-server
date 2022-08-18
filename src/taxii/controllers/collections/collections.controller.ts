@@ -1,5 +1,5 @@
 import {
-  ClassSerializerInterceptor,
+  // ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -36,7 +36,7 @@ import { VersionDto } from "src/taxii/providers/version/dto/version.dto";
 // ** middleware ** //
 import { MatchQuery } from "src/common/decorators/match.query.decorator";
 import { TaxiiExceptionFilter } from "src/common/exceptions/taxii-exception.filter";
-import { SetMediaType } from "src/common/interceptors/set-media-type.interceptor";
+// import { SetMediaType } from "src/common/interceptors/set-media-type.interceptor";
 import { TimestampQuery } from "src/common/decorators/timestamp.query.decorator";
 import { NumberQuery } from "src/common/decorators/number.query.decorator";
 import { TaxiiServiceUnavailableException } from "src/common/exceptions";

@@ -1,6 +1,6 @@
 import { StixRepositoryInterface } from "../src/stix/providers/stix.repository.interface";
-import { StixObjectInterface } from "../src/stix/dto/interfaces/stix-object.interface";
-import { StixBundleInterface } from "../src/stix/dto/interfaces/stix-bundle.interface";
+import { StixObjectInterface } from "../src/stix/interfaces/stix-object.interface";
+import { StixBundleInterface } from "../src/stix/interfaces/stix-bundle.interface";
 
 export class MockStixRepository implements StixRepositoryInterface {
   getAllStixObjects(): StixObjectInterface[] {

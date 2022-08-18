@@ -9,17 +9,21 @@ import {
 import { Exclude, Expose, Type } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
 import { SwaggerDocumentation as SWAGGER } from "./taxii-collection.dto.swagger.json";
-import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
+import { DEFAULT_MEDIA_TYPE } from "src/constants";
+// import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 
 @Exclude()
 export class TaxiiCollectionDto {
-  constructor(partial: StixObjectPropertiesInterface) {
+  constructor(partial: Partial<TaxiiCollectionDto>) {
     Object.assign(this, partial);
     if (!partial["title"]) {
       this.title = this["name"] ? this["name"] : undefined;
     }
     this.canRead = true;
     this.canWrite = false;
+    if (!partial["media_types"]) {
+      this.mediaTypes = [DEFAULT_MEDIA_TYPE];
+    }
   }
 
   /**

@@ -10,6 +10,7 @@ import { TaxiiCacheModule } from "./cache/taxii-cache.module";
 import { AppConnectOptions } from "./interfaces";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ScheduleModule } from "@nestjs/schedule";
+import { DatabaseModule } from "./database/database.module";
 
 @Global()
 @Module({})
@@ -54,6 +55,8 @@ export class AppModule {
          * supported at this time.
          **/
         StixModule.register(connectOptions.stixConnectOptions),
+
+        DatabaseModule,
       ],
     };
   }

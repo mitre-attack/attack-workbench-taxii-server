@@ -8,9 +8,9 @@ import { CollectionModule } from "../collection";
 import {
   AttackObjectSchema,
   AttackObject,
-} from "src/stix/schema/attack-object.schema";
+} from "src/database/schema/attack-object.schema";
 import { StixModule } from "src/stix/stix.module";
-import { ObjectCollectorService } from "src/stix/providers/resource-collectors/object-collector.service";
+import { ObjectCollectorService } from "src/database/providers/object-collector.service";
 
 @Module({
   imports: [

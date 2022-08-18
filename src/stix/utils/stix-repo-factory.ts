@@ -3,12 +3,8 @@ import { STIX_REPO_TOKEN, WORKBENCH_OPTIONS } from "../constants";
 import { WorkbenchRepository } from "../providers/workbench/workbench.repository";
 import { DynamicModule } from "@nestjs/common";
 import { HttpModule } from "@nestjs/axios";
-// import { OrmRepository } from "../providers/database/orm.repository";
-// import { FileRepository } from "../providers/file/file.repository";
 import { StixConnectOptions } from "../interfaces";
 import { WorkbenchConnectOptionsInterface } from "../interfaces/workbench-connect-options.interface";
-import { ObjectCollectorService } from "../providers/resource-collectors/object-collector.service";
-// import { MongooseModule } from "@nestjs/mongoose";
 
 /**
  * The StixRepoFactory is responsible for instantiating the StixModule. `options.useType` is matriculated from main.ts

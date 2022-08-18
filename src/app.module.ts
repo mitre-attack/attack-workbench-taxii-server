@@ -35,7 +35,7 @@ export class AppModule {
         ScheduleModule.forRoot(),
 
         // MongooseModule.forRoot("mongodb://localhost/taxii", { strict: false }),
-        MongooseModule.forRoot("mongodb://localhost/taxii"),
+        MongooseModule.forRoot("mongodb://attack-workbench-database/taxii"),
 
         TaxiiCacheModule.forRoot(connectOptions.cacheConnectOptions),
 

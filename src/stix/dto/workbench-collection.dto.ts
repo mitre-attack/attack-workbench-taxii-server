@@ -1,4 +1,4 @@
-import { WorkbenchStixObjectPropertiesDto } from "./workbench-stix-object-properties.dto";
+import { StixObjectDto } from "./stix-object.dto";
 import { Expose, Type } from "class-transformer";
 import { StixObjectInterface } from "src/stix/interfaces/stix-object.interface";
 
@@ -10,8 +10,8 @@ export class WorkbenchCollectionDto implements StixObjectInterface {
   // _id: uuid  <--- WILL BE DROPPED
   // workspace: { ... }  <--- WILL BE DROPPED
   @Expose()
-  @Type(() => WorkbenchStixObjectPropertiesDto)
-  stix: WorkbenchStixObjectPropertiesDto;
+  @Type(() => StixObjectDto)
+  stix: StixObjectDto;
   // __t: "Collection";  <--- WILL BE DROPPED
   // __v: number;  <--- WILL BE DROPPED
   // created_by_identity: { ... }  <--- WILL BE DROPPED

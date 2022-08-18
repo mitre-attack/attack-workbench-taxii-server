@@ -31,10 +31,10 @@ export class ObjectMongoRepository {
    * Gets an array of all available STIX objects. This method is collection-agnostic.
    */
   // TODO implement this method
-  async findAll(): Promise<StixObjectInterface[]> {
-    // TODO re-write this method
-    return await this.stixRepo.getAllStixObjects();
-  }
+  // async findAll(): Promise<StixObjectInterface[]> {
+  //   // TODO re-write this method
+  //   return await this.stixRepo.getAllStixObjects();
+  // }
 
   /**
    * Gets all STIX objects in a given collection

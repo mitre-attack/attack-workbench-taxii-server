@@ -3,7 +3,7 @@ import { FilterQuery, Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { StixObjectInterface } from "src/stix/interfaces/stix-object.interface";
-import { WorkbenchStixObjectDto } from "src/stix/dto/workbench-stix-object.dto";
+import { AttackObjectDto } from "src/stix/dto/attack-object.dto";
 import { AttackObject } from "../schema";
 import { STIX_REPO_TOKEN } from "../../stix/constants";
 import { StixRepositoryInterface } from "../../stix/providers/stix.repository.interface";
@@ -39,12 +39,12 @@ export class ObjectCollectorService {
     this.logger.debug(`Retrieved ${allAttackObjects.length} ATT&CK objects`);
 
     for (const object of allAttackObjects) {
-      if ((<WorkbenchStixObjectDto>object).workspace.collections.length >= 1) {
+      if ((<AttackObjectDto>object).workspace.collections.length >= 1) {
         // only operate on the object if the object has an ATT&CK ID
 
         // grab the collection_id for later. we're going to include the collection_id on each STIX-object document so
         // the TAXII server can easily distinguish which collection the object belongs to
-        const collectionId: string = (<WorkbenchStixObjectDto>object).workspace
+        const collectionId: string = (<AttackObjectDto>object).workspace
           .collections[0].collection_ref;
 
         const filter: FilterQuery<AttackObject> = {

@@ -11,7 +11,7 @@ import { Cache } from "cache-manager";
 import { WorkbenchCollectionDto } from "../../dto/workbench-collection.dto";
 import { plainToClass, plainToInstance } from "class-transformer";
 import { WorkbenchCollectionBundleDto } from "../../dto/workbench-collection-bundle.dto";
-import { WorkbenchStixObjectDto } from "../../dto/workbench-stix-object.dto";
+import { AttackObjectDto } from "../../dto/attack-object.dto";
 import { StixIdentityPrefix, WorkbenchRESTEndpoint } from "../../constants";
 import { WorkbenchConnectOptionsInterface } from "../../interfaces/workbench-connect-options.interface";
 import { WORKBENCH_OPTIONS } from "../../constants";
@@ -184,9 +184,9 @@ export class WorkbenchRepository {
    */
   async getAllStixObjects(
     excludeExtraneousValues = true
-  ): Promise<WorkbenchStixObjectDto[]> {
+  ): Promise<AttackObjectDto[]> {
     const url = `${this.baseUrl}/api/attack-objects`;
-    let response: Array<WorkbenchStixObjectDto>;
+    let response: Array<AttackObjectDto>;
     response = await this.getFromCache(url); // TODO deserialize first i.e., run the WB response through plainToInstance
     if (response) {
       return response;
@@ -210,7 +210,7 @@ export class WorkbenchRepository {
         //
         //      (2) transform the property from plain JSON objects to an instance of the specified DTO class.
         //      (e.g., the stix.created property is converted from a string to an instance of TimestampDto.
-        plainToInstance(WorkbenchStixObjectDto, elem, {
+        plainToInstance(AttackObjectDto, elem, {
           excludeExtraneousValues: excludeExtraneousValues,
         })
       );
@@ -238,7 +238,7 @@ export class WorkbenchRepository {
     }
 
     // Fetch the data from either the cache (in the case of a cache hit) or Workbench (cache miss)
-    let response: WorkbenchStixObjectDto[];
+    let response: AttackObjectDto[];
     response = await this.getFromCache(url);
     if (response) {
       return response;
@@ -343,7 +343,7 @@ export class WorkbenchRepository {
     collectionId: string,
     stixId: string,
     versions = false
-  ): Promise<WorkbenchStixObjectDto[]> {
+  ): Promise<AttackObjectDto[]> {
     let url = `${this.baseUrl}`;
     const prefix = stixId.split("--")[0];
     switch (prefix) {
@@ -399,7 +399,7 @@ export class WorkbenchRepository {
     if (versions == true) {
       url += "?versions=all";
     }
-    const object: WorkbenchStixObjectDto[] = await this.fetchHttp(url);
+    const object: AttackObjectDto[] = await this.fetchHttp(url);
     if (object) {
       // Don't return the object if it does not belong to the specified collection
       if (object[0].workspace.collections[0].collection_ref == collectionId) {

@@ -10,9 +10,11 @@ import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-p
 import { StixGranularMarkingDto } from "./stix-granular-marking.dto";
 import { StixExternalReferencesDto } from "src/stix/dto/stix-external-references.dto";
 
-export class WorkbenchStixObjectPropertiesDto
-  implements StixObjectPropertiesInterface
-{
+export class StixObjectDto implements StixObjectPropertiesInterface {
+  constructor(partial: Partial<Record<string, unknown>>) {
+    Object.assign(this, partial);
+  }
+
   // ** Common STIX properties ** //
   // [3.2 Common Properties](https://docs.oasis-open.org/cti/stix/v2.1/csprd01/stix-v2.1-csprd01.html#_Toc16070605)
   @Expose() @IsUUID() id: any;

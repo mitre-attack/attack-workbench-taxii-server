@@ -19,8 +19,8 @@ export class FilterService {
     );
 
     stixObjects.sort((a, b) => {
-      const createdA = a.created.valueOf();
-      const createdB = b.created.valueOf();
+      const createdA = new Date(a.created).valueOf();
+      const createdB = new Date(b.created).valueOf();
       if (createdA < createdB) {
         return -1;
       }

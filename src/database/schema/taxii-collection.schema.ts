@@ -22,10 +22,10 @@ export class TaxiiCollection {
   alias: string;
 
   @Prop({ required: true })
-  canRead: string;
+  canRead: boolean;
 
   @Prop({ required: true })
-  canWrite: string;
+  canWrite: boolean;
 
   @Prop({ type: [String], required: false })
   mediaTypes: string[];

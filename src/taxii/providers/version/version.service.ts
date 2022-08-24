@@ -66,6 +66,6 @@ export class VersionService {
       });
     }
     // return await this.paginationService.getEnvelopes(stixObjects, limit, next);
-    return this.paginationService.getVersions(objectVersions, limit, next);
+    return this.paginationService.getVersion(objectVersions, limit, next);
   }
 }

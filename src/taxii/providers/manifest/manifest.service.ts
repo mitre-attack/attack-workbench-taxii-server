@@ -35,14 +35,14 @@ export class ManifestService {
 
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.
     const stixObjects: StixObjectPropertiesInterface[] =
-      await this.objectService.findByCollection(searchFilters);
+      await this.objectService.findByCollectionId(searchFilters);
 
     // Convert STIX objects to manifest-records
     const manifestRecords =
       await this.manifestRecordService.objectsToManifestRecords(stixObjects);
 
     // Paginate the manifest-records and return the appropriate page
-    return await this.paginationService.getManifests(
+    return await this.paginationService.getManifest(
       manifestRecords,
       limit,
       next

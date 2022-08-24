@@ -96,7 +96,7 @@ export class SetTaxiiDateHeadersInterceptor implements NestInterceptor {
               break;
             }
             case TaxiiDateFrom.VERSIONS: {
-              // TODO complete this block after version endpoint is implemented
+              // TODO confirm this works then delete TODO: complete this block after version endpoint is implemented
               const versions: string[] = data.items;
               if (versions.length >= 1) {
                 addedFirst = versions[0];

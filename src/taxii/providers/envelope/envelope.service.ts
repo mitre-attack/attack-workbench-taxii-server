@@ -26,7 +26,7 @@ export class EnvelopeService {
    * @param next? Refers to the unique envelope ID. Indicates which envelope should be returned.
    * @param match? All returned STIX objects must match all of the specified search criteria.
    */
-  async findByCollection(
+  async findByCollectionId(
     collectionId: string,
     addedAfter?: string,
     limit?: number,
@@ -42,10 +42,10 @@ export class EnvelopeService {
 
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.
     const stixObjects: StixObjectPropertiesInterface[] =
-      await this.objectsService.findByCollection(filters);
+      await this.objectsService.findByCollectionId(filters);
 
     // Paginate the array of STIX objects and return the requested page & page count
-    return await this.paginationService.getEnvelopes(stixObjects, limit, next);
+    return await this.paginationService.getEnvelope(stixObjects, limit, next);
   }
 
   /**
@@ -81,7 +81,7 @@ export class EnvelopeService {
     }
 
     // Paginate the array of STIX objects and return the requested page & page count.
-    return await this.paginationService.getEnvelopes(stixObjects, limit, 0);
+    return await this.paginationService.getEnvelope(stixObjects, limit, 0);
     /**
      * NOTE: `next` is hard-coded to zero (0) because (at the time of this writing) the TAXII 2.1 specification did
      * not include a `next` URL filtering query parameter in Section "5.6 Get an Object"

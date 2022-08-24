@@ -9,7 +9,7 @@ export class FilterService {
     logger.setContext(FilterService.name);
   }
 
-  sortAscending(
+  sortAndFilterAscending(
     stixObjects: StixObjectPropertiesInterface[],
     filters?: ObjectFiltersDto
   ): StixObjectPropertiesInterface[] {
@@ -18,17 +18,19 @@ export class FilterService {
       this.constructor.name
     );
 
-    stixObjects.sort((a, b) => {
-      const createdA = new Date(a.created).valueOf();
-      const createdB = new Date(b.created).valueOf();
-      if (createdA < createdB) {
-        return -1;
-      }
-      if (createdA > createdB) {
-        return 1;
-      }
-      return 0;
-    });
+    // TODO remove this after validating that array is already pre-sorted by the object-collector
+    // stixObjects.sort((a, b) => {
+    //   const createdA = new Date(a.created).valueOf();
+    //   const createdB = new Date(b.created).valueOf();
+    //   if (createdA < createdB) {
+    //     return -1;
+    //   }
+    //   if (createdA > createdB) {
+    //     return 1;
+    //   }
+    //   return 0;
+    // });
+
     // Now that the list is sorted, filter (keep) objects that match any supplied filter arguments. Filter arguments
     // in this case include filtering by added_after (i.e. only including objects added after the specified timestamp)
     // and by match query parameters (e.g., ?match[id]=x, ?match[type]=y; i.e., only including objects that
@@ -113,5 +115,84 @@ export class FilterService {
     }
     // No filters were passed. Just return the sorted, original array.
     return stixObjects;
+  }
+
+  async filterObject(
+    stixObject: StixObjectPropertiesInterface,
+    filters?: ObjectFiltersDto
+  ): Promise<StixObjectPropertiesInterface> {
+    return new Promise((resolve, reject) => {
+      if (filters) {
+        const { addedAfter, match } = filters;
+
+        if (match) {
+          const { id, type, version, specVersion } = match;
+
+          // check match[id]
+          if (id) {
+            if (stixObject.id !== match.id) {
+              return reject(
+                `Object (${id}) does not match 'id' filter: (${match.id})`
+              );
+            }
+          }
+
+          // check match[type]
+          if (type) {
+            if (stixObject.type !== match.type) {
+              return reject(
+                `Object (${id}) does not match 'type' filter: (${match.type})`
+              );
+            }
+          }
+
+          // check match[version]
+          if (version) {
+            if (stixObject.modified) {
+              if (
+                new Date(stixObject.modified).toISOString() !== match.version
+              ) {
+                return reject(
+                  `Object (${id}) does not match 'version' filter: (${match.version})`
+                );
+              }
+            } else if (stixObject.created) {
+              if (
+                new Date(stixObject.created).toISOString() !== match.version
+              ) {
+                return reject(
+                  `Object (${id}) does not match 'version' filter: (${match.version})`
+                );
+              }
+            }
+          }
+
+          // check match[spec_version]
+          if (specVersion) {
+            if (stixObject.spec_version !== match.specVersion) {
+              return reject(
+                `Object (${id}) does not match 'specVersion' filter: (${match.specVersion})`
+              );
+            }
+          }
+        }
+
+        if (addedAfter) {
+          if (new Date(stixObject.created).toISOString() <= addedAfter) {
+            /**
+             * We only want to store objects that are *newer* than (i.e., that come before) the added_after
+             * date. So, we can say that an object should be skipped if it comes before (i.e., is older
+             * than) then added_after date
+             */
+            // this.logger.debug(`Skipping current object (created ${currObject.created}) B/C it is older than added_after (${added_after})`, this.constructor.name);
+            return reject(
+              `Object (${stixObject.id}) was not added after: ${addedAfter}`
+            );
+          }
+        }
+        // All checks passed! Store the object to return!
+        return resolve(stixObject);
+      }
+    });
   }
 }

@@ -93,7 +93,7 @@ export class PaginationService {
    * @param limit The number of objects that should be included on the page
    * @param next Specifies which page is being requested
    */
-  async getEnvelopes(
+  async getEnvelope(
     items: StixObjectPropertiesInterface[],
     limit?: number,
     next?: number
@@ -107,7 +107,7 @@ export class PaginationService {
    * @param limit The number of manifest records that should be included on the page
    * @param next Specifies which page is being requested
    */
-  async getManifests(
+  async getManifest(
     items: ManifestRecordDto[],
     limit?: number,
     next?: number
@@ -121,7 +121,7 @@ export class PaginationService {
    * @param limit The number of versions that should be included on the page
    * @param next Specifies which page is being requested
    */
-  async getVersions(
+  async getVersion(
     items: string[],
     limit?: number,
     next?: number

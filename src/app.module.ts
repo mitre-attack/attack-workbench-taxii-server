@@ -11,6 +11,7 @@ import { AppConnectOptions } from "./interfaces";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ScheduleModule } from "@nestjs/schedule";
 import { DatabaseModule } from "./database/database.module";
+import { FilterModule } from "./taxii/providers/filter/filter.module";
 
 @Global()
 @Module({})
@@ -35,8 +36,10 @@ export class AppModule {
         ScheduleModule.forRoot(),
 
         // MongooseModule.forRoot("mongodb://localhost/taxii", { strict: false }),
+        // TODO add TAXII_MONGO_URI to Config Module
         MongooseModule.forRoot(
-          `mongodb://${process.env.TAXII_MONGO_URI}/taxii`
+          // `mongodb://${process.env.TAXII_MONGO_URI}/taxii`
+          `mongodb://localhost/taxii`
         ),
 
         TaxiiCacheModule.forRoot(connectOptions.cacheConnectOptions),

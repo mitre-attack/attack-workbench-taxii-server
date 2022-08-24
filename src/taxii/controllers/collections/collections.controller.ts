@@ -134,7 +134,7 @@ export class CollectionsController {
       `Received request for objects with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${match} }`,
       this.constructor.name
     );
-    return await this.envelopeService.findByCollection(
+    return await this.envelopeService.findByCollectionId(
       collectionId,
       addedAfter,
       limit,

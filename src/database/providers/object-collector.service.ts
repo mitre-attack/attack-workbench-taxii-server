@@ -8,6 +8,7 @@ import { AttackObject } from "../schema";
 import { STIX_REPO_TOKEN } from "../../stix/constants";
 import { StixRepositoryInterface } from "../../stix/providers/stix.repository.interface";
 import { GET_ATTACK_OBJECTS_JOB_TOKEN } from "../constants";
+import { FilterService } from "src/taxii/providers";
 
 @Injectable()
 export class ObjectCollectorService {
@@ -38,6 +39,22 @@ export class ObjectCollectorService {
 
     this.logger.debug(`Retrieved ${allAttackObjects.length} ATT&CK objects`);
 
+    // Sort the list of objects returned from Workbench now, before we write them to the database; pre-sorting the mongo
+    // collection now means we don't need to sort TAXII responses later
+    allAttackObjects.sort((a, b) => {
+      const createdA = new Date(a.stix.created).valueOf();
+      const createdB = new Date(b.stix.created).valueOf();
+      if (createdA < createdB) {
+        return -1;
+      }
+      if (createdA > createdB) {
+        return 1;
+      }
+      return 0;
+    });
+
+    // Write each object to the database. Creates a new document if the object does not already exist. Otherwise updates
+    // the existing document.
     for (const object of allAttackObjects) {
       if ((<AttackObjectDto>object).workspace.collections.length >= 1) {
         // only operate on the object if the object has an ATT&CK ID
@@ -61,7 +78,7 @@ export class ObjectCollectorService {
             },
             {
               upsert: true,
-              strict: false,
+              strict: false, // strict mode allows us to capture properties not explicitly declared in the schema
             }
           )
           .exec();

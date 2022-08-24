@@ -6,7 +6,7 @@ import {
   AttackObject,
   AttackObjectDocument,
 } from "src/database/schema/attack-object.schema";
-import { Model } from "mongoose";
+import { Cursor, Model } from "mongoose";
 import { STIX_REPO_TOKEN } from "src/stix/constants";
 import { StixRepositoryInterface } from "src/stix/providers/stix.repository.interface";
 
@@ -35,6 +35,29 @@ export class ObjectMongoRepository {
   //   // TODO re-write this method
   //   return await this.stixRepo.getAllStixObjects();
   // }
+
+  async *streamObjectsFromDatabase(
+    collectionId: string
+  ): AsyncIterableIterator<AttackObject> {
+    const cursor = this.attackObjectsModel
+      .find({
+        collection_id: collectionId,
+      })
+      .cursor();
+
+    for (
+      let doc = await cursor.next();
+      doc != null;
+      doc = await cursor.next()
+    ) {
+      // this.logger.debug(`yielding object ${doc.stix.id}`);
+      yield doc;
+    }
+
+    this.logger.debug(
+      `Finished streaming collection ${collectionId} from database`
+    );
+  }
 
   /**
    * Gets all STIX objects in a given collection

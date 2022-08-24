@@ -32,7 +32,9 @@ export class ObjectService {
    *
    * @param filters
    */
-  async findByCollection(filters: ObjectFiltersDto): Promise<StixObjectDto[]> {
+  async findByCollectionId(
+    filters: ObjectFiltersDto
+  ): Promise<StixObjectDto[]> {
     // A collection ID is required at a minimum
 
     if (!filters.collectionId) {
@@ -44,30 +46,58 @@ export class ObjectService {
 
     // Retrieve a list of STIX objects from the database
 
-    const attackObjects: AttackObject[] =
-      await this.stixObjectRepo.findByCollection(filters.collectionId);
+    // const attackObjects: AttackObject[] =
+    //   await this.stixObjectRepo.findByCollection(filters.collectionId);
+
+    const attackObjects: AsyncIterableIterator<AttackObject> =
+      this.stixObjectRepo.streamObjectsFromDatabase(filters.collectionId);
 
     // Handle edge case where database failed to return anything or returned an empty list
 
-    if (!attackObjects) {
-      return [];
-      // FIXME consider raising a 500 here - the database should always returned something
-    } else if (attackObjects.length === 0) {
-      return [];
-      // FIXME consider raising a 404 here
-    }
+    // if (!attackObjects) {
+    //   return [];
+    //   // FIXME consider raising a 500 here - the database should always returned something
+    // } else if (attackObjects.length === 0) {
+    //   return [];
+    //   // FIXME consider raising a 404 here
+    // }
 
     // Extract the STIX object from each document returned from the database
 
     const stixObjects: StixObjectDto[] = [];
-    attackObjects.forEach((attackObject) => {
-      stixObjects.push(
-        new StixObjectDto({
-          ...attackObject["_doc"].stix["_doc"],
-          // FIXME is there a way we can refine the initial database query to avoid having to sift through all of this extra data?
-        })
-      );
-    });
+
+    // For each attackObject document returned from the database...
+    for await (const attackObject of attackObjects) {
+      // Convert the document into a DTO instance
+      const stixObject = new StixObjectDto({
+        ...attackObject["_doc"].stix["_doc"],
+        // FIXME is there a way we can refine the initial database query to avoid having to sift through all of this extra data?
+      });
+
+      // Run the DTO instance through the filterService, then append it onto the return array
+      // The filterService will reject the promise if the DTO fails any of the filter checks, thus the object will not
+      // appended to the array if any filter check fails.
+      try {
+        const object: StixObjectDto = await this.filterService.filterObject(
+          stixObject,
+          filters
+        );
+        stixObjects.push(object);
+      } catch (e) {
+        // Object does not match one or more filters - skip it
+        this.logger.warn(e);
+      }
+    }
+
+    // const stixObjects: StixObjectDto[] = [];
+    // attackObjects.forEach((attackObject) => {
+    //   stixObjects.push(
+    //     new StixObjectDto({
+    //       ...attackObject["_doc"].stix["_doc"],
+    //       // FIXME is there a way we can refine the initial database query to avoid having to sift through all of this extra data?
+    //     })
+    //   );
+    // });
 
     this.logger.debug(
       `Successfully retrieved ${stixObjects.length} STIX objects`,
@@ -76,7 +106,8 @@ export class ObjectService {
 
     // Sort & filter then return
 
-    return this.filterService.sortAscending(stixObjects, filters);
+    // return this.filterService.sortAndFilterAscending(stixObjects, filters);
+    return stixObjects;
   }
 
   /**
@@ -106,11 +137,11 @@ export class ObjectService {
     }
 
     // There may be other non-STIX properties on this object. We only want to returned the embedded STIX object(s).
-    const objects = stixObject.map((object) => object.stix);
+    const object = stixObject.map((object) => object.stix);
 
     return !filters
-      ? objects
-      : this.filterService.sortAscending(objects, filters);
+      ? object
+      : this.filterService.sortAndFilterAscending(object, filters);
   }
 
   /**

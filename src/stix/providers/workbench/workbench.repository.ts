@@ -1,4 +1,9 @@
-import { CACHE_MANAGER, Inject, Injectable } from "@nestjs/common";
+import {
+  CACHE_MANAGER,
+  ConsoleLogger,
+  Inject,
+  Injectable,
+} from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { lastValueFrom, map } from "rxjs";
 import {
@@ -6,15 +11,14 @@ import {
   TaxiiNotFoundException,
   TaxiiServiceUnavailableException,
 } from "src/common/exceptions";
-import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { Cache } from "cache-manager";
-import { WorkbenchCollectionDto } from "../../dto/workbench-collection.dto";
+import { WorkbenchCollectionDto } from "src/stix/dto/workbench-collection.dto";
 import { plainToClass, plainToInstance } from "class-transformer";
-import { WorkbenchCollectionBundleDto } from "../../dto/workbench-collection-bundle.dto";
-import { AttackObjectDto } from "../../dto/attack-object.dto";
-import { StixIdentityPrefix, WorkbenchRESTEndpoint } from "../../constants";
-import { WorkbenchConnectOptionsInterface } from "../../interfaces/workbench-connect-options.interface";
-import { WORKBENCH_OPTIONS } from "../../constants";
+import { WorkbenchCollectionBundleDto } from "src/stix/dto/workbench-collection-bundle.dto";
+import { AttackObjectDto } from "src/stix/dto/attack-object.dto";
+import { StixIdentityPrefix, WorkbenchRESTEndpoint } from "src/stix/constants";
+import { WorkbenchConnectOptionsInterface } from "src/stix/interfaces/workbench-connect-options.interface";
+import { WORKBENCH_OPTIONS } from "src/stix/constants";
 
 @Injectable()
 export class WorkbenchRepository {
@@ -22,15 +26,14 @@ export class WorkbenchRepository {
   private readonly cacheTtl: number;
 
   constructor(
-    private readonly logger: Logger,
     private readonly httpService: HttpService,
+    private readonly logger: ConsoleLogger,
     @Inject(WORKBENCH_OPTIONS)
     private readonly options: WorkbenchConnectOptionsInterface,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {
     this.baseUrl = options.baseUrl;
     this.cacheTtl = options.cacheTtl;
-    logger.setContext(WorkbenchRepository.name);
   }
 
   /**

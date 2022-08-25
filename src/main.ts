@@ -23,7 +23,7 @@ async function hydrate(app: NestApplication): Promise<void> {
 /**
  * Starts the Nest.js application
  */
-async function bootstrap() {
+export async function bootstrap() {
   // ** Initialize Express adapter ** //
   const server: express.Express = express();
 
@@ -144,4 +144,4 @@ function initSwagger(app: NestApplication) {
 }
 
 // start the server!
-bootstrap();
+// bootstrap();

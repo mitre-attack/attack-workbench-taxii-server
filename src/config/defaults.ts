@@ -1,5 +1,6 @@
 import { CACHE_OPTIONS } from "../cache/constants";
 
+export const DEFAULT_ENV = "dev";
 export const DEFAULT_APP_ADDRESS = "0.0.0.0";
 export const DEFAULT_APP_PORT = 5000;
 export const DEFAULT_MAX_CONTENT_LENGTH = 1000;
@@ -23,3 +24,4 @@ export const DEFAULT_LOG_LEVEL = "info";
 export const DEFAULT_LOG_TO_FILE = false;
 export const DEFAULT_HTTPS_ENABLED = true;
 export const DEFAULT_HYDRATE_CACHE = true;
+export const DEFAULT_MONGO_URI = "localhost";

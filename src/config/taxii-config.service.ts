@@ -193,4 +193,12 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
   get HYDRATE_CACHE(): string {
     return this.configService.get<string>("app.hydrateCache");
   }
+
+  get ENV(): string {
+    return this.configService.get<string>("app.env");
+  }
+
+  get MONGO_URI(): string {
+    return this.configService.get<string>("app.mongoUri");
+  }
 }

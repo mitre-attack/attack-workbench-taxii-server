@@ -25,4 +25,7 @@ export interface TaxiiConfigServiceInterface {
   get LOG_TO_HTTP_PATH();
   get LOG_TO_SLACK_URL();
   get LOG_TO_SENTRY_DSN();
+  get MONGO_URI();
+  get ENV();
+  get HYDRATE_CACHE();
 }

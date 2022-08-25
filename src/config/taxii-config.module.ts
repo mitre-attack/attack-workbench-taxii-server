@@ -14,8 +14,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
-      // envFilePath: `config/${process.env.TAXII_ENV}.env`,
-      envFilePath: `./config/.env`,
+      envFilePath: `config/${process.env.TAXII_ENV}.env`,
       validationSchema: validationSchema,
     }),
   ],

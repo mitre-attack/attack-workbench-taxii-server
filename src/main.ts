@@ -144,4 +144,4 @@ function initSwagger(app: NestApplication) {
 }
 
 // start the server!
-// bootstrap();
+bootstrap();

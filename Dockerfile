@@ -56,4 +56,4 @@ COPY config/ config/
 RUN cp config/*pem dist/config/ | true
 
 # Here we define the default command to execute when the image is run.
-CMD ["npm", "run", "start:prod"]
+CMD ["pm2-runtime", "ecosystem.config.js"]

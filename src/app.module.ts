@@ -9,9 +9,6 @@ import { StixModule } from "./stix/stix.module";
 import { TaxiiCacheModule } from "./cache/taxii-cache.module";
 import { AppConnectOptions } from "./interfaces";
 import { MongooseModule } from "@nestjs/mongoose";
-import { ScheduleModule } from "@nestjs/schedule";
-import { DatabaseModule } from "./database/database.module";
-import { FilterModule } from "./taxii/providers/filter/filter.module";
 
 @Global()
 @Module({})
@@ -33,14 +30,9 @@ export class AppModule {
           isGlobal: true,
         }),
 
-        ScheduleModule.forRoot(),
+        // ScheduleModule.forRoot(),
 
-        // MongooseModule.forRoot("mongodb://localhost/taxii", { strict: false }),
-        // TODO add TAXII_MONGO_URI to Config Module
-        MongooseModule.forRoot(
-          `mongodb://${process.env.TAXII_MONGO_URI}/taxii`
-          // `mongodb://localhost/taxii`
-        ),
+        MongooseModule.forRoot(connectOptions.databaseConnectOptions.mongoUri),
 
         TaxiiCacheModule.forRoot(connectOptions.cacheConnectOptions),
 
@@ -60,8 +52,6 @@ export class AppModule {
          * supported at this time.
          **/
         StixModule.register(connectOptions.stixConnectOptions),
-
-        DatabaseModule,
       ],
     };
   }

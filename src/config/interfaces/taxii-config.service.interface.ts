@@ -1,4 +1,7 @@
 export interface TaxiiConfigServiceInterface {
+  createAppConnectOptions();
+  createCollectorConnectOptions();
+  createDatabaseConnectOptions();
   createCacheConnectOptions();
   createStixConnectOptions();
   get APP_ADDRESS();
@@ -7,7 +10,7 @@ export interface TaxiiConfigServiceInterface {
   get API_ROOT_PATH();
   get API_ROOT_TITLE();
   get API_ROOT_DESCRIPTION();
-  get CONTACT();
+  get CONTACT_EMAIL();
   get CACHE_TYPE();
   get CACHE_HOST();
   get CACHE_PORT();
@@ -27,5 +30,5 @@ export interface TaxiiConfigServiceInterface {
   get LOG_TO_SENTRY_DSN();
   get MONGO_URI();
   get ENV();
-  get HYDRATE_CACHE();
+  get HYDRATE_ON_BOOT();
 }

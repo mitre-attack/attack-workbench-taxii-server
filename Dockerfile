@@ -13,6 +13,9 @@ WORKDIR /app
 # install command. Once it finishes, we copy the rest of our application’s files into the Docker container.
 COPY package*.json ./
 
+# Install PM2 globally
+RUN npm install pm2 -g
+
 # Here we install only devDependencies due to the container being used as a “builder” that takes all the necessary tools
 # to build the application and later send a clean /dist folder to the production image.
 RUN npm install --only=development
@@ -40,7 +43,6 @@ COPY package*.json ./
 # dependencies defined in dependencies in package.json by using the --only=production argument. This way we don’t install
 # packages such as TypeScript that would cause our final image to increase in size.
 RUN npm install --only=production
-#RUN npm install
 
 # Here we copy the built /dist folder from the development image. This way we are only getting the /dist directory,
 # without the devDependencies, installed in our final image.
@@ -51,4 +53,4 @@ COPY config/ config/
 RUN cp config/*pem dist/config/ | true
 
 # Here we define the default command to execute when the image is run.
-CMD ["node", "dist/main"]
+CMD ["npm", "run", "start:prod"]

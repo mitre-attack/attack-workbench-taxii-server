@@ -1,7 +1,7 @@
 import { StixModule } from "../stix.module";
 import { STIX_REPO_TOKEN, WORKBENCH_OPTIONS } from "../constants";
 import { WorkbenchRepository } from "../providers/workbench/workbench.repository";
-import { DynamicModule } from "@nestjs/common";
+import { ConsoleLogger, DynamicModule } from "@nestjs/common";
 import { HttpModule } from "@nestjs/axios";
 import { StixConnectOptions } from "../interfaces";
 import { WorkbenchConnectOptionsInterface } from "../interfaces/workbench-connect-options.interface";
@@ -15,22 +15,6 @@ import { WorkbenchConnectOptionsInterface } from "../interfaces/workbench-connec
 export class StixRepoFactory {
   static register(options: StixConnectOptions): DynamicModule {
     return useWorkbenchRepository(options.workbench);
-    // switch (options.useType) {
-    //     case STIX_REPO_TYPE.WORKBENCH: {
-    //         return useWorkbenchRepository(options.workbench);
-    //     }
-    //
-    //     case STIX_REPO_TYPE.TYPE_ORM: {
-    //         return useOrmRepository();
-    //     }
-    //
-    //     case STIX_REPO_TYPE.FILE_BASED: {
-    //         return useFileBasedRepository();
-    //     }
-    //
-    //     default:
-    //         return useWorkbenchRepository(options.workbench);
-    // }
   }
 }
 
@@ -53,41 +37,8 @@ const useWorkbenchRepository = (
       { provide: WORKBENCH_OPTIONS, useValue: options },
       { provide: STIX_REPO_TOKEN, useClass: WorkbenchRepository },
       WorkbenchRepository,
+      ConsoleLogger,
     ],
     exports: [STIX_REPO_TOKEN, WorkbenchRepository],
   };
 };
-
-/**
- * Instantiates an instance of the StixModule with OrmRepository as the provider.
- * NOTE: OrmRepository is not implemented. This is primarily here for future release. See src/stix/README.md.
- */
-// const useOrmRepository = (): DynamicModule => {
-//     return {
-//         module: StixModule,
-//         providers: [
-//             {
-//                 provide: STIX_REPO_TOKEN,
-//                 useClass: OrmRepository,
-//             },
-//         ],
-//         exports: [STIX_REPO_TOKEN],
-//     };
-// };
-
-/**
- * Instantiates an instance of the StixModule with FileRepository as the provider.
- * NOTE: FileRepository is not implemented. This is primarily here for future release. See src/stix/README.md.
- */
-// const useFileBasedRepository = (): DynamicModule => {
-//     return {
-//         module: StixModule,
-//         providers: [
-//             {
-//                 provide: STIX_REPO_TOKEN,
-//                 useClass: FileRepository,
-//             },
-//         ],
-//         exports: [STIX_REPO_TOKEN],
-//     };
-// };

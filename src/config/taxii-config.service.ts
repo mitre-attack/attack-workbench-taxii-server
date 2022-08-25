@@ -6,6 +6,9 @@ import { TaxiiConfigServiceInterface } from "./interfaces/taxii-config.service.i
 import { CacheConnectOptions } from "../cache/interfaces/cache-module-options.interface";
 import { StixConnectOptions } from "../stix/interfaces";
 import { isDefined } from "class-validator";
+import { AppConnectOptions } from "../interfaces";
+import { DatabaseConnectOptions } from "../interfaces/database-connect-options.interface";
+import { CollectorConnectOptions } from "../hydrate/collector/interfaces/collector-connect.options";
 
 /**
  * This provider is responsible for loading all user-definable configuration parameters (imported from
@@ -14,6 +17,27 @@ import { isDefined } from "class-validator";
 @Injectable()
 export class TaxiiConfigService implements TaxiiConfigServiceInterface {
   constructor(private configService: ConfigService) {}
+
+  createAppConnectOptions(): AppConnectOptions {
+    return {
+      databaseConnectOptions: this.createDatabaseConnectOptions(),
+      stixConnectOptions: this.createStixConnectOptions(),
+      cacheConnectOptions: this.createCacheConnectOptions(),
+    };
+  }
+
+  createCollectorConnectOptions(): CollectorConnectOptions {
+    return {
+      hydrateOnBoot: this.HYDRATE_ON_BOOT,
+      ...this.createAppConnectOptions(),
+    };
+  }
+
+  createDatabaseConnectOptions(): DatabaseConnectOptions {
+    return {
+      mongoUri: this.MONGO_URI,
+    };
+  }
 
   createCacheConnectOptions(): CacheConnectOptions {
     const cacheType = this.configService.get<string>("app.cacheType");
@@ -95,7 +119,7 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
     return this.configService.get<string>("app.apiRootDescription");
   }
 
-  get CONTACT(): string {
+  get CONTACT_EMAIL(): string {
     return this.configService.get<string>("app.contact");
   }
 
@@ -120,11 +144,11 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
   }
 
   get CACHE_RECONNECT(): boolean {
-    return this.configService.get<boolean>("app.cacheReconnect");
+    return this.configService.get<string>("app.cacheReconnect") === "true";
   }
 
   get CORS_ENABLED(): boolean {
-    return this.configService.get<boolean>("app.corsEnabled");
+    return this.configService.get<string>("app.corsEnabled") === "true";
   }
 
   get WORKBENCH_REST_API_URL(): string {
@@ -167,7 +191,7 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
   }
 
   get LOG_TO_FILE(): boolean {
-    return this.configService.get<boolean>("app.logToFile");
+    return this.configService.get<string>("app.logToFile") === "true";
   }
 
   get LOG_TO_HTTP_HOST(): string {
@@ -190,15 +214,15 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
     return this.configService.get<string>("app.logToSentryDsn");
   }
 
-  get HYDRATE_CACHE(): string {
-    return this.configService.get<string>("app.hydrateCache");
-  }
-
   get ENV(): string {
     return this.configService.get<string>("app.env");
   }
 
   get MONGO_URI(): string {
     return this.configService.get<string>("app.mongoUri");
+  }
+
+  get HYDRATE_ON_BOOT(): boolean {
+    return this.configService.get<string>("app.hydrateOnBoot") === "true";
   }
 }

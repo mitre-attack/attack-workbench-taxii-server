@@ -5,7 +5,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import {
   AttackObject,
   AttackObjectDocument,
-} from "src/database/schema/attack-object.schema";
+} from "src/hydrate/collector/schema/attack-object.schema";
 import { Cursor, Model } from "mongoose";
 import { STIX_REPO_TOKEN } from "src/stix/constants";
 import { StixRepositoryInterface } from "src/stix/providers/stix.repository.interface";

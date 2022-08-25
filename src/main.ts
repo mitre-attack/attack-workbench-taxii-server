@@ -7,18 +7,6 @@ import { TaxiiConfigModule, TaxiiConfigService } from "./config";
 import * as https from "https";
 import { RequestMethod, ValidationPipe } from "@nestjs/common";
 import * as http from "http";
-import { ObjectCollectorService } from "src/database/providers/object-collector.service";
-import { CollectionCollectorService } from "./database/providers/collection-collector.service";
-
-async function hydrate(app: NestApplication): Promise<void> {
-  console.log("Start cache hydration...");
-
-  const collectionCollectorService = await app.get(CollectionCollectorService);
-  await collectionCollectorService.findAndStoreStixCollections();
-
-  const objectCollectorService = await app.get(ObjectCollectorService);
-  await objectCollectorService.findAndStoreStixObjects();
-}
 
 /**
  * Starts the Nest.js application
@@ -47,10 +35,7 @@ export async function bootstrap() {
   // * AppModule.register method, which, consequently, are set by OS environment variables.
 
   const app: NestApplication = await NestFactory.create(
-    AppModule.register({
-      stixConnectOptions: tempConfigService.createStixConnectOptions(),
-      cacheConnectOptions: tempConfigService.createCacheConnectOptions(),
-    }),
+    AppModule.register(tempConfigService.createAppConnectOptions()),
     // AppModule.register({ useClass: TaxiiConfigService } ),   <--- Long term goal is to refactor the implementation
     //                                                              to be fully dynamic such that we can load the
     //                                                              app like this (w/o instantiating a temporary
@@ -87,11 +72,6 @@ export async function bootstrap() {
 
   // ** Initialize the Nest application ** //
   await app.init();
-
-  // Start the 'get-attack-objects' cron job to pre-populate the TAXII DB (MongoDB) with STIX
-  if (tempConfigService.HYDRATE_CACHE === "true") {
-    await hydrate(app);
-  }
 
   // ** Start the web server ** //
   try {

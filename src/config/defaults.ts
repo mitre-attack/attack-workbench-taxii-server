@@ -8,7 +8,7 @@ export const DEFAULT_API_ROOT_PATH = "v2.1/api";
 export const DEFAULT_API_ROOT_TITLE = "MITRE ATT&CK TAXII 2.1";
 export const DEFAULT_API_ROOT_DESCRIPTION =
   "This API Root contains TAXII 2.1 REST API endpoints that serve MITRE ATT&CK STIX 2.1 data";
-export const DEFAULT_CONTACT = "no-reply@your-company.tld";
+export const DEFAULT_CONTACT_EMAIL = "no-reply@your-company.tld";
 export const DEFAULT_CACHE_TYPE = CACHE_OPTIONS.DEFAULT;
 export const DEFAULT_CACHE_HOST = "localhost";
 export const DEFAULT_CACHE_PORT = 6379;
@@ -23,5 +23,5 @@ export const DEFAULT_WORKBENCH_AUTH_HEADER =
 export const DEFAULT_LOG_LEVEL = "info";
 export const DEFAULT_LOG_TO_FILE = false;
 export const DEFAULT_HTTPS_ENABLED = true;
-export const DEFAULT_HYDRATE_CACHE = true;
-export const DEFAULT_MONGO_URI = "localhost";
+export const DEFAULT_MONGO_URI = `mongodb://localhost/taxii`;
+export const DEFAULT_HYDRATE_ON_BOOT = false;

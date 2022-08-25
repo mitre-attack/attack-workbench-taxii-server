@@ -15,4 +15,4 @@ import { TaxiiCollection, TaxiiCollectionSchema } from "./schema";
   providers: [ObjectCollectorService, CollectionCollectorService],
   exports: [ObjectCollectorService, CollectionCollectorService],
 })
-export class DatabaseModule {}
+export class CollectorModule {}

@@ -14,7 +14,7 @@ import { ObjectMongoRepository } from "./object.mongo.repository";
 import { StixObjectDto } from "src/stix/dto/stix-object.dto";
 import { StixBundleInterface } from "../../../stix/interfaces/stix-bundle.interface";
 import { ObjectWorkbenchRepository } from "./object.workbench.repository";
-import { AttackObject } from "../../../database/schema";
+import { AttackObject } from "../../../hydrate/collector/schema";
 // import { AttackObjectDefinition } from "../../../stix/schema/attack-object.schema";
 
 @Injectable()

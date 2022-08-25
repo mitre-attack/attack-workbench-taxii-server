@@ -2,7 +2,10 @@ import { Module } from "@nestjs/common";
 import { CollectionService } from "./collection.service";
 import { CollectionWorkbenchRepository } from "./collection.workbench.repository";
 import { MongooseModule } from "@nestjs/mongoose";
-import { TaxiiCollection, TaxiiCollectionSchema } from "src/database/schema";
+import {
+  TaxiiCollection,
+  TaxiiCollectionSchema,
+} from "src/hydrate/collector/schema";
 import { StixModule } from "src/stix/stix.module";
 import { CollectionRepository } from "./collection.mongo.repository";
 

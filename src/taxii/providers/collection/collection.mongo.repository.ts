@@ -2,7 +2,10 @@ import { Injectable } from "@nestjs/common";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { TaxiiCollectionDto, TaxiiCollectionsDto } from "./dto";
 import { InjectModel } from "@nestjs/mongoose";
-import { TaxiiCollection, TaxiiCollectionDocument } from "src/database/schema";
+import {
+  TaxiiCollection,
+  TaxiiCollectionDocument,
+} from "src/hydrate/collector/schema";
 import { Model } from "mongoose";
 
 @Injectable()

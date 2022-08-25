@@ -5,10 +5,9 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 import { StixObjectInterface } from "src/stix/interfaces/stix-object.interface";
 import { AttackObjectDto } from "src/stix/dto/attack-object.dto";
 import { AttackObject } from "../schema";
-import { STIX_REPO_TOKEN } from "../../stix/constants";
-import { StixRepositoryInterface } from "../../stix/providers/stix.repository.interface";
+import { STIX_REPO_TOKEN } from "../../../stix/constants";
+import { StixRepositoryInterface } from "../../../stix/providers/stix.repository.interface";
 import { GET_ATTACK_OBJECTS_JOB_TOKEN } from "../constants";
-import { FilterService } from "src/taxii/providers";
 
 @Injectable()
 export class ObjectCollectorService {

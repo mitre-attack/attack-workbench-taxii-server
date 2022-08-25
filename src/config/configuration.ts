@@ -11,7 +11,7 @@ export const configuration = registerAs("app", () => ({
   apiRootPath:                process.env.TAXII_API_ROOT_PATH         || DEFAULTS.DEFAULT_API_ROOT_PATH,
   apiRootTitle:               process.env.TAXII_API_ROOT_TITLE        || DEFAULTS.DEFAULT_API_ROOT_TITLE,
   apiRootDescription:         process.env.TAXII_API_ROOT_DESCRIPTION  || DEFAULTS.DEFAULT_API_ROOT_DESCRIPTION,
-  contact:                    process.env.TAXII_CONTACT               || DEFAULTS.DEFAULT_CONTACT,
+  contactEmail:               process.env.TAXII_CONTACT_EMAIL         || DEFAULTS.DEFAULT_CONTACT_EMAIL,
   cacheType:                  process.env.TAXII_CACHE_TYPE            || DEFAULTS.DEFAULT_CACHE_TYPE,
   cacheHost:                  process.env.TAXII_CACHE_HOST            || DEFAULTS.DEFAULT_CACHE_HOST,
   cachePort:                  process.env.TAXII_CACHE_PORT            || DEFAULTS.DEFAULT_CACHE_PORT,
@@ -26,7 +26,7 @@ export const configuration = registerAs("app", () => ({
   mongoUri:                   process.env.TAXII_MONGO_URI             || DEFAULTS.DEFAULT_MONGO_URI,
   corsEnabled:                process.env.TAXII_CORS_ENABLED,         // boolean will default to false
   httpsEnabled:               process.env.TAXII_HTTPS_ENABLED,        // boolean will default to false
-  hydrateCache:               process.env.TAXII_HYDRATE_CACHE,        // boolean will default to false
+  hydrateOnBoot:              process.env.TAXII_HYDRATE_ON_BOOT,      // boolean will default to false
   logToHttpHost:              process.env.TAXII_LOG_TO_HTTP_HOST,     // no default key
   logToHttpPort:              process.env.TAXII_LOG_TO_HTTP_PORT,     // no default key
   logToHttpPath:              process.env.TAXII_LOG_TO_HTTP_PATH,     // no default key
@@ -38,78 +38,130 @@ export const configuration = registerAs("app", () => ({
 
 export const validationSchema = Joi.object({
 
-  ENV: Joi.string().default(DEFAULTS.DEFAULT_ENV).valid("dev", "prod"),
+  ENV: Joi
+      .string()
+      .default(DEFAULTS.DEFAULT_ENV)
+      .valid("dev", "prod"),
 
-  APP_ADDRESS: Joi.string().default(DEFAULTS.DEFAULT_APP_ADDRESS),
+  APP_ADDRESS: Joi
+      .string()
+      .default(DEFAULTS.DEFAULT_APP_ADDRESS),
 
-  APP_PORT: Joi.number().default(DEFAULTS.DEFAULT_APP_PORT),
+  APP_PORT: Joi
+      .number()
+      .default(DEFAULTS.DEFAULT_APP_PORT),
 
-  MAX_CONTENT_LENGTH: Joi.number().default(DEFAULTS.DEFAULT_MAX_CONTENT_LENGTH),
+  MAX_CONTENT_LENGTH: Joi
+      .number()
+      .default(DEFAULTS.DEFAULT_MAX_CONTENT_LENGTH),
 
-  API_ROOT_PATH: Joi.string().default(DEFAULTS.DEFAULT_API_ROOT_PATH),
+  API_ROOT_PATH: Joi
+      .string()
+      .default(DEFAULTS.DEFAULT_API_ROOT_PATH),
 
-  API_ROOT_TITLE: Joi.string().default(DEFAULTS.DEFAULT_API_ROOT_TITLE),
+  API_ROOT_TITLE: Joi
+      .string()
+      .default(DEFAULTS.DEFAULT_API_ROOT_TITLE),
 
-  API_ROOT_DESCRIPTION: Joi.string().default(
-    DEFAULTS.DEFAULT_API_ROOT_DESCRIPTION
-  ),
+  API_ROOT_DESCRIPTION: Joi
+      .string()
+      .default(DEFAULTS.DEFAULT_API_ROOT_DESCRIPTION),
 
-  CONTACT: Joi.string().email().default(DEFAULTS.DEFAULT_CONTACT),
+  CONTACT_EMAIL: Joi
+      .string()
+      .email()
+      .default(DEFAULTS.DEFAULT_CONTACT_EMAIL),
 
-  CACHE_TYPE: Joi.string()
+  CACHE_TYPE: Joi
+      .string()
     .valid(CACHE_OPTIONS)
     .default(DEFAULTS.DEFAULT_CACHE_TYPE),
 
-  CACHE_HOST: Joi.string().default(DEFAULTS.DEFAULT_CACHE_HOST),
+  CACHE_HOST: Joi
+      .string()
+      .default(DEFAULTS.DEFAULT_CACHE_HOST),
 
-  CACHE_PORT: Joi.number()
-    .min(1)
-    .max(65535)
-    .default(DEFAULTS.DEFAULT_CACHE_PORT),
+  CACHE_PORT: Joi
+      .number()
+      .min(1)
+      .max(65535)
+      .default(DEFAULTS.DEFAULT_CACHE_PORT),
 
-  CACHE_TTL: Joi.number().default(DEFAULTS.DEFAULT_CACHE_TTL),
+  CACHE_TTL: Joi
+      .number()
+      .default(DEFAULTS.DEFAULT_CACHE_TTL),
 
-  CACHE_MAX_SIZE: Joi.number()
-    .min(1048576)
-    .default(DEFAULTS.DEFAULT_CACHE_MAX_ITEM_SIZE),
+  CACHE_MAX_SIZE: Joi
+      .number()
+      .min(1048576)
+      .default(DEFAULTS.DEFAULT_CACHE_MAX_ITEM_SIZE),
 
-  CACHE_RECONNECT: Joi.boolean().default(DEFAULTS.DEFAULT_CACHE_RECONNECT),
+  CACHE_RECONNECT: Joi
+      .boolean()
+      .default(DEFAULTS.DEFAULT_CACHE_RECONNECT),
 
-  CACHE_NET_TIMEOUT: Joi.number().default(DEFAULTS.DEFAULT_CACHE_NET_TIMEOUT),
+  CACHE_NET_TIMEOUT: Joi
+      .number()
+      .default(DEFAULTS.DEFAULT_CACHE_NET_TIMEOUT),
 
-  CORS_ENABLED: Joi.boolean().default(DEFAULTS.DEFAULT_CORS_ENABLED),
+  CORS_ENABLED: Joi
+      .boolean()
+      .default(DEFAULTS.DEFAULT_CORS_ENABLED),
 
-  WORKBENCH_REST_API_URL: Joi.string().default(
-    DEFAULTS.DEFAULT_WORKBENCH_REST_API_URL
-  ),
+  WORKBENCH_REST_API_URL: Joi
+      .string()
+      .default(DEFAULTS.DEFAULT_WORKBENCH_REST_API_URL),
 
-  WORKBENCH_AUTH_HEADER: Joi.string().default(
-    DEFAULTS.DEFAULT_WORKBENCH_AUTH_HEADER
-  ),
+  WORKBENCH_AUTH_HEADER: Joi
+      .string()
+      .default(DEFAULTS.DEFAULT_WORKBENCH_AUTH_HEADER),
 
-  LOG_LEVEL: Joi.string()
-    .valid("log", "error", "warn", "debug", "verbose")
-    .default(DEFAULTS.DEFAULT_LOG_LEVEL),
+  LOG_LEVEL: Joi
+      .string()
+      .valid("log", "error", "warn", "debug", "verbose")
+      .default(DEFAULTS.DEFAULT_LOG_LEVEL),
 
-  LOG_TO_FILE: Joi.boolean().default(DEFAULTS.DEFAULT_LOG_TO_FILE),
+  LOG_TO_FILE: Joi
+      .boolean()
+      .default(DEFAULTS.DEFAULT_LOG_TO_FILE),
 
-  LOG_TO_HTTP_HOST: Joi.string(),
+  LOG_TO_HTTP_HOST: Joi
+      .string(),
 
-  LOG_TO_HTTP_PORT: Joi.number().min(1).max(65535),
+  LOG_TO_HTTP_PORT: Joi
+      .number()
+      .min(1)
+      .max(65535),
 
-  LOG_TO_HTTP_PATH: Joi.string().uri({ allowRelative: true }),
+  LOG_TO_HTTP_PATH: Joi
+      .string()
+      .uri({ allowRelative: true }),
 
-  LOG_TO_SLACK_URL: Joi.string().uri(),
+  LOG_TO_SLACK_URL: Joi
+      .string()
+      .uri(),
 
-  LOG_TO_SENTRY_DSN: Joi.string().uri(),
+  LOG_TO_SENTRY_DSN: Joi
+      .string()
+      .uri(),
 
-  HTTPS_ENABLED: Joi.boolean().default(DEFAULTS.DEFAULT_HTTPS_ENABLED),
+  HTTPS_ENABLED: Joi
+      .boolean()
+      .default(DEFAULTS.DEFAULT_HTTPS_ENABLED),
 
-  SSL_PRIVATE_KEY: Joi.string().base64(),
+  SSL_PRIVATE_KEY: Joi
+      .string()
+      .base64(),
 
-  SSL_PUBLIC_KEY: Joi.string().base64(),
+  SSL_PUBLIC_KEY: Joi
+      .string()
+      .base64(),
 
-  HYDRATE_CACHE: Joi.boolean().default(DEFAULTS.DEFAULT_HYDRATE_CACHE),
+  MONGO_URI: Joi
+      .string()
+      .default(DEFAULTS.DEFAULT_MONGO_URI),
 
-  MONGO_URI: Joi.string().default(DEFAULTS.DEFAULT_MONGO_URI)
+  HYDRATE_ON_BOOT: Joi
+      .boolean()
+      .default(DEFAULTS.DEFAULT_HYDRATE_ON_BOOT)
 });

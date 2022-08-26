@@ -7,10 +7,7 @@ import {
   IsArray,
 } from "class-validator";
 import { Exclude, Expose, Type } from "class-transformer";
-import { ApiProperty } from "@nestjs/swagger";
-import { SwaggerDocumentation as SWAGGER } from "./taxii-collection.dto.swagger.json";
 import { DEFAULT_MEDIA_TYPE } from "src/constants";
-// import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 
 @Exclude()
 export class TaxiiCollectionDto {
@@ -32,11 +29,6 @@ export class TaxiiCollectionDto {
    * @type        identifier
    * @required    true
    */
-  @ApiProperty({
-    description: SWAGGER.Id.description,
-    type: SWAGGER.Id.type,
-    required: SWAGGER.Id.required,
-  })
   @Expose()
   @ValidateNested()
   @IsUUID()
@@ -48,11 +40,6 @@ export class TaxiiCollectionDto {
    * @type        string
    * @required    true
    */
-  @ApiProperty({
-    description: SWAGGER.Title.description,
-    type: SWAGGER.Title.type,
-    required: SWAGGER.Title.required,
-  })
   @Expose()
   @IsString()
   @Type(() => String)
@@ -63,11 +50,6 @@ export class TaxiiCollectionDto {
    * @type        string
    * @required    false
    */
-  @ApiProperty({
-    description: SWAGGER.Description.description,
-    type: SWAGGER.Description.type,
-    required: SWAGGER.Description.required,
-  })
   @Expose()
   @IsString()
   @IsOptional()
@@ -86,11 +68,6 @@ export class TaxiiCollectionDto {
    * @type        string
    * @required    false
    */
-  @ApiProperty({
-    description: SWAGGER.Alias.description,
-    type: SWAGGER.Alias.type,
-    required: SWAGGER.Alias.required,
-  })
   @Expose()
   @IsString()
   @IsOptional()
@@ -107,11 +84,6 @@ export class TaxiiCollectionDto {
    * @note        The TAXII server does not implement authentication, therefore all artifacts are readable. Thus,
    *              'canRead' is always true.
    */
-  @ApiProperty({
-    description: SWAGGER.CanRead.description,
-    type: SWAGGER.CanRead.type,
-    required: SWAGGER.CanRead.required,
-  })
   @Expose()
   @IsBoolean()
   @Type(() => Boolean)
@@ -127,11 +99,6 @@ export class TaxiiCollectionDto {
    * @note        The TAXII server does not support ingesting/consuming new artifacts at this time, therefore no
    *              artifacts are writable. Thus, 'canWrite' is always false.
    */
-  @ApiProperty({
-    description: SWAGGER.CanWrite.description,
-    type: SWAGGER.CanWrite.type,
-    required: SWAGGER.CanWrite.required,
-  })
   @Expose()
   @IsBoolean()
   @Type(() => Boolean)
@@ -144,11 +111,6 @@ export class TaxiiCollectionDto {
    * @type        list of type string
    * @required    false
    */
-  @ApiProperty({
-    description: SWAGGER.MediaTypes.description,
-    type: SWAGGER.MediaTypes.type,
-    required: SWAGGER.MediaTypes.required,
-  })
   @Expose()
   //@IsEnum(DEFAULT_MEDIA_TYPE, { each: true }) // solution: https://github.com/typestack/class-validator/issues/159 needs validation
   @IsOptional()

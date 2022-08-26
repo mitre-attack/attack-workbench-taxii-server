@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-// import { ObjectWorkbenchRepository } from "./object.workbench.repository";
 import { ObjectFiltersDto } from "../filter/dto";
 import {
   TaxiiNotFoundException,
@@ -7,15 +6,12 @@ import {
 } from "src/common/exceptions";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { FilterService } from "../filter";
-// import { StixBundleInterface } from "src/stix/interfaces/stix-bundle.interface";
 import { StixObjectInterface } from "src/stix/interfaces/stix-object.interface";
 import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 import { ObjectMongoRepository } from "./object.mongo.repository";
 import { StixObjectDto } from "src/stix/dto/stix-object.dto";
-import { StixBundleInterface } from "../../../stix/interfaces/stix-bundle.interface";
 import { ObjectWorkbenchRepository } from "./object.workbench.repository";
 import { AttackObject } from "../../../hydrate/collector/schema";
-// import { AttackObjectDefinition } from "../../../stix/schema/attack-object.schema";
 
 @Injectable()
 export class ObjectService {
@@ -26,6 +22,47 @@ export class ObjectService {
     private readonly stixObjectRepo: ObjectMongoRepository
   ) {
     logger.setContext(ObjectService.name);
+  }
+
+  async *streamByCollectionId(
+    filters: ObjectFiltersDto
+  ): AsyncIterableIterator<StixObjectDto> {
+    // A collection ID is required at a minimum
+
+    if (!filters.collectionId) {
+      throw new TaxiiNotFoundException({
+        name: "Collection ID Missing",
+        description: `${this.constructor.name} requires a collectionId in order to retrieve STIX objects.`,
+      });
+    }
+
+    // Retrieve a list of STIX objects from the database
+
+    const attackObjects: AsyncIterableIterator<AttackObject> =
+      this.stixObjectRepo.streamObjectsFromDatabase(filters.collectionId);
+
+    // For each attackObject document returned from the database...
+    for await (const attackObject of attackObjects) {
+      // Convert the document into a DTO instance
+      const stixObject = new StixObjectDto({
+        ...attackObject["_doc"].stix["_doc"],
+        // FIXME is there a way we can refine the initial database query to avoid having to sift through all of this extra data?
+      });
+
+      // Run the DTO instance through the filterService, then append it onto the return array
+      // The filterService will reject the promise if the DTO fails any of the filter checks, thus the object will not
+      // appended to the array if any filter check fails.
+      try {
+        const object: StixObjectDto = await this.filterService.filterObject(
+          stixObject,
+          filters
+        );
+        yield object;
+      } catch (e) {
+        // Object does not match one or more filters - skip it
+        this.logger.warn(e);
+      }
+    }
   }
 
   /**
@@ -45,9 +82,6 @@ export class ObjectService {
     }
 
     // Retrieve a list of STIX objects from the database
-
-    // const attackObjects: AttackObject[] =
-    //   await this.stixObjectRepo.findByCollection(filters.collectionId);
 
     const attackObjects: AsyncIterableIterator<AttackObject> =
       this.stixObjectRepo.streamObjectsFromDatabase(filters.collectionId);

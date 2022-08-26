@@ -1,0 +1,10 @@
+{
+  "SwaggerDocumentation": {
+    "ServerDiscovery": {
+      "Description": "This Endpoint provides general information about a TAXII Server, including the advertised API Roots. It's a common entry point for TAXII Clients into the data and services provided by a TAXII Server. For example, clients auto-discovering TAXII Servers via the DNS SRV record defined in section 1.6.1 will be able to automatically retrieve a discovery response for that server by requesting the /taxii2/ path on that domain."
+    },
+    "GetApiRootInformation": {
+      "Description": "This Endpoint provides general information about an API Root, which can be used to help users and clients decide whether and how they want to interact with it. Multiple API Roots MAY be hosted on a single TAXII Server. Often, an API Root represents a single trust group."
+    }
+  }
+}

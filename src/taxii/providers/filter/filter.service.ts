@@ -132,7 +132,7 @@ export class FilterService {
           if (id) {
             if (stixObject.id !== match.id) {
               return reject(
-                `Object (${id}) does not match 'id' filter: (${match.id})`
+                `Object (${stixObject.id}) does not match 'id' filter: (${match.id})`
               );
             }
           }
@@ -141,7 +141,7 @@ export class FilterService {
           if (type) {
             if (stixObject.type !== match.type) {
               return reject(
-                `Object (${id}) does not match 'type' filter: (${match.type})`
+                `Object (${stixObject.id}) does not match 'type' filter: (${match.type})`
               );
             }
           }
@@ -153,7 +153,7 @@ export class FilterService {
                 new Date(stixObject.modified).toISOString() !== match.version
               ) {
                 return reject(
-                  `Object (${id}) does not match 'version' filter: (${match.version})`
+                  `Object (${stixObject.id}) does not match 'version' filter: (${match.version})`
                 );
               }
             } else if (stixObject.created) {
@@ -161,7 +161,7 @@ export class FilterService {
                 new Date(stixObject.created).toISOString() !== match.version
               ) {
                 return reject(
-                  `Object (${id}) does not match 'version' filter: (${match.version})`
+                  `Object (${stixObject.id}) does not match 'version' filter: (${match.version})`
                 );
               }
             }
@@ -171,14 +171,15 @@ export class FilterService {
           if (specVersion) {
             if (stixObject.spec_version !== match.specVersion) {
               return reject(
-                `Object (${id}) does not match 'specVersion' filter: (${match.specVersion})`
+                `Object (${stixObject.id}) does not match 'specVersion' filter: (${match.specVersion})`
               );
             }
           }
         }
 
         if (addedAfter) {
-          if (new Date(stixObject.created).toISOString() <= addedAfter) {
+          // if (new Date(stixObject.created).toISOString() <= addedAfter) {
+          if (Date.parse(stixObject.created) <= Date.parse(addedAfter)) {
             /**
              * We only want to store objects that are *newer* than (i.e., that come before) the added_after
              * date. So, we can say that an object should be skipped if it comes before (i.e., is older

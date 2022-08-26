@@ -20,11 +20,11 @@ export class StixObjectDto implements StixObjectPropertiesInterface {
   @Expose() @IsUUID() id: any;
   @Expose() @IsString() type: any;
   @Expose() @IsString() name?: any;
-  @Expose() @IsString() created: Date;
+  @Expose() @IsString() created: string;
   @Expose() @IsString() description?: any;
   @Expose() @IsString() spec_version?: any;
   @Expose() @IsUUID() create_by_ref?: any;
-  @Expose() @IsString() modified: Date;
+  @Expose() @IsString() modified: string;
   @Expose() @IsBoolean() revoked?: any;
   @Expose() @IsArray() labels?: any;
   @Expose() @IsNumber() confidence?: any;

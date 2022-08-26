@@ -3,7 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { TaxiiCollectionDto, TaxiiCollectionsDto } from "./dto";
 import { TaxiiNotFoundException } from "src/common/exceptions";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
-import { CollectionRepository } from "./collection.mongo.repository";
+import { CollectionRepository } from "./collection.repository";
 
 @Injectable()
 export class CollectionService {

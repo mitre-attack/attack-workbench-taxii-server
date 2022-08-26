@@ -1,15 +1,22 @@
 import {
-  // ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
+  Query,
   UseFilters,
   UseInterceptors,
+  ValidationPipe,
 } from "@nestjs/common";
 
-import { ApiOkResponse } from "@nestjs/swagger";
+import {
+  ApiHeader,
+  ApiNotImplementedResponse,
+  ApiOkResponse,
+  ApiServiceUnavailableResponse,
+} from "@nestjs/swagger";
 
 // ** logger ** //
 import { TaxiiLoggerService as Logger } from "src/common/logger/taxii-logger.service";
@@ -28,7 +35,6 @@ import {
   TaxiiCollectionsDto,
 } from "src/taxii/providers/collection/dto";
 import { EnvelopeDto } from "src/taxii/providers/envelope/dto";
-import { ManifestRecordDto } from "src/taxii/providers/manifest/dto";
 import { ManifestDto } from "src/taxii/providers/manifest/dto";
 import { MatchDto } from "src/common/models/match/match.dto";
 import { VersionDto } from "src/taxii/providers/version/dto/version.dto";
@@ -36,7 +42,6 @@ import { VersionDto } from "src/taxii/providers/version/dto/version.dto";
 // ** middleware ** //
 import { MatchQuery } from "src/common/decorators/match.query.decorator";
 import { TaxiiExceptionFilter } from "src/common/exceptions/taxii-exception.filter";
-// import { SetMediaType } from "src/common/interceptors/set-media-type.interceptor";
 import { TimestampQuery } from "src/common/decorators/timestamp.query.decorator";
 import { NumberQuery } from "src/common/decorators/number.query.decorator";
 import { TaxiiServiceUnavailableException } from "src/common/exceptions";
@@ -45,6 +50,24 @@ import {
   TaxiiDateFrom,
 } from "src/common/interceptors/set-taxii-date-headers.interceptor";
 
+// ** transformation pipes ** //
+import { ParseTimestampPipe } from "src/common/pipes/parse-timestamp.pipe";
+import { ParseMatchQueryParamPipe } from "src/common/pipes/parse-match-query-param.pipe";
+
+// ** open-api ** //
+import { SwaggerDocumentation as SWAGGER } from "./collections.controller.swagger.json";
+import { VersionsResource } from "../../providers/version/dto/versions-resource";
+import { EnvelopeResource } from "src/taxii/providers/envelope/dto/envelope-resource";
+import { TaxiiCollectionsResource } from "../../providers/collection/dto/taxii-collections-dto/taxii-collections-resource";
+import { TaxiiCollectionResource } from "../../providers/collection/dto/taxii-collection-dto/taxii-collection-resource";
+import { ManifestResource } from "../../providers/manifest/dto";
+import { LimitDto } from "../../../common/models/limit/limit.dto";
+import { NextDto } from "../../../common/models/next/next.dto";
+
+@ApiHeader({
+  name: SWAGGER.AcceptHeader.Name,
+  description: SWAGGER.AcceptHeader.Description,
+})
 @Controller("/collections")
 @UseFilters(new TaxiiExceptionFilter())
 export class CollectionsController {
@@ -59,8 +82,8 @@ export class CollectionsController {
   }
 
   @ApiOkResponse({
-    description: "A list of STIX Collection objects",
-    type: TaxiiCollectionsDto,
+    description: SWAGGER.GetCollections.Description,
+    type: TaxiiCollectionsResource,
   })
   @Get("/")
   async getCollections(): Promise<TaxiiCollectionsDto> {
@@ -72,8 +95,8 @@ export class CollectionsController {
   }
 
   @ApiOkResponse({
-    description: "A single STIX Collection object",
-    type: TaxiiCollectionDto,
+    description: SWAGGER.GetACollection.Description,
+    type: TaxiiCollectionResource,
   })
   @Get("/:collectionId/")
   async getACollection(
@@ -87,9 +110,8 @@ export class CollectionsController {
   }
 
   @ApiOkResponse({
-    description:
-      "Manifest information about the contents of a specific collection",
-    type: ManifestRecordDto,
+    description: SWAGGER.GetObjectManifests.Description,
+    type: ManifestResource,
   })
   @Get("/:collectionId/manifest/")
   @UseInterceptors(
@@ -116,8 +138,8 @@ export class CollectionsController {
   }
 
   @ApiOkResponse({
-    description: "A TAXII Envelope containing STIX objects",
-    type: EnvelopeDto,
+    description: SWAGGER.GetObjects.Description,
+    type: EnvelopeResource,
   })
   @Get("/:collectionId/objects/")
   @UseInterceptors(
@@ -125,10 +147,10 @@ export class CollectionsController {
   )
   async getObjects(
     @Param("collectionId") collectionId: string,
-    @TimestampQuery("added_after") addedAfter?: string,
+    @Query("added_after", ParseTimestampPipe) addedAfter?: string,
     @NumberQuery("limit") limit?: number,
     @NumberQuery("next") next?: number,
-    @MatchQuery("match") match?: MatchDto
+    @Query("match", ParseMatchQueryParamPipe) match?: MatchDto
   ): Promise<EnvelopeDto> {
     this.logger.debug(
       `Received request for objects with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${match} }`,
@@ -144,8 +166,8 @@ export class CollectionsController {
   }
 
   @ApiOkResponse({
-    description: "A TAXII Envelope containing a specific STIX object",
-    type: EnvelopeDto,
+    description: SWAGGER.GetAnObject.Description,
+    type: EnvelopeResource,
   })
   @Get("/:collectionId/objects/:objectId")
   @UseInterceptors(
@@ -154,9 +176,9 @@ export class CollectionsController {
   async getAnObject(
     @Param("collectionId") collectionId: string,
     @Param("objectId") objectId: string,
-    @TimestampQuery("added_after") addedAfter?: string,
     @NumberQuery("limit") limit?: number,
-    @MatchQuery("match") match?: MatchDto
+    @Query("added_after", ParseTimestampPipe) addedAfter?: string,
+    @Query("match", ParseMatchQueryParamPipe) match?: MatchDto
   ): Promise<EnvelopeDto> {
     this.logger.debug(
       `Received request for an object with options { collectionId: ${collectionId}, objectId: ${objectId} }`,
@@ -171,8 +193,9 @@ export class CollectionsController {
     );
   }
 
-  // TODO implement in future release
-  @ApiOkResponse({ description: "Add a new object to a specific collection" })
+  @ApiServiceUnavailableResponse({
+    description: SWAGGER.AddObjects.Description,
+  })
   @Post("/:collectionId/objects/")
   async addObjects(@Param("collectionId") collectionId: string): Promise<any> {
     this.logger.warn(
@@ -181,13 +204,13 @@ export class CollectionsController {
     );
     throw new TaxiiServiceUnavailableException({
       title: "Not Implemented",
-      description:
-        "The 'Add Objects' endpoint is not implemented. STIX objects can be added via Workbench.",
+      description: SWAGGER.AddObjects.Description,
     });
   }
 
-  // TODO implement in future release
-  @ApiOkResponse({ description: "Delete a specific object from a collection" })
+  @ApiNotImplementedResponse({
+    description: SWAGGER.DeleteAnObject.Description,
+  })
   @Delete("/:collectionId/objects/:objectId/")
   async deleteAnObject(
     @Param("collectionId") collectionId: string,
@@ -199,13 +222,13 @@ export class CollectionsController {
     );
     throw new TaxiiServiceUnavailableException({
       title: "Not Implemented",
-      description: "The 'Delete An Object' endpoint is not implemented.",
+      description: SWAGGER.DeleteAnObject.Description,
     });
   }
 
   @ApiOkResponse({
-    description: "Get a list of object version from a collection",
-    type: VersionDto,
+    description: SWAGGER.GetObjectVersions.Description,
+    type: VersionsResource,
   })
   @Get("/:collectionId/objects/:objectId/versions/")
   @UseInterceptors(
@@ -214,10 +237,10 @@ export class CollectionsController {
   async getObjectVersions(
     @Param("collectionId") collectionId: string,
     @Param("objectId") objectId: string,
-    @TimestampQuery("added_after") addedAfter?: string,
-    @NumberQuery("limit") limit?: number,
-    @NumberQuery("next") next?: number,
-    @MatchQuery("match") match?: MatchDto
+    @Query("added_after", ParseTimestampPipe) addedAfter?: string,
+    @Query("limit", ParseIntPipe) limit?: number,
+    @Query("next", ParseIntPipe) next?: number,
+    @Query("match", ParseMatchQueryParamPipe) match?: MatchDto
   ): Promise<VersionDto> {
     this.logger.debug(
       `Received request for object versions with options { collectionId: ${collectionId}, objectId: ${objectId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${match} }`,

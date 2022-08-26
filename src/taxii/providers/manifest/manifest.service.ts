@@ -6,7 +6,8 @@ import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-p
 import { MatchDto } from "src/common/models/match/match.dto";
 import { ManifestRecordService } from "./manifest-record.service";
 import { PaginationService } from "../pagination";
-import { ManifestDto } from "./dto";
+import { ManifestDto, ManifestRecordDto } from "./dto";
+import { StixObjectDto } from "../../../stix/dto/stix-object.dto";
 
 @Injectable()
 export class ManifestService {
@@ -34,14 +35,20 @@ export class ManifestService {
     });
 
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.
-    const stixObjects: StixObjectPropertiesInterface[] =
-      await this.objectService.findByCollectionId(searchFilters);
+
+    const stixObjects: AsyncIterableIterator<StixObjectDto> =
+      await this.objectService.streamByCollectionId(searchFilters);
 
     // Convert STIX objects to manifest-records
-    const manifestRecords =
-      await this.manifestRecordService.objectsToManifestRecords(stixObjects);
+
+    const manifestRecords: ManifestRecordDto[] = [];
+
+    for await (const object of stixObjects) {
+      manifestRecords.push(new ManifestRecordDto(object));
+    }
 
     // Paginate the manifest-records and return the appropriate page
+
     return await this.paginationService.getManifest(
       manifestRecords,
       limit,

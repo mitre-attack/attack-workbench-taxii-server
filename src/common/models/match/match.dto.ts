@@ -1,35 +1,55 @@
 import { IsOptional, IsString } from "class-validator";
-import { Exclude, Type } from "class-transformer";
+import { Exclude, Expose, Type } from "class-transformer";
+import { ApiProperty } from "@nestjs/swagger";
+import { SwaggerDocumentation as SWAGGER } from "./match.dto.swagger.json";
 
 @Exclude()
 export class MatchDto {
+  @ApiProperty({
+    description: SWAGGER.Match.Id.Description,
+    required: false,
+    type: String,
+  })
   @IsString()
   @IsOptional()
   @Type(() => String)
+  @Expose()
   id?: string;
 
+  @ApiProperty({
+    description: SWAGGER.Match.Type.Description,
+    required: false,
+    type: String,
+  })
   @IsString()
   @IsOptional()
   @Type(() => String)
+  @Expose()
   type?: string;
 
+  @ApiProperty({
+    description: SWAGGER.Match.Version.Description,
+    required: false,
+    type: String,
+  })
   @IsString()
   @IsOptional()
   @Type(() => String)
+  @Expose()
   version?: string;
 
+  @ApiProperty({
+    description: SWAGGER.Match.SpecVersion.Description,
+    required: false,
+    type: String,
+  })
   @IsString()
   @IsOptional()
   @Type(() => String)
-  latest: boolean;
-
-  @IsString()
-  @IsOptional()
-  @Type(() => String)
+  @Expose()
   specVersion?: string;
 
   constructor(partial?: Partial<any>) {
     Object.assign(this, partial);
-    this.latest = !this.version;
   }
 }

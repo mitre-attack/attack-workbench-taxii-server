@@ -2,19 +2,16 @@ import { Injectable } from "@nestjs/common";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { ObjectService } from "../object";
 import { ObjectFiltersDto } from "../filter/dto";
-import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 import { MatchDto } from "src/common/models/match/match.dto";
-import { ManifestRecordService } from "./manifest-record.service";
 import { PaginationService } from "../pagination";
 import { ManifestDto, ManifestRecordDto } from "./dto";
-import { StixObjectDto } from "../../../stix/dto/stix-object.dto";
+import { StixObjectDto } from "src/stix/dto/stix-object.dto";
 
 @Injectable()
 export class ManifestService {
   constructor(
     private readonly logger: Logger,
     private readonly objectService: ObjectService,
-    private readonly manifestRecordService: ManifestRecordService,
     private readonly paginationService: PaginationService
   ) {
     logger.setContext(ManifestService.name);

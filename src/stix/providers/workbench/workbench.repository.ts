@@ -188,7 +188,7 @@ export class WorkbenchRepository {
   async getAllStixObjects(
     excludeExtraneousValues = true
   ): Promise<AttackObjectDto[]> {
-    const url = `${this.baseUrl}/api/attack-objects`;
+    const url = `${this.baseUrl}/api/attack-objects?versions=all`;
     let response: Array<AttackObjectDto>;
     response = await this.getFromCache(url); // TODO deserialize first i.e., run the WB response through plainToInstance
     if (response) {

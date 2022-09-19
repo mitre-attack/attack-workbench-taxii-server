@@ -34,7 +34,7 @@ export class VersionService {
     });
 
     // Hard-code filter DTO to retrieve all available versions of the target object
-    filters.versions = true;
+    // filters.versions = true;
 
     // Retrieve the STIX object from the connected STIX repository.
     const objects: StixObjectPropertiesInterface[] =

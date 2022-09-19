@@ -6,20 +6,17 @@ import {
 } from "src/common/exceptions";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { FilterService } from "../filter";
-import { StixObjectInterface } from "src/stix/interfaces/stix-object.interface";
 import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
-import { ObjectMongoRepository } from "./object.mongo.repository";
+import { ObjectRepository } from "./object.repository";
 import { StixObjectDto } from "src/stix/dto/stix-object.dto";
-import { ObjectWorkbenchRepository } from "./object.workbench.repository";
-import { AttackObject } from "../../../hydrate/collector/schema";
+import { AttackObject } from "src/hydrate/collector/schema";
 
 @Injectable()
 export class ObjectService {
   constructor(
     private readonly logger: Logger,
     private readonly filterService: FilterService,
-    private readonly stixObjectWorkbenchRepo: ObjectWorkbenchRepository,
-    private readonly stixObjectRepo: ObjectMongoRepository
+    private readonly stixObjectRepo: ObjectRepository
   ) {
     logger.setContext(ObjectService.name);
   }
@@ -39,7 +36,7 @@ export class ObjectService {
     // Retrieve a list of STIX objects from the database
 
     const attackObjects: AsyncIterableIterator<AttackObject> =
-      this.stixObjectRepo.streamObjectsFromDatabase(filters.collectionId);
+      this.stixObjectRepo.findByCollectionId(filters.collectionId);
 
     // For each attackObject document returned from the database...
     for await (const attackObject of attackObjects) {
@@ -84,7 +81,7 @@ export class ObjectService {
     // Retrieve a list of STIX objects from the database
 
     const attackObjects: AsyncIterableIterator<AttackObject> =
-      this.stixObjectRepo.streamObjectsFromDatabase(filters.collectionId);
+      this.stixObjectRepo.findByCollectionId(filters.collectionId);
 
     // Handle edge case where database failed to return anything or returned an empty list
 
@@ -155,27 +152,36 @@ export class ObjectService {
     objectId: string,
     filters?: ObjectFiltersDto
   ): Promise<StixObjectPropertiesInterface[]> {
-    // Retrieve the STIX object from the connected STIX repository.
+    // Retrieve the STIX object from the database
 
-    const stixObject: StixObjectInterface[] = await this.stixObjectRepo.findOne(
+    const attackObjects: AttackObject[] = await this.stixObjectRepo.findOne(
       collectionId,
-      objectId,
-      filters.versions
+      objectId
     );
 
-    if (!stixObject) {
+    // Stop processing if no objects/docs were retrieved - raise an error and let the interceptor handle the response
+
+    if (!attackObjects) {
       throw new TaxiiNotFoundException({
         title: "Requested STIX ID not found",
         description: `A STIX object with ${objectId} could not be found in collection ${collectionId}.`,
       });
     }
 
+    const allVersionsOfObject = attackObjects.map((attackObject) => {
+      // return new StixObjectDto({ stix: attackObject });
+      return new StixObjectDto({
+        ...attackObject["_doc"].stix["_doc"],
+        // FIXME is there a way we can refine the initial database query to avoid having to sift through all of this extra data?
+      });
+    });
+
     // There may be other non-STIX properties on this object. We only want to returned the embedded STIX object(s).
-    const object = stixObject.map((object) => object.stix);
+    // const object = stixObject.map((object) => object.stix);
 
     return !filters
-      ? object
-      : this.filterService.sortAndFilterAscending(object, filters);
+      ? allVersionsOfObject
+      : this.filterService.sortAndFilterAscending(allVersionsOfObject, filters);
   }
 
   /**

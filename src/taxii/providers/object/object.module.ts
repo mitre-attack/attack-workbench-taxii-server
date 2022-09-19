@@ -1,8 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ObjectService } from "./object.service";
 import { FilterModule } from "../filter/filter.module";
-import { ObjectWorkbenchRepository } from "./object.workbench.repository";
-import { ObjectMongoRepository } from "./object.mongo.repository";
+import { ObjectRepository } from "./object.repository";
 import { MongooseModule } from "@nestjs/mongoose";
 import { CollectionModule } from "../collection";
 import {
@@ -21,12 +20,7 @@ import { ObjectCollectorService } from "src/hydrate/collector/providers/object-c
     ]),
     CollectionModule,
   ],
-  providers: [
-    ObjectService,
-    ObjectWorkbenchRepository,
-    ObjectMongoRepository,
-    ObjectCollectorService,
-  ],
+  providers: [ObjectService, ObjectRepository, ObjectCollectorService],
   exports: [ObjectService],
 })
 export class ObjectModule {}

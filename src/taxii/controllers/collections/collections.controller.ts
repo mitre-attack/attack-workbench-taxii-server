@@ -3,12 +3,10 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Post,
   Query,
   UseFilters,
   UseInterceptors,
-  ValidationPipe,
 } from "@nestjs/common";
 
 import {
@@ -61,8 +59,6 @@ import { EnvelopeResource } from "src/taxii/providers/envelope/dto/envelope-reso
 import { TaxiiCollectionsResource } from "../../providers/collection/dto/taxii-collections-dto/taxii-collections-resource";
 import { TaxiiCollectionResource } from "../../providers/collection/dto/taxii-collection-dto/taxii-collection-resource";
 import { ManifestResource } from "../../providers/manifest/dto";
-import { LimitDto } from "../../../common/models/limit/limit.dto";
-import { NextDto } from "../../../common/models/next/next.dto";
 
 @ApiHeader({
   name: SWAGGER.AcceptHeader.Name,
@@ -125,7 +121,9 @@ export class CollectionsController {
     @MatchQuery("match") match?: MatchDto
   ): Promise<ManifestDto> {
     this.logger.debug(
-      `Received request for object manifests with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${match} }`,
+      `Received request for object manifests with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${JSON.stringify(
+        match
+      )} }`,
       this.constructor.name
     );
     return await this.manifestService.getManifestsByCollection(
@@ -177,6 +175,7 @@ export class CollectionsController {
     @Param("collectionId") collectionId: string,
     @Param("objectId") objectId: string,
     @NumberQuery("limit") limit?: number,
+    @NumberQuery("next") next?: number,
     @Query("added_after", ParseTimestampPipe) addedAfter?: string,
     @Query("match", ParseMatchQueryParamPipe) match?: MatchDto
   ): Promise<EnvelopeDto> {
@@ -189,6 +188,7 @@ export class CollectionsController {
       objectId,
       addedAfter,
       limit,
+      next,
       match
     );
   }
@@ -238,8 +238,8 @@ export class CollectionsController {
     @Param("collectionId") collectionId: string,
     @Param("objectId") objectId: string,
     @Query("added_after", ParseTimestampPipe) addedAfter?: string,
-    @Query("limit", ParseIntPipe) limit?: number,
-    @Query("next", ParseIntPipe) next?: number,
+    @NumberQuery("limit") limit?: number,
+    @NumberQuery("next") next?: number,
     @Query("match", ParseMatchQueryParamPipe) match?: MatchDto
   ): Promise<VersionDto> {
     this.logger.debug(

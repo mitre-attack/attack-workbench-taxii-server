@@ -49,6 +49,7 @@ export class FilterService {
         // This is the current STIX object to check
         const currObject: StixObjectPropertiesInterface = stixObjects[i];
 
+        // Filter by match[id], match[type], match[version], and match[spec_version]
         if (match) {
           const { id, type, version, specVersion } = match;
 

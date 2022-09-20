@@ -34,7 +34,7 @@ export class ManifestService {
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.
 
     const stixObjects: AsyncIterableIterator<StixObjectDto> =
-      await this.objectService.streamByCollectionId(searchFilters);
+      await this.objectService.findAsyncIterableByCollectionId(searchFilters);
 
     // Convert STIX objects to manifest-records
 

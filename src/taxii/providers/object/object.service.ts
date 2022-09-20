@@ -21,7 +21,7 @@ export class ObjectService {
     logger.setContext(ObjectService.name);
   }
 
-  async *streamByCollectionId(
+  async *findAsyncIterableByCollectionId(
     filters: ObjectFiltersDto
   ): AsyncIterableIterator<StixObjectDto> {
     // A collection ID is required at a minimum
@@ -83,16 +83,6 @@ export class ObjectService {
     const attackObjects: AsyncIterableIterator<AttackObject> =
       this.stixObjectRepo.findByCollectionId(filters.collectionId);
 
-    // Handle edge case where database failed to return anything or returned an empty list
-
-    // if (!attackObjects) {
-    //   return [];
-    //   // FIXME consider raising a 500 here - the database should always returned something
-    // } else if (attackObjects.length === 0) {
-    //   return [];
-    //   // FIXME consider raising a 404 here
-    // }
-
     // Extract the STIX object from each document returned from the database
 
     const stixObjects: StixObjectDto[] = [];
@@ -120,24 +110,12 @@ export class ObjectService {
       }
     }
 
-    // const stixObjects: StixObjectDto[] = [];
-    // attackObjects.forEach((attackObject) => {
-    //   stixObjects.push(
-    //     new StixObjectDto({
-    //       ...attackObject["_doc"].stix["_doc"],
-    //       // FIXME is there a way we can refine the initial database query to avoid having to sift through all of this extra data?
-    //     })
-    //   );
-    // });
-
     this.logger.debug(
       `Successfully retrieved ${stixObjects.length} STIX objects`,
       this.constructor.name
     );
 
     // Sort & filter then return
-
-    // return this.filterService.sortAndFilterAscending(stixObjects, filters);
     return stixObjects;
   }
 
@@ -169,7 +147,6 @@ export class ObjectService {
     }
 
     const allVersionsOfObject = attackObjects.map((attackObject) => {
-      // return new StixObjectDto({ stix: attackObject });
       return new StixObjectDto({
         ...attackObject["_doc"].stix["_doc"],
         // FIXME is there a way we can refine the initial database query to avoid having to sift through all of this extra data?
@@ -181,7 +158,7 @@ export class ObjectService {
 
     return !filters
       ? allVersionsOfObject
-      : this.filterService.sortAndFilterAscending(allVersionsOfObject, filters);
+      : this.filterService.filterObjects(allVersionsOfObject, filters);
   }
 
   /**

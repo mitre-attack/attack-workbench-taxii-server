@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
-import { ObjectModule } from "../object/object.module";
-import { PaginationModule } from "../pagination/pagination.module";
+import { ObjectModule } from "../object";
+import { PaginationModule } from "../pagination";
 import { EnvelopeService } from "./envelope.service";
 
 @Module({

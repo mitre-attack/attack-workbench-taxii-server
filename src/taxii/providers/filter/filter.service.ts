@@ -9,7 +9,12 @@ export class FilterService {
     logger.setContext(FilterService.name);
   }
 
-  sortAndFilterAscending(
+  /**
+   * Filters an array of objects based on the specified ObjectFiltersDto. Returns the post-filtered resultant array.
+   * @param stixObjects The pre-filtered array of STIX objects to be processed.
+   * @param filters The set of URL query parameters to filter the objects by.
+   */
+  filterObjects(
     stixObjects: StixObjectPropertiesInterface[],
     filters?: ObjectFiltersDto
   ): StixObjectPropertiesInterface[] {
@@ -17,19 +22,6 @@ export class FilterService {
       `Executing sortAscending with filters ${JSON.stringify(filters)}`,
       this.constructor.name
     );
-
-    // TODO remove this after validating that array is already pre-sorted by the object-collector
-    // stixObjects.sort((a, b) => {
-    //   const createdA = new Date(a.created).valueOf();
-    //   const createdB = new Date(b.created).valueOf();
-    //   if (createdA < createdB) {
-    //     return -1;
-    //   }
-    //   if (createdA > createdB) {
-    //     return 1;
-    //   }
-    //   return 0;
-    // });
 
     // Now that the list is sorted, filter (keep) objects that match any supplied filter arguments. Filter arguments
     // in this case include filtering by added_after (i.e. only including objects added after the specified timestamp)
@@ -118,6 +110,12 @@ export class FilterService {
     return stixObjects;
   }
 
+  /**
+   * Filters a single object based on the specified ObjectFiltersDto. The supplied object will either be resolved or
+   * rejected depending on whether the specified object matches the supplied filters.
+   * @param stixObject The STIX object to filter.
+   * @param filters The set of URL query parameters to filter the object by.
+   */
   async filterObject(
     stixObject: StixObjectPropertiesInterface,
     filters?: ObjectFiltersDto

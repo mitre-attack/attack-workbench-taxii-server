@@ -1,14 +1,20 @@
-import { Test } from "@nestjs/testing";
+import { Test, TestingModule } from "@nestjs/testing";
 import { TaxiiConfigModule } from "src/config";
 import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
 import { DiscoveryService } from "./discovery.service";
 
-it("can create an instance of DiscoveryService", async () => {
-  const module = await Test.createTestingModule({
-    imports: [TaxiiConfigModule, TaxiiLoggerModule],
-    providers: [DiscoveryService],
-  }).compile();
+describe("DiscoveryService", () => {
+  let discoveryService: DiscoveryService;
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [TaxiiConfigModule, TaxiiLoggerModule],
+      providers: [DiscoveryService],
+    }).compile();
 
-  const discoveryService = module.get(DiscoveryService);
-  expect(discoveryService).toBeDefined();
+    discoveryService = module.get<DiscoveryService>(DiscoveryService);
+  });
+
+  it("should be defined", async () => {
+    expect(discoveryService).toBeDefined();
+  });
 });

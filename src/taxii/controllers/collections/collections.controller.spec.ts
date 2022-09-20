@@ -5,11 +5,20 @@ import {
   EnvelopeModule,
   ManifestModule,
   VersionModule,
-} from "../../providers";
-import { CacheModule } from "@nestjs/common";
-import { StixModule } from "src/stix/stix.module";
+} from "src/taxii/providers";
 import { TaxiiConfigModule } from "src/config";
 import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
+import {
+  closeInMongodConnection,
+  rootMongooseTestModule,
+} from "src/../test/test.mongoose.module";
+import { MongooseModule } from "@nestjs/mongoose";
+import {
+  AttackObject,
+  AttackObjectSchema,
+  TaxiiCollection,
+  TaxiiCollectionSchema,
+} from "src/hydrate/collector/schema";
 
 describe("CollectionsController", () => {
   let controller: CollectionsController;
@@ -19,20 +28,15 @@ describe("CollectionsController", () => {
       imports: [
         TaxiiConfigModule,
         TaxiiLoggerModule,
-        CacheModule.register({
-          isGlobal: true,
-          ttl: 600,
-        }),
-        StixModule.register({
-          useType: "workbench",
-          workbench: {
-            authorization: "fake-api-key",
-          },
-        }),
         CollectionModule,
         EnvelopeModule,
         ManifestModule,
         VersionModule,
+        rootMongooseTestModule(),
+        MongooseModule.forFeature([
+          { name: AttackObject.name, schema: AttackObjectSchema },
+          { name: TaxiiCollection.name, schema: TaxiiCollectionSchema },
+        ]),
       ],
       controllers: [CollectionsController],
     }).compile();
@@ -42,5 +46,9 @@ describe("CollectionsController", () => {
 
   it("should be defined", () => {
     expect(controller).toBeDefined();
+  });
+
+  afterAll(async () => {
+    await closeInMongodConnection();
   });
 });

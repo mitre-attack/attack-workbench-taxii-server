@@ -1,42 +1,47 @@
-import { Test } from "@nestjs/testing";
+import { Test, TestingModule } from "@nestjs/testing";
 import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
 import { TaxiiConfigModule } from "src/config";
-import { StixModule } from "src/stix/stix.module";
-import { CacheModule } from "@nestjs/common";
 import { EnvelopeService } from "./envelope.service";
 import { PaginationService } from "../pagination";
 import { ObjectService } from "../object";
 import { FilterService } from "../filter";
-import { ObjectWorkbenchRepository } from "../object/object.repository";
+import { ObjectRepository } from "../object/object.repository";
+import {
+  closeInMongodConnection,
+  rootMongooseTestModule,
+} from "src/../test/test.mongoose.module";
+import { MongooseModule } from "@nestjs/mongoose";
+import { AttackObject, AttackObjectSchema } from "src/hydrate/collector/schema";
 
-it("can create an instance of EnvelopeService", async () => {
-  const module = await Test.createTestingModule({
-    imports: [
-      TaxiiLoggerModule,
-      TaxiiConfigModule,
-      // CacheModule used by WorkbenchRepository
-      CacheModule.register({
-        isGlobal: true,
-        ttl: 600,
-      }),
-      // StixModule is used by CollectionRepository
-      StixModule.register({
-        useType: "workbench",
-        workbench: {
-          authorization: "fake-api-key",
-          cacheTtl: 500, // default = 500ms
-        },
-      }),
-    ],
-    providers: [
-      EnvelopeService,
-      PaginationService,
-      ObjectService,
-      ObjectWorkbenchRepository,
-      FilterService,
-    ],
-  }).compile();
+describe("EnvelopeService", () => {
+  let envelopeService: EnvelopeService;
 
-  const envelopeService = module.get(EnvelopeService);
-  expect(envelopeService).toBeDefined();
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        TaxiiLoggerModule,
+        TaxiiConfigModule,
+        rootMongooseTestModule(),
+        MongooseModule.forFeature([
+          { name: AttackObject.name, schema: AttackObjectSchema },
+        ]),
+      ],
+      providers: [
+        EnvelopeService,
+        PaginationService,
+        ObjectService,
+        ObjectRepository,
+        FilterService,
+      ],
+    }).compile();
+    envelopeService = module.get<EnvelopeService>(EnvelopeService);
+  });
+
+  it("should be defined", async () => {
+    expect(envelopeService).toBeDefined();
+  });
+
+  afterAll(async () => {
+    await closeInMongodConnection();
+  });
 });

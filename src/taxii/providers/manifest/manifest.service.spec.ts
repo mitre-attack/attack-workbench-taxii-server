@@ -1,35 +1,43 @@
-import { Test } from "@nestjs/testing";
+import { Test, TestingModule } from "@nestjs/testing";
 import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
 import { ObjectModule } from "../object";
-import { ManifestRecordService } from "./manifest-record.service";
 import { FilterModule } from "../filter/filter.module";
 import { TaxiiConfigModule } from "src/config";
-import { CacheModule } from "@nestjs/common";
-import { StixModule } from "src/stix/stix.module";
 import { ManifestService } from "./manifest.service";
 import { PaginationService } from "../pagination";
+import {
+  closeInMongodConnection,
+  rootMongooseTestModule,
+} from "src/../test/test.mongoose.module";
+import { MongooseModule } from "@nestjs/mongoose";
+import { AttackObject, AttackObjectSchema } from "src/hydrate/collector/schema";
 
-it("can create an instance of ManifestService", async () => {
-  const module = await Test.createTestingModule({
-    imports: [
-      TaxiiLoggerModule,
-      TaxiiConfigModule,
-      ObjectModule,
-      FilterModule,
-      CacheModule.register({
-        isGlobal: true,
-        ttl: 600,
-      }),
-      StixModule.register({
-        useType: "workbench",
-        workbench: {
-          authorization: "fake-api-key",
-        },
-      }),
-    ],
-    providers: [ManifestRecordService, ManifestService, PaginationService],
-  }).compile();
+describe("ManifestService", () => {
+  let manifestService: ManifestService;
 
-  const manifestService = module.get(ManifestService);
-  expect(manifestService).toBeDefined();
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        TaxiiLoggerModule,
+        TaxiiConfigModule,
+        ObjectModule,
+        FilterModule,
+        rootMongooseTestModule(),
+        MongooseModule.forFeature([
+          { name: AttackObject.name, schema: AttackObjectSchema },
+        ]),
+      ],
+      providers: [ManifestService, PaginationService],
+    }).compile();
+
+    manifestService = module.get<ManifestService>(ManifestService);
+  });
+
+  it("should be defined", async () => {
+    expect(manifestService).toBeDefined();
+  });
+
+  afterAll(async () => {
+    await closeInMongodConnection();
+  });
 });

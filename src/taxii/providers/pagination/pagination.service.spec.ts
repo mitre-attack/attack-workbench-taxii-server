@@ -1,12 +1,20 @@
-import { Test } from "@nestjs/testing";
+import { Test, TestingModule } from "@nestjs/testing";
 import { PaginationService } from "./pagination.service";
 import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
 
-it("can create an instance of PaginationService", async () => {
-  const module = await Test.createTestingModule({
-    imports: [TaxiiLoggerModule],
-    providers: [PaginationService],
-  }).compile();
-  const paginationService = module.get(PaginationService);
-  expect(paginationService).toBeDefined();
+describe("PaginationService", () => {
+  let paginationService: PaginationService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [TaxiiLoggerModule],
+      providers: [PaginationService],
+    }).compile();
+
+    paginationService = module.get<PaginationService>(PaginationService);
+  });
+
+  it("should be defined", () => {
+    expect(paginationService).toBeDefined();
+  });
 });

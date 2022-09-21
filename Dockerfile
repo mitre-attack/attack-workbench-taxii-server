@@ -40,7 +40,12 @@ COPY package*.json ./
 # dependencies defined in dependencies in package.json by using the --only=production argument. This way we don’t install
 # packages such as TypeScript that would cause our final image to increase in size.
 RUN npm install --only=production
-#RUN npm install
+
+# Install PM2 globally
+RUN npm install pm2 -g
+
+# Copy over the PM2 configuration file. We will need this to start the container.
+COPY ecosystem.config.js .
 
 # Here we copy the built /dist folder from the development image. This way we are only getting the /dist directory,
 # without the devDependencies, installed in our final image.
@@ -51,4 +56,4 @@ COPY config/ config/
 RUN cp config/*pem dist/config/ | true
 
 # Here we define the default command to execute when the image is run.
-CMD ["node", "dist/main"]
+CMD ["pm2-runtime", "ecosystem.config.js"]

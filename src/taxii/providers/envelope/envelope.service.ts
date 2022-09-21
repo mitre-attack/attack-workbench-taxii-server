@@ -5,7 +5,7 @@ import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { ObjectFiltersDto } from "../filter/dto";
 import "object-hash";
 import { TaxiiNotFoundException } from "src/common/exceptions";
-import { StixObjectPropertiesInterface } from "src/stix/dto/interfaces/stix-object-properties.interface";
+import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 import { EnvelopeDto } from "./dto";
 import { PaginationService } from "../pagination";
 
@@ -26,7 +26,7 @@ export class EnvelopeService {
    * @param next? Refers to the unique envelope ID. Indicates which envelope should be returned.
    * @param match? All returned STIX objects must match all of the specified search criteria.
    */
-  async findByCollection(
+  async findByCollectionId(
     collectionId: string,
     addedAfter?: string,
     limit?: number,
@@ -42,10 +42,10 @@ export class EnvelopeService {
 
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.
     const stixObjects: StixObjectPropertiesInterface[] =
-      await this.objectsService.findByCollection(filters);
+      await this.objectsService.findByCollectionId(filters);
 
     // Paginate the array of STIX objects and return the requested page & page count
-    return await this.paginationService.getEnvelopes(stixObjects, limit, next);
+    return await this.paginationService.getEnvelope(stixObjects, limit, next);
   }
 
   /**
@@ -54,6 +54,7 @@ export class EnvelopeService {
    * @param objectId The unique ID of the target STIX object
    * @param addedAfter A single timestamp
    * @param limit A single integer indicating the maximum number of objects which should be included in the response
+   * @param next
    * @param match Contains object filters such as spec_version and type. See the TAXII 2.1 specification for details.
    */
   async findByObjectId(
@@ -61,6 +62,7 @@ export class EnvelopeService {
     objectId: string,
     addedAfter?: string,
     limit?: number,
+    next?: number,
     match?: MatchDto
   ): Promise<EnvelopeDto> {
     const filters = new ObjectFiltersDto({
@@ -81,7 +83,7 @@ export class EnvelopeService {
     }
 
     // Paginate the array of STIX objects and return the requested page & page count.
-    return await this.paginationService.getEnvelopes(stixObjects, limit, 0);
+    return await this.paginationService.getEnvelope(stixObjects, limit, next);
     /**
      * NOTE: `next` is hard-coded to zero (0) because (at the time of this writing) the TAXII 2.1 specification did
      * not include a `next` URL filtering query parameter in Section "5.6 Get an Object"

@@ -8,7 +8,7 @@ import {
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { Response } from "express";
-import { StixObjectPropertiesInterface } from "src/stix/dto/interfaces/stix-object-properties.interface";
+import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 import { ManifestRecordDto } from "src/taxii/providers/manifest/dto";
 
 export enum TaxiiDateFrom {
@@ -96,7 +96,7 @@ export class SetTaxiiDateHeadersInterceptor implements NestInterceptor {
               break;
             }
             case TaxiiDateFrom.VERSIONS: {
-              // TODO complete this block after version endpoint is implemented
+              // TODO confirm this works then delete TODO: complete this block after version endpoint is implemented
               const versions: string[] = data.items;
               if (versions.length >= 1) {
                 addedFirst = versions[0];

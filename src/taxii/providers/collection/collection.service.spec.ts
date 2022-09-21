@@ -3,45 +3,40 @@ import { CollectionService } from "./collection.service";
 import { CollectionRepository } from "./collection.repository";
 import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
 import { TaxiiConfigModule } from "src/config";
+import {
+  closeInMongodConnection,
+  rootMongooseTestModule,
+} from "src/../test/test.mongoose.module";
+import { MongooseModule } from "@nestjs/mongoose";
+import {
+  TaxiiCollection,
+  TaxiiCollectionSchema,
+} from "src/hydrate/collector/schema";
 
-it("can create an instance of CollectionService", async () => {
-  // create a fake copy of the dependent services
-  const fakeCollectionRepo = {
-    findOne: (id: string) => {
-      // fake findOne returns a fake instance of CollectionDto
-      Promise.resolve({
-        id,
-        title: "fakeTitle",
-        description: "fakeDescription",
-        alias: "fakeAlias",
-        canRead: true,
-        canWrite: false,
-        mediaType: [],
-      });
-    },
-    findAll: () => {
-      // returns a fake (empty) instance of CollectionsDto
-      Promise.resolve({
-        collections: [],
-      });
-    },
-  };
+describe("CollectionService", () => {
+  let collectionService: CollectionService;
 
-  // create test DI container
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      imports: [
+        TaxiiLoggerModule,
+        TaxiiConfigModule,
+        rootMongooseTestModule(),
+        MongooseModule.forFeature([
+          { name: TaxiiCollection.name, schema: TaxiiCollectionSchema },
+        ]),
+      ],
+      providers: [CollectionService, CollectionRepository],
+    }).compile();
 
-  const module = await Test.createTestingModule({
-    imports: [TaxiiLoggerModule, TaxiiConfigModule],
-    providers: [
-      CollectionService,
-      {
-        provide: CollectionRepository,
-        useValue: fakeCollectionRepo,
-      },
-    ],
-  }).compile();
+    collectionService = module.get<CollectionService>(CollectionService);
+  });
 
-  // reach into DI container and get a copy of the dependency services
+  it("should be defined", async () => {
+    expect(collectionService).toBeDefined();
+  });
 
-  const collectionService = module.get(CollectionService);
-  expect(collectionService).toBeDefined();
+  afterAll(async () => {
+    await closeInMongodConnection();
+  });
 });

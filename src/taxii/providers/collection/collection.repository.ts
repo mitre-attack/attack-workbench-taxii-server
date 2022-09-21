@@ -1,22 +1,27 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { StixObjectInterface } from "src/stix/dto/interfaces/stix-object.interface";
+import { Injectable } from "@nestjs/common";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
-import { STIX_REPO_TOKEN } from "src/stix/constants";
-import { StixRepositoryAbstract } from "src/stix/providers/stix.repository.abstract";
 import { TaxiiCollectionDto, TaxiiCollectionsDto } from "./dto";
+import { InjectModel } from "@nestjs/mongoose";
+import {
+  TaxiiCollection,
+  TaxiiCollectionDocument,
+} from "src/hydrate/collector/schema";
+import { Model } from "mongoose";
+import { isNull } from "lodash";
 
 @Injectable()
 export class CollectionRepository {
   /**
    * Instantiates an instance of the CollectionRepository service class
    * @param logger
-   * @param stixRepo
+   * @param collectionModel
    */
   constructor(
     private readonly logger: Logger,
-    @Inject(STIX_REPO_TOKEN) private readonly stixRepo: StixRepositoryAbstract
+    @InjectModel(TaxiiCollection.name)
+    private collectionModel: Model<TaxiiCollectionDocument>
   ) {
-    logger.setContext(CollectionRepository.name);
+    this.logger.setContext(CollectionRepository.name);
   }
 
   /**
@@ -24,28 +29,45 @@ export class CollectionRepository {
    * @param id The unique identifier of a STIX collection-_dto
    */
   async findOne(id: string): Promise<TaxiiCollectionDto> {
-    // The async function should return an array of (hopefully) one STIX collection.
-    const collections: StixObjectInterface[] =
-      await this.stixRepo.getCollections(id);
-    // Assume only one object in array. (There should only be one element in the array anyways). Transform object
-    // from STIX to TAXII, then return it.
-    return new TaxiiCollectionDto(collections[0].stix);
+    const response: TaxiiCollection = await this.collectionModel
+      .findOne({ id: id })
+      .exec();
+
+    return new Promise((resolve, reject) => {
+      if (!isNull(response)) {
+        // Transform the response object to a TAXII-compliant DTO and return
+        resolve(new TaxiiCollectionDto({ ...response["_doc"] }));
+      }
+      reject(`Collection ID '${id}' not available in database`);
+    });
   }
 
   /**
    * Get a summary of all STIX collections
    */
   async findAll(): Promise<TaxiiCollectionsDto> {
-    const stixCollections: StixObjectInterface[] =
-      await this.stixRepo.getCollections();
+    // Initialize the parent resource
+    const taxiiCollectionsResource: TaxiiCollectionsDto =
+      new TaxiiCollectionsDto();
 
-    // Transform STIX to TAXII
-    const taxiiCollections = new TaxiiCollectionsDto();
-    stixCollections.forEach((stixCollection) => {
-      const taxiiCollection = new TaxiiCollectionDto(stixCollection.stix);
-      taxiiCollections.push(taxiiCollection);
-    });
+    // Retrieve the list of TAXII collection resources from the database
+    const response: TaxiiCollectionDto[] = await this.collectionModel
+      .find({})
+      .exec();
 
-    return taxiiCollections;
+    // Transform each collection resource to a TAXII-compliant DTO and push it onto the parent DTO resource
+    for (const element of response) {
+      taxiiCollectionsResource.collections.push(
+        new TaxiiCollectionDto({
+          id: element.id,
+          canRead: element.canRead,
+          canWrite: element.canWrite,
+          description: element.description,
+          mediaTypes: element.mediaTypes,
+          title: element.title,
+        })
+      );
+    }
+    return taxiiCollectionsResource;
   }
 }

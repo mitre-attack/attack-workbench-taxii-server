@@ -26,7 +26,7 @@ export class ApiRootDto {
    */
   @Expose()
   @IsOptional()
-  description: string | undefined;
+  description?: string;
 
   /**
    * @descr       The list of TAXII version that this API Root is compatible with. The values listed in this

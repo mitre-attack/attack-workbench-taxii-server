@@ -1,32 +1,43 @@
-import { Test } from "@nestjs/testing";
-import { FilterModule } from "../filter/filter.module";
+import { Test, TestingModule } from "@nestjs/testing";
 import { ObjectService } from "./object.service";
 import { ObjectRepository } from "./object.repository";
 import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
-import { StixModule } from "src/stix/stix.module";
-import { CacheModule } from "@nestjs/common";
 import { TaxiiConfigModule } from "src/config";
+import { ObjectModule } from "./object.module";
+import {
+  closeInMongodConnection,
+  rootMongooseTestModule,
+} from "src/../test/test.mongoose.module";
+import { MongooseModule } from "@nestjs/mongoose";
+import { AttackObject, AttackObjectSchema } from "src/hydrate/collector/schema";
+import { FilterModule } from "../filter/filter.module";
 
-it("can create an instance of ObjectService", async () => {
-  const module = await Test.createTestingModule({
-    imports: [
-      TaxiiLoggerModule,
-      TaxiiConfigModule,
-      FilterModule,
-      CacheModule.register({
-        isGlobal: true,
-        ttl: 600,
-      }),
-      StixModule.register({
-        useType: "workbench",
-        workbench: {
-          authorization: "fake-api-key",
-        },
-      }),
-    ],
-    providers: [ObjectService, ObjectRepository],
-  }).compile();
+describe("ObjectService", () => {
+  let objectService: ObjectService;
 
-  const objectService = module.get(ObjectService);
-  expect(objectService).toBeDefined();
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        TaxiiLoggerModule,
+        TaxiiConfigModule,
+        FilterModule,
+        ObjectModule,
+        rootMongooseTestModule(),
+        MongooseModule.forFeature([
+          { name: AttackObject.name, schema: AttackObjectSchema },
+        ]),
+      ],
+      providers: [ObjectService, ObjectRepository],
+    }).compile();
+
+    objectService = module.get(ObjectService);
+  });
+
+  it("should be defined", () => {
+    expect(objectService).toBeDefined();
+  });
+
+  afterAll(async () => {
+    await closeInMongodConnection();
+  });
 });

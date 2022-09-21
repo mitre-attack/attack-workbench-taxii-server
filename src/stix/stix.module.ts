@@ -5,7 +5,7 @@ import { StixRepoFactory } from "./utils/stix-repo-factory";
 @Global()
 @Module({})
 export class StixModule {
-  static register(connectOptions: StixConnectOptions): DynamicModule {
-    return StixRepoFactory.register(connectOptions);
+  static register(options: StixConnectOptions): DynamicModule {
+    return StixRepoFactory.register(options);
   }
 }

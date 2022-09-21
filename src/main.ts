@@ -11,7 +11,7 @@ import * as http from "http";
 /**
  * Starts the Nest.js application
  */
-async function bootstrap() {
+export async function bootstrap() {
   // ** Initialize Express adapter ** //
   const server: express.Express = express();
 
@@ -29,17 +29,13 @@ async function bootstrap() {
   );
   const tempConfigService: TaxiiConfigService =
     tempConfigApp.get(TaxiiConfigService);
-
   // ** Initialize the core TAXII application ** //
 
   // * NOTE: We're able to influence the behavior of the AppModule by injecting user-definable parameters into the
   // * AppModule.register method, which, consequently, are set by OS environment variables.
 
   const app: NestApplication = await NestFactory.create(
-    AppModule.register({
-      stixConnectOptions: tempConfigService.createStixConnectOptions(),
-      cacheConnectOptions: tempConfigService.createCacheConnectOptions(),
-    }),
+    AppModule.register(tempConfigService.createAppConnectOptions()),
     // AppModule.register({ useClass: TaxiiConfigService } ),   <--- Long term goal is to refactor the implementation
     //                                                              to be fully dynamic such that we can load the
     //                                                              app like this (w/o instantiating a temporary

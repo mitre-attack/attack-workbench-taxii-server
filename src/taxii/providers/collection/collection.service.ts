@@ -1,13 +1,15 @@
 import { Injectable } from "@nestjs/common";
-import { CollectionRepository } from "./collection.repository";
+// import { CollectionWorkbenchRepository } from "./collection.workbench.repository";
 import { TaxiiCollectionDto, TaxiiCollectionsDto } from "./dto";
 import { TaxiiNotFoundException } from "src/common/exceptions";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
+import { CollectionRepository } from "./collection.repository";
 
 @Injectable()
 export class CollectionService {
   constructor(
     private readonly logger: Logger,
+    // private readonly stixCollectionsRepo: CollectionWorkbenchRepository,
     private readonly stixCollectionsRepo: CollectionRepository
   ) {
     this.logger.setContext(CollectionService.name);
@@ -23,14 +25,14 @@ export class CollectionService {
 
     if (!taxiiCollections) {
       throw new TaxiiNotFoundException({
-        title: "Stix Collections Not Found",
+        title: "TAXII Collections Not Found",
         description:
-          "The STIX Collections Repo did not return any collection objects. Ensure that STIX data exists in the stix.",
+          "The TAXII server did not return any collection objects. Ensure that STIX repository is populated.",
       });
     }
 
     this.logger.debug(
-      `Retrieved ${taxiiCollections.length} STIX Collections from the repository`,
+      `Retrieved ${taxiiCollections.length} TAXII collections from the repository`,
       this.constructor.name
     );
 
@@ -45,15 +47,19 @@ export class CollectionService {
     const taxiiCollection: TaxiiCollectionDto =
       await this.stixCollectionsRepo.findOne(id);
 
+    this.logger.debug(
+      `Retrieved TAXII Collection: ${JSON.stringify(taxiiCollection, null, 4)}`
+    );
+
     if (!taxiiCollection) {
       throw new TaxiiNotFoundException({
-        title: "No STIX Collection Found",
-        description: `No STIX Collection with the ID ${id} was found.`,
+        title: "No TAXII Collection Found",
+        description: `No TAXII collection with the ID ${id} was found.`,
       });
     }
 
     this.logger.debug(
-      `Retrieved STIX Collection ${taxiiCollection.id} from the repository`,
+      `Retrieved TAXII collection ${taxiiCollection.id} from the repository`,
       this.constructor.name
     );
 

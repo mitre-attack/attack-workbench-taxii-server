@@ -1,32 +1,41 @@
-import { Test } from "@nestjs/testing";
+import { Test, TestingModule } from "@nestjs/testing";
 import { PaginationService } from "../pagination";
 import { ObjectModule } from "../object";
 import { VersionService } from "./version.service";
 import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
 import { TaxiiConfigModule } from "src/config";
-import { CacheModule } from "@nestjs/common";
-import { StixModule } from "src/stix/stix.module";
+import { MongooseModule } from "@nestjs/mongoose";
+import {
+  rootMongooseTestModule,
+  closeInMongodConnection,
+} from "src/../test/test.mongoose.module";
+import { AttackObject, AttackObjectSchema } from "src/hydrate/collector/schema";
 
-it("can create an instance of VersionService", async () => {
-  const module = await Test.createTestingModule({
-    imports: [
-      TaxiiLoggerModule,
-      TaxiiConfigModule,
-      ObjectModule,
-      CacheModule.register({
-        isGlobal: true,
-        ttl: 600,
-      }),
-      StixModule.register({
-        useType: "workbench",
-        workbench: {
-          authorization: "fake-api-key",
-        },
-      }),
-    ],
-    providers: [VersionService, PaginationService],
-  }).compile();
+describe("VersionService", () => {
+  let versionService: VersionService;
 
-  const versionService = module.get(VersionService);
-  expect(versionService).toBeDefined();
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        TaxiiLoggerModule,
+        TaxiiConfigModule,
+        ObjectModule,
+        rootMongooseTestModule(),
+        MongooseModule.forFeature([
+          { name: AttackObject.name, schema: AttackObjectSchema },
+        ]),
+      ],
+      providers: [VersionService, PaginationService],
+    }).compile();
+
+    versionService = module.get<VersionService>(VersionService);
+  });
+
+  it("should be defined", () => {
+    expect(versionService).toBeDefined();
+  });
+
+  afterAll(async () => {
+    await closeInMongodConnection();
+  });
 });

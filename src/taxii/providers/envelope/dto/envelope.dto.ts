@@ -1,8 +1,8 @@
-import { StixObjectPropertiesInterface } from "src/stix/dto/interfaces/stix-object-properties.interface";
+import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 import { SinglePageInterface } from "src/taxii/providers/pagination/interfaces/single-page.interface";
 import { Exclude, Expose, Type } from "class-transformer";
 import { IsBoolean, IsOptional, IsString } from "class-validator";
-import { WorkbenchStixObjectPropertiesDto } from "src/stix/providers/workbench/dto/workbench-stix-object-properties.dto";
+import { StixObjectDto } from "src/stix/dto/stix-object.dto";
 import {
   GenericPageDto,
   GenericPageOptions,
@@ -35,7 +35,7 @@ export class EnvelopeDto
   next: string;
 
   @IsOptional()
-  @Type(() => WorkbenchStixObjectPropertiesDto)
+  @Type(() => StixObjectDto)
   @Expose({ name: "objects" })
   items: StixObjectPropertiesInterface[];
 

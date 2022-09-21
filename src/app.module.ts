@@ -8,6 +8,7 @@ import { TaxiiModule } from "./taxii/taxii.module";
 import { StixModule } from "./stix/stix.module";
 import { TaxiiCacheModule } from "./cache/taxii-cache.module";
 import { AppConnectOptions } from "./interfaces";
+import { MongooseModule } from "@nestjs/mongoose";
 
 @Global()
 @Module({})
@@ -28,6 +29,10 @@ export class AppModule {
           contextClass: RequestContext,
           isGlobal: true,
         }),
+
+        // ScheduleModule.forRoot(),
+
+        MongooseModule.forRoot(connectOptions.databaseConnectOptions.mongoUri),
 
         TaxiiCacheModule.forRoot(connectOptions.cacheConnectOptions),
 

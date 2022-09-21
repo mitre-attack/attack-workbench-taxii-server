@@ -1,12 +1,14 @@
 import { Injectable, LogLevel } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as fs from "fs";
-// import {LOG_LEVELS} from "../constants";
 import { CACHE_OPTIONS } from "../cache/constants";
 import { TaxiiConfigServiceInterface } from "./interfaces/taxii-config.service.interface";
 import { CacheConnectOptions } from "../cache/interfaces/cache-module-options.interface";
 import { StixConnectOptions } from "../stix/interfaces";
 import { isDefined } from "class-validator";
+import { AppConnectOptions } from "../interfaces";
+import { DatabaseConnectOptions } from "../interfaces/database-connect-options.interface";
+import { CollectorConnectOptions } from "../hydrate/collector/interfaces/collector-connect.options";
 
 /**
  * This provider is responsible for loading all user-definable configuration parameters (imported from
@@ -15,6 +17,27 @@ import { isDefined } from "class-validator";
 @Injectable()
 export class TaxiiConfigService implements TaxiiConfigServiceInterface {
   constructor(private configService: ConfigService) {}
+
+  createAppConnectOptions(): AppConnectOptions {
+    return {
+      databaseConnectOptions: this.createDatabaseConnectOptions(),
+      stixConnectOptions: this.createStixConnectOptions(),
+      cacheConnectOptions: this.createCacheConnectOptions(),
+    };
+  }
+
+  createCollectorConnectOptions(): CollectorConnectOptions {
+    return {
+      hydrateOnBoot: this.HYDRATE_ON_BOOT,
+      ...this.createAppConnectOptions(),
+    };
+  }
+
+  createDatabaseConnectOptions(): DatabaseConnectOptions {
+    return {
+      mongoUri: this.MONGO_URI,
+    };
+  }
 
   createCacheConnectOptions(): CacheConnectOptions {
     const cacheType = this.configService.get<string>("app.cacheType");
@@ -64,10 +87,10 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
 
   createStixConnectOptions(): StixConnectOptions {
     return {
-      useType: this.STIX_DATA_SRC,
       workbench: {
         baseUrl: this.WORKBENCH_REST_API_URL,
         authorization: this.WORKBENCH_AUTH_HEADER,
+        cacheTtl: this.CACHE_TTL,
       },
     };
   }
@@ -96,7 +119,7 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
     return this.configService.get<string>("app.apiRootDescription");
   }
 
-  get CONTACT(): string {
+  get CONTACT_EMAIL(): string {
     return this.configService.get<string>("app.contact");
   }
 
@@ -121,11 +144,11 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
   }
 
   get CACHE_RECONNECT(): boolean {
-    return this.configService.get<boolean>("app.cacheReconnect");
+    return this.configService.get<string>("app.cacheReconnect") === "true";
   }
 
   get CORS_ENABLED(): boolean {
-    return this.configService.get<boolean>("app.corsEnabled");
+    return this.configService.get<string>("app.corsEnabled") === "true";
   }
 
   get WORKBENCH_REST_API_URL(): string {
@@ -134,10 +157,6 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
 
   get WORKBENCH_AUTH_HEADER(): string {
     return this.configService.get<string>("app.workbenchAuthHeader");
-  }
-
-  get STIX_DATA_SRC(): string {
-    return this.configService.get<string>("app.stixDataSrc");
   }
 
   get HTTPS_ENABLED(): boolean {
@@ -172,7 +191,7 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
   }
 
   get LOG_TO_FILE(): boolean {
-    return this.configService.get<boolean>("app.logToFile");
+    return this.configService.get<string>("app.logToFile") === "true";
   }
 
   get LOG_TO_HTTP_HOST(): string {
@@ -193,5 +212,17 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
 
   get LOG_TO_SENTRY_DSN(): string {
     return this.configService.get<string>("app.logToSentryDsn");
+  }
+
+  get ENV(): string {
+    return this.configService.get<string>("app.env");
+  }
+
+  get MONGO_URI(): string {
+    return this.configService.get<string>("app.mongoUri");
+  }
+
+  get HYDRATE_ON_BOOT(): boolean {
+    return this.configService.get<string>("app.hydrateOnBoot") === "true";
   }
 }

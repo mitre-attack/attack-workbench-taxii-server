@@ -2,18 +2,16 @@ import { Injectable } from "@nestjs/common";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { ObjectService } from "../object";
 import { ObjectFiltersDto } from "../filter/dto";
-import { StixObjectPropertiesInterface } from "src/stix/dto/interfaces/stix-object-properties.interface";
 import { MatchDto } from "src/common/models/match/match.dto";
-import { ManifestRecordService } from "./manifest-record.service";
 import { PaginationService } from "../pagination";
-import { ManifestDto } from "./dto";
+import { ManifestDto, ManifestRecordDto } from "./dto";
+import { StixObjectDto } from "src/stix/dto/stix-object.dto";
 
 @Injectable()
 export class ManifestService {
   constructor(
     private readonly logger: Logger,
     private readonly objectService: ObjectService,
-    private readonly manifestRecordService: ManifestRecordService,
     private readonly paginationService: PaginationService
   ) {
     logger.setContext(ManifestService.name);
@@ -34,15 +32,21 @@ export class ManifestService {
     });
 
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.
-    const stixObjects: StixObjectPropertiesInterface[] =
-      await this.objectService.findByCollection(searchFilters);
+
+    const stixObjects: AsyncIterableIterator<StixObjectDto> =
+      await this.objectService.findAsyncIterableByCollectionId(searchFilters);
 
     // Convert STIX objects to manifest-records
-    const manifestRecords =
-      await this.manifestRecordService.objectsToManifestRecords(stixObjects);
+
+    const manifestRecords: ManifestRecordDto[] = [];
+
+    for await (const object of stixObjects) {
+      manifestRecords.push(new ManifestRecordDto(object));
+    }
 
     // Paginate the manifest-records and return the appropriate page
-    return await this.paginationService.getManifests(
+
+    return await this.paginationService.getManifest(
       manifestRecords,
       limit,
       next

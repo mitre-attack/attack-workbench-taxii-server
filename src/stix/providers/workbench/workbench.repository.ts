@@ -1,4 +1,9 @@
-import { CACHE_MANAGER, Inject, Injectable } from "@nestjs/common";
+import {
+  CACHE_MANAGER,
+  ConsoleLogger,
+  Inject,
+  Injectable,
+} from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { lastValueFrom, map } from "rxjs";
 import {
@@ -6,35 +11,29 @@ import {
   TaxiiNotFoundException,
   TaxiiServiceUnavailableException,
 } from "src/common/exceptions";
-import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { Cache } from "cache-manager";
-import { TaxiiConfigService } from "src/config";
-import { WorkbenchCollectionDto } from "./dto/workbench-collection.dto";
+import { WorkbenchCollectionDto } from "src/stix/dto/workbench-collection.dto";
 import { plainToClass, plainToInstance } from "class-transformer";
-import { StixRepositoryInterface } from "../stix.repository.interface";
-import { StixRepositoryAbstract } from "../stix.repository.abstract";
-import { WorkbenchCollectionBundleDto } from "./dto/workbench-collection-bundle.dto";
-import { WorkbenchStixObjectDto } from "./dto/workbench-stix-object.dto";
-import { StixIdentityPrefix, WorkbenchRESTEndpoint } from "./constants";
+import { WorkbenchCollectionBundleDto } from "src/stix/dto/workbench-collection-bundle.dto";
+import { AttackObjectDto } from "src/stix/dto/attack-object.dto";
+import { StixIdentityPrefix, WorkbenchRESTEndpoint } from "src/stix/constants";
+import { WorkbenchConnectOptionsInterface } from "src/stix/interfaces/workbench-connect-options.interface";
+import { WORKBENCH_OPTIONS } from "src/stix/constants";
 
 @Injectable()
-export class WorkbenchRepository
-  extends StixRepositoryAbstract
-  implements StixRepositoryInterface
-{
-  private readonly _baseUrl: string;
-  private readonly _cacheTtl: number;
+export class WorkbenchRepository {
+  private readonly baseUrl: string;
+  private readonly cacheTtl: number;
 
   constructor(
-    private readonly logger: Logger,
     private readonly httpService: HttpService,
-    private readonly config: TaxiiConfigService,
+    private readonly logger: ConsoleLogger,
+    @Inject(WORKBENCH_OPTIONS)
+    private readonly options: WorkbenchConnectOptionsInterface,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {
-    super();
-    this._baseUrl = config.WORKBENCH_REST_API_URL;
-    this._cacheTtl = config.CACHE_TTL;
-    logger.setContext(WorkbenchRepository.name);
+    this.baseUrl = options.baseUrl;
+    this.cacheTtl = options.cacheTtl;
   }
 
   /**
@@ -49,7 +48,7 @@ export class WorkbenchRepository
 
     try {
       return await this.cacheManager.set(cacheKey, item, {
-        ttl: this._cacheTtl,
+        ttl: this.cacheTtl,
       });
     } catch (e) {
       this.logger.error(
@@ -62,7 +61,7 @@ export class WorkbenchRepository
   }
 
   private generateKeyFromUrl(url: string): string {
-    return url.slice(this._baseUrl.length);
+    return url.slice(this.baseUrl.length);
   }
 
   /**
@@ -186,9 +185,11 @@ export class WorkbenchRepository
   /**
    * Retrieves a list of all available STIX objects
    */
-  async getAllStixObjects(): Promise<WorkbenchStixObjectDto[]> {
-    const url = `${this._baseUrl}/api/attack-objects`;
-    let response: Array<WorkbenchStixObjectDto>;
+  async getAllStixObjects(
+    excludeExtraneousValues = true
+  ): Promise<AttackObjectDto[]> {
+    const url = `${this.baseUrl}/api/attack-objects?versions=all`;
+    let response: Array<AttackObjectDto>;
     response = await this.getFromCache(url); // TODO deserialize first i.e., run the WB response through plainToInstance
     if (response) {
       return response;
@@ -212,13 +213,18 @@ export class WorkbenchRepository
         //
         //      (2) transform the property from plain JSON objects to an instance of the specified DTO class.
         //      (e.g., the stix.created property is converted from a string to an instance of TimestampDto.
-        plainToInstance(WorkbenchStixObjectDto, elem, {
-          excludeExtraneousValues: true,
+        plainToInstance(AttackObjectDto, elem, {
+          excludeExtraneousValues: excludeExtraneousValues,
         })
       );
     });
     // Cache the response by URL then return
-    await this.addToCache(url, allStixObjects);
+    try {
+      await this.addToCache(url, allStixObjects);
+    } catch (e) {
+      this.logger.error("Failed to cache ATT&CK objects");
+      this.logger.error(e.message);
+    }
     return allStixObjects;
   }
 
@@ -229,13 +235,13 @@ export class WorkbenchRepository
   async getCollections(
     collectionId?: string
   ): Promise<WorkbenchCollectionDto[]> {
-    let url = `${this._baseUrl}/api/collections/`;
+    let url = `${this.baseUrl}/api/collections/`;
     if (collectionId) {
       url += collectionId;
     }
 
     // Fetch the data from either the cache (in the case of a cache hit) or Workbench (cache miss)
-    let response: WorkbenchStixObjectDto[];
+    let response: AttackObjectDto[];
     response = await this.getFromCache(url);
     if (response) {
       return response;
@@ -267,7 +273,7 @@ export class WorkbenchRepository
   async getCollectionBundle(
     collectionId: string
   ): Promise<WorkbenchCollectionBundleDto> {
-    const url = `${this._baseUrl}/api/collection-bundles?collectionId=${collectionId}`;
+    const url = `${this.baseUrl}/api/collection-bundles?collectionId=${collectionId}`;
 
     // Fetch the data from either the cache (in the case of a cache hit) or Workbench (cache miss)
     let response: WorkbenchCollectionBundleDto;
@@ -340,8 +346,8 @@ export class WorkbenchRepository
     collectionId: string,
     stixId: string,
     versions = false
-  ): Promise<WorkbenchStixObjectDto[]> {
-    let url = `${this._baseUrl}`;
+  ): Promise<AttackObjectDto[]> {
+    let url = `${this.baseUrl}`;
     const prefix = stixId.split("--")[0];
     switch (prefix) {
       case StixIdentityPrefix.ATTACK_PATTERN: {
@@ -396,7 +402,7 @@ export class WorkbenchRepository
     if (versions == true) {
       url += "?versions=all";
     }
-    const object: WorkbenchStixObjectDto[] = await this.fetchHttp(url);
+    const object: AttackObjectDto[] = await this.fetchHttp(url);
     if (object) {
       // Don't return the object if it does not belong to the specified collection
       if (object[0].workspace.collections[0].collection_ref == collectionId) {

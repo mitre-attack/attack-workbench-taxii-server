@@ -4,15 +4,12 @@ import { DiscoverOptions, DiscoveryDto, ApiRootDto } from "./dto";
 
 @Injectable()
 export class DiscoveryService {
-  constructor(
-    private readonly config: TaxiiConfigService,
-  ) {}
+  constructor(private readonly config: TaxiiConfigService) {}
 
   discover(): DiscoveryDto {
-
     const options: DiscoverOptions = {
       title: this.config.API_ROOT_TITLE,
-      contact: this.config.CONTACT,
+      contact: this.config.CONTACT_EMAIL,
       description: this.config.API_ROOT_DESCRIPTION,
       default: this.config.API_ROOT_PATH,
       api_roots: [this.config.API_ROOT_PATH],

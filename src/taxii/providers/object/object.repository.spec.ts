@@ -1,29 +1,42 @@
-import {Test} from "@nestjs/testing";
-import {TaxiiLoggerModule} from "src/common/logger/taxii-logger.module";
-import {CacheModule} from "@nestjs/common";
-import {StixModule} from "src/stix/stix.module";
-import {ObjectRepository} from "./object.repository";
-import {TaxiiConfigModule} from "src/config";
+import { Test, TestingModule } from "@nestjs/testing";
+import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
+import { ObjectRepository } from "./object.repository";
+import { TaxiiConfigModule } from "src/config";
+import { FilterModule } from "../filter/filter.module";
+import { ObjectModule } from "./object.module";
+import {
+  closeInMongodConnection,
+  rootMongooseTestModule,
+} from "src/../test/test.mongoose.module";
+import { MongooseModule } from "@nestjs/mongoose";
+import { AttackObject, AttackObjectSchema } from "src/hydrate/collector/schema";
 
-it("can create an instance of ObjectRepository", async () => {
-   const module = await Test.createTestingModule({
-       imports: [
-           TaxiiLoggerModule,
-           TaxiiConfigModule,
-           CacheModule.register({
-               isGlobal: true,
-               ttl: 600,
-           }),
-           StixModule.register({
-               useType: "workbench",
-               workbench: {
-                   authorization: "fake-api-key",
-               },
-           }),
-       ],
-       providers: [ObjectRepository]
-   }).compile();
+describe("ObjectRepository", () => {
+  let objectRepository: ObjectRepository;
 
-   const objectRepository = module.get(ObjectRepository);
-   expect(objectRepository).toBeDefined();
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        TaxiiLoggerModule,
+        TaxiiConfigModule,
+        FilterModule,
+        ObjectModule,
+        rootMongooseTestModule(),
+        MongooseModule.forFeature([
+          { name: AttackObject.name, schema: AttackObjectSchema },
+        ]),
+      ],
+      providers: [ObjectRepository],
+    }).compile();
+
+    objectRepository = module.get<ObjectRepository>(ObjectRepository);
+  });
+
+  it("should be defined", async () => {
+    expect(objectRepository).toBeDefined();
+  });
+
+  afterAll(async () => {
+    await closeInMongodConnection();
+  });
 });

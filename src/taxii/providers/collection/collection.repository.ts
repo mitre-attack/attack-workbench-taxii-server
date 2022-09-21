@@ -7,6 +7,7 @@ import {
   TaxiiCollectionDocument,
 } from "src/hydrate/collector/schema";
 import { Model } from "mongoose";
+import { isNull } from "lodash";
 
 @Injectable()
 export class CollectionRepository {
@@ -28,12 +29,17 @@ export class CollectionRepository {
    * @param id The unique identifier of a STIX collection-_dto
    */
   async findOne(id: string): Promise<TaxiiCollectionDto> {
-    // Retrieve the TAXII collection resource from the database
     const response: TaxiiCollection = await this.collectionModel
       .findOne({ id: id })
       .exec();
-    // Transform the response object to a TAXII-compliant DTO and return
-    return new TaxiiCollectionDto({ ...response["_doc"] });
+
+    return new Promise((resolve, reject) => {
+      if (!isNull(response)) {
+        // Transform the response object to a TAXII-compliant DTO and return
+        resolve(new TaxiiCollectionDto({ ...response["_doc"] }));
+      }
+      reject(`Collection ID '${id}' not available in database`);
+    });
   }
 
   /**
@@ -51,7 +57,6 @@ export class CollectionRepository {
 
     // Transform each collection resource to a TAXII-compliant DTO and push it onto the parent DTO resource
     for (const element of response) {
-      this.logger.debug(`element=${JSON.stringify(element, null, 4)}`);
       taxiiCollectionsResource.collections.push(
         new TaxiiCollectionDto({
           id: element.id,

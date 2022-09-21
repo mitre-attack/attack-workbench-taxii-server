@@ -76,7 +76,7 @@ If the TAXII server is configured to source STIX from the `WorkbenchRepository`,
 to the Workbench REST API using Basic Auth. There are two steps to enabling the TAXII server to authenticate to
 the Workbench REST API:
 
-1. Basic Auth must be enabled on the Workbench REST API and a service account & API key must be pre-provisioned for the 
+1. Basic Auth must be enabled on the Workbench REST API and a service account & API key must be provisioned for the 
 TAXII server. An example is provided [here](https://github.com/center-for-threat-informed-defense/attack-workbench-rest-api/blob/develop/resources/sample-configurations/test-service-basic-apikey.json).
 
 2. On the TAXII server, `TAXII_WORKBENCH_AUTH_HEADER` must be set to the aforementioned encoded service account 
@@ -164,7 +164,7 @@ the following two Mongo Collections:
 - `taxiicollections` : Stores TAXII Collection resources
 
 The `taxii` database is populated by the TAXII Collector, which can be initialized & run via `npm run hydrate`. 
-Synchronization is handled by the `HydrateModule` and occurs every hour at +0 minutes and +30 minutes (e.g., 12:00, 
+Synchronization is handled by the `HydrateModule` and occurs every hour at the `HH:00` and `HH:30` minute mark (_e.g._, 12:00, 
 12:30, 1:00, 1:30).
 
 The TAXII Collector can be configured to start hydrating the database as soon as it initializes by setting the 
@@ -172,7 +172,8 @@ The TAXII Collector can be configured to start hydrating the database as soon as
 (and thus requires hydration) but the time is something like 12:45. In this example, rather than wait 15 minutes for the
 automated task scheduler to trigger, `TAXII_HYDRATE_ON_BOOT` can be used to force hydration to occur as soon as the TAXII 
 collector initializes. Alternatively, if the database is already hydrated (and thus hydration is not needed at runtime),
-`TAXII_HYDRATE_ON_BOOT` can be disabled. This will restrict the task scheduler to only run at the 30-minute mark. 
+`TAXII_HYDRATE_ON_BOOT` can be disabled. This will restrict the task scheduler to only run at the `HH:00` and `HH:30` 
+minute mark.
 
 ## Clustering
 The production instance of the TAXII server (`npm run start:prod`) is encapsulated in a PM2 cluster. Two independent 

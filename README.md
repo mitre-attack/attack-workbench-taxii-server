@@ -1,6 +1,3 @@
-```text
-IMPORTANT: THIS CODE BASE IS STILL A WORK-IN-PROGRESS. DOCUMENTATION AND CODE ARE SUBJECT TO CHANGE UNTIL RELEASE-v1.0.0. 
-```
 # ATT&CK Workbench TAXII Server
 
 The ATT&CK Workbench TAXII server is a Node.js server designed to serve STIX 2.1 content through a
@@ -56,9 +53,6 @@ fde5d877-6f13-4694-b5c6-85d3f689f068 ◄───────┴──── Mob
 ## TAXII Server Documentation
 The application uses Swagger UI module to dynamically document the available REST API endpoints. The Swagger report can 
 be accessed at the path: `/api-docs`.
-```text
-Please note that the Swagger integration is still a work-in-progress. 
-```
 
 The [docs](/docs/README.md) folder contains additional documentation about using the TAXII Server:
 - [USAGE](/docs/USAGE.md): Includes advanced details and instructions for setting up the TAXII Server.

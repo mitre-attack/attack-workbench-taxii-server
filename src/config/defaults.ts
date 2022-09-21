@@ -4,7 +4,7 @@ export const DEFAULT_ENV = "dev";
 export const DEFAULT_APP_ADDRESS = "0.0.0.0";
 export const DEFAULT_APP_PORT = 5000;
 export const DEFAULT_MAX_CONTENT_LENGTH = 1000;
-export const DEFAULT_API_ROOT_PATH = "v2.1/api";
+export const DEFAULT_API_ROOT_PATH = "api/v21";
 export const DEFAULT_API_ROOT_TITLE = "MITRE ATT&CK TAXII 2.1";
 export const DEFAULT_API_ROOT_DESCRIPTION =
   "This API Root contains TAXII 2.1 REST API endpoints that serve MITRE ATT&CK STIX 2.1 data";

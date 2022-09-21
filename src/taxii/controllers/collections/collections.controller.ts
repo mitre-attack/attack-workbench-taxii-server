@@ -10,6 +10,7 @@ import {
 } from "@nestjs/common";
 
 import {
+  ApiExcludeEndpoint,
   ApiHeader,
   ApiNotImplementedResponse,
   ApiOkResponse,
@@ -193,9 +194,7 @@ export class CollectionsController {
     );
   }
 
-  @ApiServiceUnavailableResponse({
-    description: SWAGGER.AddObjects.Description,
-  })
+  @ApiExcludeEndpoint()
   @Post("/:collectionId/objects/")
   async addObjects(@Param("collectionId") collectionId: string): Promise<any> {
     this.logger.warn(
@@ -208,9 +207,7 @@ export class CollectionsController {
     });
   }
 
-  @ApiNotImplementedResponse({
-    description: SWAGGER.DeleteAnObject.Description,
-  })
+  @ApiExcludeEndpoint()
   @Delete("/:collectionId/objects/:objectId/")
   async deleteAnObject(
     @Param("collectionId") collectionId: string,

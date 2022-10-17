@@ -4,7 +4,7 @@ import { StixProperties, StixPropertiesSchema } from "./stix-properties.schema";
 import * as mongoose from "mongoose";
 
 @Schema({
-  collection: "attackObjects",
+  collection: "object-resources",
   versionKey: false,
 })
 export class AttackObject extends Document {

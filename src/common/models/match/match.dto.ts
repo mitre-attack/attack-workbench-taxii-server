@@ -47,7 +47,11 @@ export class MatchDto {
   @IsOptional()
   @Type(() => String)
   @Expose()
-  specVersion?: string;
+  spec_version?: string;
+
+  get specVersion() {
+    return this.spec_version;
+  }
 
   constructor(partial?: Partial<any>) {
     Object.assign(this, partial);

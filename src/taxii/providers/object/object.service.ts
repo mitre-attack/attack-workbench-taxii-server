@@ -106,7 +106,6 @@ export class ObjectService {
         stixObjects.push(object);
       } catch (e) {
         // Object does not match one or more filters - skip it
-        this.logger.warn(e);
       }
     }
 

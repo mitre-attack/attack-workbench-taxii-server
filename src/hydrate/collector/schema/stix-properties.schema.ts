@@ -18,6 +18,9 @@ export class StixProperties {
 
   @Prop(mongoose.Schema.Types.String)
   type: string;
+
+  @Prop({ type: mongoose.Schema.Types.String, required: false })
+  spec_version: string;
 }
 
 export type WorkbenchStixObjectDocument = StixProperties & Document;

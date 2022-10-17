@@ -3,7 +3,9 @@ import { Document } from "mongoose";
 
 export type TaxiiCollectionDocument = TaxiiCollection & Document;
 
-@Schema()
+@Schema({
+  collection: "collection-resources",
+})
 export class TaxiiCollection {
   @Prop({
     required: true,

@@ -19,4 +19,19 @@ export class GenericPageDto {
     this.next = options.next ? options.next : undefined;
     this.items = options.items ? options.items : [];
   }
+
+  /**
+   * toJSON allows the controller to remove the items/objects property from the object if there are no elements in
+   * the array. This is a requirement of the TAXII 2.1 specification.
+   *
+   * The specification states:
+   * Empty lists are prohibited in TAXII and MUST NOT be used as a substitute for omitting optional properties. If the
+   * property is required, the list MUST be present and MUST have at least one value.
+   */
+  toJSON() {
+    if (this.items.length === 0) {
+      this.items = undefined;
+    }
+    return this;
+  }
 }

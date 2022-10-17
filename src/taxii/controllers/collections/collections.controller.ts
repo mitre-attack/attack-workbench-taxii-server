@@ -9,13 +9,7 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 
-import {
-  ApiExcludeEndpoint,
-  ApiHeader,
-  ApiNotImplementedResponse,
-  ApiOkResponse,
-  ApiServiceUnavailableResponse,
-} from "@nestjs/swagger";
+import { ApiExcludeEndpoint, ApiHeader, ApiOkResponse } from "@nestjs/swagger";
 
 // ** logger ** //
 import { TaxiiLoggerService as Logger } from "src/common/logger/taxii-logger.service";
@@ -127,13 +121,9 @@ export class CollectionsController {
       )} }`,
       this.constructor.name
     );
-    return await this.manifestService.getManifestsByCollection(
-      collectionId,
-      addedAfter,
-      limit,
-      next,
-      match
-    );
+    return await this.manifestService
+      .getManifestsByCollection(collectionId, addedAfter, limit, next, match)
+      .then((manifest) => manifest.toJSON());
   }
 
   @ApiOkResponse({
@@ -155,13 +145,9 @@ export class CollectionsController {
       `Received request for objects with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${match} }`,
       this.constructor.name
     );
-    return await this.envelopeService.findByCollectionId(
-      collectionId,
-      addedAfter,
-      limit,
-      next,
-      match
-    );
+    return await this.envelopeService
+      .findByCollectionId(collectionId, addedAfter, limit, next, match)
+      .then((envelope) => envelope.toJSON());
   }
 
   @ApiOkResponse({
@@ -184,14 +170,9 @@ export class CollectionsController {
       `Received request for an object with options { collectionId: ${collectionId}, objectId: ${objectId} }`,
       this.constructor.name
     );
-    return await this.envelopeService.findByObjectId(
-      collectionId,
-      objectId,
-      addedAfter,
-      limit,
-      next,
-      match
-    );
+    return await this.envelopeService
+      .findByObjectId(collectionId, objectId, addedAfter, limit, next, match)
+      .then((envelope) => envelope.toJSON());
   }
 
   @ApiExcludeEndpoint()
@@ -243,13 +224,15 @@ export class CollectionsController {
       `Received request for object versions with options { collectionId: ${collectionId}, objectId: ${objectId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${match} }`,
       this.constructor.name
     );
-    return this.versionsService.findObjectVersions(
-      collectionId,
-      objectId,
-      addedAfter,
-      limit,
-      next,
-      match
-    );
+    return this.versionsService
+      .findObjectVersions(
+        collectionId,
+        objectId,
+        addedAfter,
+        limit,
+        next,
+        match
+      )
+      .then((versions) => versions.toJSON());
   }
 }

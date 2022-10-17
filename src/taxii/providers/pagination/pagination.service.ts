@@ -96,7 +96,7 @@ export class PaginationService {
         // Paginating by `limit`. This will only ever resolve to the first page, since `next` is the mechanism by which
         // we step through pages.
 
-        const isMore: boolean = limit + limit <= items.length;
+        const isMore: boolean = limit < items.length;
 
         // Return page 1
         return new GenericPageDto({

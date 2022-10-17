@@ -30,8 +30,6 @@ export class AppModule {
           isGlobal: true,
         }),
 
-        // ScheduleModule.forRoot(),
-
         MongooseModule.forRoot(connectOptions.databaseConnectOptions.mongoUri),
 
         TaxiiCacheModule.forRoot(connectOptions.cacheConnectOptions),

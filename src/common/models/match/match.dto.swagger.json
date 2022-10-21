@@ -1,0 +1,18 @@
+{
+  "SwaggerDocumentation": {
+    "Match": {
+      "Id": {
+        "Description": "The identifier of the object(s) that are being requested. When searching for a STIX Object, this is a STIX ID."
+      },
+      "Type": {
+        "Description": "The type of the object(s) that are being requested. Only the types listed in this parameter are permitted in the response."
+      },
+      "Version": {
+        "Description": "The version(s) of the object(s) that are being requested from either an object or manifest endpoint."
+      },
+      "SpecVersion": {
+        "Description": "The specification version(s) of the STIX object that are being requested."
+      }
+    }
+  }
+}

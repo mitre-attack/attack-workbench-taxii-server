@@ -1,0 +1,32 @@
+{
+  "SwaggerDocumentation": {
+    "AcceptHeader": {
+      "Name": "Accept",
+      "Description": "This specification uses media types (section 3.1.1.1 of [RFC7231](https://docs.oasis-open.org/cti/taxii/v2.1/csprd02/taxii-v2.1-csprd02.html#o3goampoulbe)) and an optional \"version\" parameter in the HTTP Accept header. Supported media types are specified in the TAXII 2.1 specification, Section 1.6.8.1 [Media Types](https://docs.oasis-open.org/cti/taxii/v2.1/csprd02/taxii-v2.1-csprd02.html#_Toc16526035)."
+    },
+    "GetCollections": {
+      "Description": "This Endpoint provides information about the Collections hosted under this API Root."
+    },
+    "GetACollection": {
+      "Description": "This Endpoint provides general information about a Collection, which can be used to help users and clients decide whether and how they want to interact with it. For example, it will tell clients what it's called and what permissions they have to it."
+    },
+    "GetObjectManifests": {
+      "Description": "This Endpoint retrieves a manifest about the objects in a Collection. It supports filtering identical to the get objects Endpoint (see section 5.4) but rather than returning the object itself it returns metadata about the object. It can be used to retrieve metadata to decide whether it's worth retrieving the actual objects."
+    },
+    "GetObjects": {
+      "Description": "This Endpoint retrieves objects from a Collection. Clients can search for objects in the Collection, retrieve all objects in a Collection, or paginate through objects in the Collection. Pagination is supported by the limit URL query parameter (see section 3.4) and the more property of the envelope (see section 3.6)."
+    },
+    "GetAnObject": {
+      "Description": "This Endpoint gets an object from a Collection by its id. It can be thought of as a search where the match[id] parameter is set to the {object-id} in the path. For STIX 2 objects, the {object-id} MUST be the STIX id."
+    },
+    "AddObjects": {
+      "Description": "The 'Add Objects' endpoint is not implemented. STIX objects can be added via Workbench."
+    },
+    "DeleteAnObject": {
+      "Description": "The 'Delete An Object' endpoint is not implemented. STIX objects can be deleted via Workbench"
+    },
+    "GetObjectVersions": {
+      "Description": "This Endpoint retrieves a list of one or more versions of an object in a Collection. This list can be used to decide whether it's worth retrieving the actual objects, or if new versions have been added. If a STIX object is not versioned (and therefore does not have a modified timestamp), the server MUST use created timestamp."
+    }
+  }
+}

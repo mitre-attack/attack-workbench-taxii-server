@@ -1,11 +1,9 @@
-import {Module} from "@nestjs/common";
-import {FilterService} from "./filter.service";
-// import {TimestampModule} from "../../../common/models/timestamp";
+import { Module } from "@nestjs/common";
+import { FilterService } from "./filter.service";
 
 @Module({
-    // imports: [TimestampModule],
-    imports: [],
-    exports: [FilterService],
-    providers: [FilterService]
+  imports: [],
+  exports: [FilterService],
+  providers: [FilterService],
 })
 export class FilterModule {}

@@ -1,1 +1,1 @@
-export * from './object-filters.dto';
+export * from "./object-filters.dto";

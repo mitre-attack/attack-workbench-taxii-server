@@ -1,13 +1,14 @@
-import {Injectable, LogLevel} from '@nestjs/common';
-import {ConfigService} from '@nestjs/config';
+import { Injectable, LogLevel } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import * as fs from "fs";
-// import {LOG_LEVELS} from "../constants";
-import {CACHE_OPTIONS} from "../cache/constants";
-import {TaxiiConfigServiceInterface} from "./interfaces/taxii-config.service.interface";
-import {CacheConnectOptions} from "../cache/interfaces/cache-module-options.interface";
-import {StixConnectOptions} from "../stix/interfaces";
-import {isDefined} from "class-validator";
-
+import { CACHE_OPTIONS } from "../cache/constants";
+import { TaxiiConfigServiceInterface } from "./interfaces/taxii-config.service.interface";
+import { CacheConnectOptions } from "../cache/interfaces/cache-module-options.interface";
+import { StixConnectOptions } from "../stix/interfaces";
+import { isDefined } from "class-validator";
+import { AppConnectOptions } from "../interfaces";
+import { DatabaseConnectOptions } from "../interfaces/database-connect-options.interface";
+import { CollectorConnectOptions } from "../hydrate/collector/interfaces/collector-connect.options";
 
 /**
  * This provider is responsible for loading all user-definable configuration parameters (imported from
@@ -15,171 +16,213 @@ import {isDefined} from "class-validator";
  */
 @Injectable()
 export class TaxiiConfigService implements TaxiiConfigServiceInterface {
+  constructor(private configService: ConfigService) {}
 
-    constructor(private configService: ConfigService) {}
+  createAppConnectOptions(): AppConnectOptions {
+    return {
+      databaseConnectOptions: this.createDatabaseConnectOptions(),
+      stixConnectOptions: this.createStixConnectOptions(),
+      cacheConnectOptions: this.createCacheConnectOptions(),
+    };
+  }
 
-    createCacheConnectOptions() : CacheConnectOptions {
-        const cacheType = this.configService.get<string>('app.cacheType');
-        switch(cacheType) {
-            // ** MEMCACHED OPTIONS ** //
-            case CACHE_OPTIONS.MEMCACHED: {
+  createCollectorConnectOptions(): CollectorConnectOptions {
+    return {
+      hydrateOnBoot: this.HYDRATE_ON_BOOT,
+      ...this.createAppConnectOptions(),
+    };
+  }
 
-                const cacheHosts: string[] = this.configService.get<string>('app.cacheHost').split(',');
-                const maxValueSize: number = this.configService.get<number>('app.cacheMaxValueSize');
-                const ttl: number = this.configService.get<number>('app.cacheTtl');
-                const reconnect: boolean = this.configService.get<boolean>('app.cacheReconnect');
+  createDatabaseConnectOptions(): DatabaseConnectOptions {
+    return {
+      mongoUri: this.MONGO_URI,
+    };
+  }
 
-                return {
-                    type: cacheType,
-                    hosts: cacheHosts,
-                    ttl: ttl,
-                    maxValueSize: maxValueSize,
-                    reconnect: reconnect
-                }
-            }
-            // ** DEFAULT CACHE OPTIONS ** //
-            case CACHE_OPTIONS.DEFAULT: {
-                const ttl: number = this.configService.get<number>('app.cacheTtl');
-                return {
-                    type: cacheType,
-                    ttl: ttl
-                }
-            }
-            // ** DEFAULT CACHE OPTIONS ** //
-            default: {
-                const ttl: number = this.configService.get<number>('app.cacheTtl');
-                return {
-                    ttl: ttl
-                }
-            }
-        }
-    }
-
-    createStixConnectOptions() : StixConnectOptions {
+  createCacheConnectOptions(): CacheConnectOptions {
+    const cacheType = this.configService.get<string>("app.cacheType");
+    switch (cacheType) {
+      // ** MEMCACHED OPTIONS ** //
+      case CACHE_OPTIONS.MEMCACHED: {
+        // const cacheHost = this.configService.get<string>("app.cacheHost");
+        // const maxValueSize: number = this.configService.get<number>(
+        //   "app.cacheMaxValueSize"
+        // );
+        // const ttl: number = this.configService.get<number>(
+        //   "app.cacheTimeToLive"
+        // );
+        // const reconnect: boolean =
+        //   this.configService.get<boolean>("app.cacheReconnect");
+        const cacheServer = `${this.configService.get<string>(
+          "app.cacheHost"
+        )}:${this.configService.get<string>("app.cachePort")}`;
         return {
-            useType: this.STIX_DATA_SRC,
-            workbench: {
-                baseUrl: this.WORKBENCH_REST_API_URL
-            }
-        }
+          type: cacheType,
+          host: cacheServer,
+          ttl: this.configService.get<number>("app.cacheTimeToLive"),
+          maxValueSize: this.configService.get<number>("app.cacheMaxValueSize"),
+          reconnect: this.configService.get<boolean>("app.cacheReconnect"),
+          netTimeout: Number(
+            this.configService.get<number>("app.cacheNetTimeout")
+          ),
+        };
+      }
+      // ** DEFAULT CACHE OPTIONS ** //
+      case CACHE_OPTIONS.DEFAULT: {
+        // const ttl: number = this.configService.get<number>("app.cacheTtl");
+        return {
+          type: cacheType,
+          ttl: this.configService.get<number>("app.cacheTtl"),
+        };
+      }
+      // ** DEFAULT CACHE OPTIONS ** //
+      default: {
+        // const ttl: number = this.configService.get<number>("app.cacheTtl");
+        return {
+          ttl: this.configService.get<number>("app.cacheTtl"),
+        };
+      }
     }
+  }
 
-    get APP_ADDRESS(): string {
-        return this.configService.get<string>('app.address');
+  createStixConnectOptions(): StixConnectOptions {
+    return {
+      workbench: {
+        baseUrl: this.WORKBENCH_REST_API_URL,
+        authorization: this.WORKBENCH_AUTH_HEADER,
+        cacheTtl: this.CACHE_TTL,
+      },
+    };
+  }
+
+  get APP_ADDRESS(): string {
+    return this.configService.get<string>("app.address");
+  }
+
+  get APP_PORT(): number {
+    return this.configService.get<number>("app.port");
+  }
+
+  get MAX_CONTENT_LENGTH(): number {
+    return this.configService.get<number>("app.maxContentLength");
+  }
+
+  get API_ROOT_PATH(): string {
+    return this.configService.get<string>("app.apiRootPath");
+  }
+
+  get API_ROOT_TITLE(): string {
+    return this.configService.get<string>("app.apiRootTitle");
+  }
+
+  get API_ROOT_DESCRIPTION(): string {
+    return this.configService.get<string>("app.apiRootDescription");
+  }
+
+  get CONTACT_EMAIL(): string {
+    return this.configService.get<string>("app.contact");
+  }
+
+  get CACHE_TYPE(): string {
+    return this.configService.get<string>("app.cacheType");
+  }
+
+  get CACHE_HOST(): string {
+    return this.configService.get<string>("app.cacheHost");
+  }
+
+  get CACHE_PORT(): number {
+    return this.configService.get<number>("app.cachePort");
+  }
+
+  get CACHE_TTL(): number {
+    return this.configService.get<number>("app.cacheTimeToLive");
+  }
+
+  get CACHE_MAX_SIZE(): number {
+    return this.configService.get<number>("app.cacheMaxValueSize");
+  }
+
+  get CACHE_RECONNECT(): boolean {
+    return this.configService.get<string>("app.cacheReconnect") === "true";
+  }
+
+  get CORS_ENABLED(): boolean {
+    return this.configService.get<string>("app.corsEnabled") === "true";
+  }
+
+  get WORKBENCH_REST_API_URL(): string {
+    return this.configService.get<string>("app.workbenchRestApiUrl");
+  }
+
+  get WORKBENCH_AUTH_HEADER(): string {
+    return this.configService.get<string>("app.workbenchAuthHeader");
+  }
+
+  get HTTPS_ENABLED(): boolean {
+    return this.configService.get<string>("app.httpsEnabled") === "true";
+  }
+
+  get SSL_PRIVATE_KEY(): Buffer {
+    const encodedKey = this.configService.get("app.sslPrivateKeyBase64Encoded");
+    if (isDefined(encodedKey)) {
+      const buffer = Buffer.from(encodedKey, "base64");
+      if (buffer.toString("ascii")) {
+        return buffer;
+      }
     }
+    return fs.readFileSync("config/private-key.pem");
+  }
 
-    get APP_PORT(): number {
-        return this.configService.get<number>('app.port');
+  get SSL_PUBLIC_KEY(): Buffer {
+    const encodedKey = this.configService.get("app.sslPublicKeyBase64Encoded");
+
+    if (isDefined(encodedKey)) {
+      const buffer = Buffer.from(encodedKey, "base64");
+      if (buffer.toString("ascii")) {
+        return buffer;
+      }
     }
+    return fs.readFileSync("config/public-certificate.pem");
+  }
 
-    get MAX_CONTENT_LENGTH(): number {
-        return this.configService.get<number>('app.maxContentLength');
-    }
+  get LOG_LEVEL(): LogLevel {
+    return this.configService.get<LogLevel>("app.logLevel");
+  }
 
-    get API_ROOT_PATH(): string {
-        return this.configService.get<string>('app.apiRootPath');
-    }
+  get LOG_TO_FILE(): boolean {
+    return this.configService.get<string>("app.logToFile") === "true";
+  }
 
-    get API_ROOT_TITLE(): string {
-        return this.configService.get<string>('app.apiRootTitle');
-    }
+  get LOG_TO_HTTP_HOST(): string {
+    return this.configService.get<string>("app.logToHttpHost");
+  }
 
-    get API_ROOT_DESCRIPTION(): string {
-        return this.configService.get<string>('app.apiRootDescription');
-    }
+  get LOG_TO_HTTP_PORT(): number {
+    return this.configService.get<number>("app.logToHttpPort");
+  }
 
-    get CONTACT(): string {
-        return this.configService.get<string>('app.contact');
-    }
+  get LOG_TO_HTTP_PATH(): string {
+    return this.configService.get<string>("app.logToHttpPath");
+  }
 
-    get CACHE_TYPE(): string {
-        return this.configService.get<string>('app.cacheType');
-    }
+  get LOG_TO_SLACK_URL(): string {
+    return this.configService.get<string>("app.logToSlackUrl");
+  }
 
-    get CACHE_HOST(): string {
-        return this.configService.get<string>('app.cacheHost');
-    }
+  get LOG_TO_SENTRY_DSN(): string {
+    return this.configService.get<string>("app.logToSentryDsn");
+  }
 
-    get CACHE_PORT(): number {
-        return this.configService.get<number>('app.cachePort');
-    }
+  get ENV(): string {
+    return this.configService.get<string>("app.env");
+  }
 
-    get CACHE_TTL(): number {
-        return this.configService.get<number>('app.cacheTimeToLive');
-    }
+  get MONGO_URI(): string {
+    return this.configService.get<string>("app.mongoUri");
+  }
 
-    get CACHE_MAX_SIZE(): number {
-        return this.configService.get<number>('app.cacheMaxValueSize');
-    }
-
-    get CACHE_RECONNECT(): boolean {
-        return this.configService.get<boolean>('app.cacheReconnect');
-    }
-
-    get CORS_ENABLED(): boolean {
-        return this.configService.get<boolean>('app.corsEnabled');
-    }
-
-    get WORKBENCH_REST_API_URL(): string {
-        return this.configService.get<string>('app.workbenchRestApiUrl');
-    }
-
-    get STIX_DATA_SRC() : string {
-        return this.configService.get<string>('app.stixDataSrc');
-    }
-
-    get HTTPS_ENABLED(): boolean {
-        return this.configService.get<string>('app.httpsEnabled') === 'true';
-    }
-
-    get SSL_PRIVATE_KEY(): Buffer {
-        const encodedKey = this.configService.get('app.sslPrivateKeyBase64Encoded');
-        if (isDefined(encodedKey)) {
-            const buffer = Buffer.from(encodedKey, 'base64');
-            if (!!buffer.toString('ascii')) {
-                return buffer;
-            }
-        }
-        return fs.readFileSync('config/private-key.pem');
-    }
-
-    get SSL_PUBLIC_KEY(): Buffer {
-        const encodedKey = this.configService.get('app.sslPublicKeyBase64Encoded');
-
-        if(isDefined(encodedKey)) {
-            const buffer = Buffer.from(encodedKey, 'base64');
-            if (!!buffer.toString('ascii')) {
-                return buffer;
-            }
-        }
-        return fs.readFileSync('config/public-certificate.pem');
-    }
-
-    get LOG_LEVEL(): LogLevel {
-        return this.configService.get<LogLevel>('app.logLevel');
-    }
-
-    get LOG_TO_FILE(): boolean {
-        return this.configService.get<boolean>('app.logToFile');
-    }
-
-    get LOG_TO_HTTP_HOST(): string {
-        return this.configService.get<string>('app.logToHttpHost');
-    }
-
-    get LOG_TO_HTTP_PORT(): number {
-        return this.configService.get<number>('app.logToHttpPort');
-    }
-
-    get LOG_TO_HTTP_PATH(): string {
-        return this.configService.get<string>('app.logToHttpPath');
-    }
-
-    get LOG_TO_SLACK_URL(): string {
-        return this.configService.get<string>('app.logToSlackUrl');
-    }
-
-    get LOG_TO_SENTRY_DSN(): string {
-        return this.configService.get<string>('app.logToSentryDsn');
-    }
+  get HYDRATE_ON_BOOT(): boolean {
+    return this.configService.get<string>("app.hydrateOnBoot") === "true";
+  }
 }

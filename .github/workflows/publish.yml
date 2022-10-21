@@ -18,6 +18,6 @@ jobs:
           docker push ghcr.io/mitre-attack/attack-workbench-taxii-server:$TAG
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref == 'refs/head/master' && 'latest' || 'develop' }}
+          TAG: ${{ github.ref == 'refs/head/main' && 'latest' || 'develop' }}
 
 

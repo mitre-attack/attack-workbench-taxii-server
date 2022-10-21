@@ -43,7 +43,6 @@ export class ObjectService {
       // Convert the document into a DTO instance
       const stixObject = new StixObjectDto({
         ...attackObject["_doc"].stix["_doc"],
-        // FIXME is there a way we can refine the initial database query to avoid having to sift through all of this extra data?
       });
 
       // Run the DTO instance through the filterService, then append it onto the return array
@@ -57,7 +56,6 @@ export class ObjectService {
         yield object;
       } catch (e) {
         // Object does not match one or more filters - skip it
-        this.logger.warn(e);
       }
     }
   }

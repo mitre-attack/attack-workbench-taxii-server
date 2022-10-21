@@ -4,7 +4,6 @@ import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 import { SPEC_VERSION } from "./constants";
 import { isDefined } from "class-validator";
-// import { MatchDto } from "src/common/models/match/match.dto";
 
 @Injectable()
 export class FilterService {

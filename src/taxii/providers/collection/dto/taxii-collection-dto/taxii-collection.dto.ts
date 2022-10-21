@@ -7,7 +7,7 @@ import {
   IsArray,
 } from "class-validator";
 import { Exclude, Expose, Type } from "class-transformer";
-import { DEFAULT_MEDIA_TYPE } from "src/constants";
+import { ALL_MEDIA_TYPES } from "src/common/middleware/content-negotiation";
 
 @Exclude()
 export class TaxiiCollectionDto {
@@ -19,7 +19,7 @@ export class TaxiiCollectionDto {
     this.canRead = true;
     this.canWrite = false;
     if (!partial["media_types"]) {
-      this.mediaTypes = [DEFAULT_MEDIA_TYPE];
+      this.mediaTypes = ALL_MEDIA_TYPES;
     }
   }
 
@@ -115,6 +115,6 @@ export class TaxiiCollectionDto {
   //@IsEnum(DEFAULT_MEDIA_TYPE, { each: true }) // solution: https://github.com/typestack/class-validator/issues/159 needs validation
   @IsOptional()
   @IsArray()
-  @Type(() => String) // TODO determine how to declare type decorator on array
+  @Type(() => String)
   mediaTypes: string[];
 }

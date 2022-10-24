@@ -1,6 +1,10 @@
 name: publish
+
 on:
   push:
+    branches: [main, develop]
+    tags: 'v*'
+  pull_request:
     branches: [main, develop]
 
 jobs:
@@ -11,13 +15,30 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3
 
-      - name: Build the Docker image
-        run: |
-          echo $GITHUB_TOKEN | docker login ghcr.io -u mitre-attack --password-stdin
-          docker build . --tag ghcr.io/mitre-attack/attack-workbench-taxii-server:$TAG
-          docker push ghcr.io/mitre-attack/attack-workbench-taxii-server:$TAG
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref == 'refs/head/main' && 'latest' || 'develop' }}
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/mitre-attack/attack-workbench-taxii-server
+          tags: |
+            # will be used on a push tag event and requires a valid semver Git tag; https://github.com/docker/metadata-action#typesemver
+            type=semver,pattern={{version}}
+            # set latest tag for default branch; https://github.com/docker/metadata-action#latest-tag
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
 
 

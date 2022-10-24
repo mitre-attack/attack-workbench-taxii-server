@@ -20,9 +20,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: |
-            name=ghcr.io/mitre-attack/attack-workbench-taxii-server,enable=true
-            name=mitre-attack/attack-workbench-taxii-server
+          images: ghcr.io/mitre-attack/attack-workbench-taxii-server
           # type=semver will be used on a push tag event and requires a valid semver Git tag; https://github.com/docker/metadata-action#typesemver
           # type=raw will set latest tag for default branch; https://github.com/docker/metadata-action#latest-tag
           tags: |

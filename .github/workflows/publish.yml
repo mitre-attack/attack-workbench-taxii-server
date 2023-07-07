@@ -3,7 +3,7 @@ name: Build and Publish Docker Image
 on:
   push:
     branches:
-        - "master"
+        - "main"
         - "develop"
     tags:
       - "v*.*.*"
@@ -24,7 +24,7 @@ jobs:
             ghcr.io/center-for-threat-informed-defense/attack-workbench-frontend
           tags: |
             # set latest tag for master branch
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             # set develop tag for develop branch
             type=ref,event=branch,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
             # set semver tag (vX.Y.Z) on git tag event

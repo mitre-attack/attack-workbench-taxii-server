@@ -6,6 +6,7 @@ import * as mongoose from "mongoose";
 @Schema({
   collection: "object-resources",
   versionKey: false,
+  strict: false
 })
 export class AttackObject extends Document {
   @Prop(mongoose.Schema.Types.String)

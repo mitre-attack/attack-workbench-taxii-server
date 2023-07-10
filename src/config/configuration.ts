@@ -1,7 +1,6 @@
 import { registerAs } from "@nestjs/config";
 import * as Joi from "@hapi/joi";
 import * as DEFAULTS from "./defaults";
-import { CACHE_OPTIONS } from "../cache/constants";
 
 export const configuration = registerAs("app", () => ({
   env:                        process.env.TAXII_ENV                   || DEFAULTS.DEFAULT_ENV,
@@ -12,13 +11,6 @@ export const configuration = registerAs("app", () => ({
   apiRootTitle:               process.env.TAXII_API_ROOT_TITLE        || DEFAULTS.DEFAULT_API_ROOT_TITLE,
   apiRootDescription:         process.env.TAXII_API_ROOT_DESCRIPTION  || DEFAULTS.DEFAULT_API_ROOT_DESCRIPTION,
   contactEmail:               process.env.TAXII_CONTACT_EMAIL         || DEFAULTS.DEFAULT_CONTACT_EMAIL,
-  cacheType:                  process.env.TAXII_CACHE_TYPE            || DEFAULTS.DEFAULT_CACHE_TYPE,
-  cacheHost:                  process.env.TAXII_CACHE_HOST            || DEFAULTS.DEFAULT_CACHE_HOST,
-  cachePort:                  process.env.TAXII_CACHE_PORT            || DEFAULTS.DEFAULT_CACHE_PORT,
-  cacheTimeToLive:            process.env.TAXII_CACHE_TTL             || DEFAULTS.DEFAULT_CACHE_TTL,
-  cacheMaxValueSize:          process.env.TAXII_CACHE_MAX_ITEM_SIZE   || DEFAULTS.DEFAULT_CACHE_MAX_ITEM_SIZE,
-  cacheReconnect:             process.env.TAXII_CACHE_RECONNECT       || DEFAULTS.DEFAULT_CACHE_RECONNECT,
-  cacheNetTimeout:            process.env.TAXII_CACHE_NET_TIMEOUT     || DEFAULTS.DEFAULT_CACHE_NET_TIMEOUT,
   workbenchRestApiUrl:        process.env.TAXII_STIX_SRC_URL          || DEFAULTS.DEFAULT_WORKBENCH_REST_API_URL,
   workbenchAuthHeader:        process.env.TAXII_WORKBENCH_AUTH_HEADER || DEFAULTS.DEFAULT_WORKBENCH_AUTH_HEADER,
   logLevel:                   process.env.TAXII_LOG_LEVEL             || DEFAULTS.DEFAULT_LOG_LEVEL,
@@ -71,38 +63,6 @@ export const validationSchema = Joi.object({
       .string()
       .email()
       .default(DEFAULTS.DEFAULT_CONTACT_EMAIL),
-
-  CACHE_TYPE: Joi
-      .string()
-    .valid(CACHE_OPTIONS)
-    .default(DEFAULTS.DEFAULT_CACHE_TYPE),
-
-  CACHE_HOST: Joi
-      .string()
-      .default(DEFAULTS.DEFAULT_CACHE_HOST),
-
-  CACHE_PORT: Joi
-      .number()
-      .min(1)
-      .max(65535)
-      .default(DEFAULTS.DEFAULT_CACHE_PORT),
-
-  CACHE_TTL: Joi
-      .number()
-      .default(DEFAULTS.DEFAULT_CACHE_TTL),
-
-  CACHE_MAX_SIZE: Joi
-      .number()
-      .min(1048576)
-      .default(DEFAULTS.DEFAULT_CACHE_MAX_ITEM_SIZE),
-
-  CACHE_RECONNECT: Joi
-      .boolean()
-      .default(DEFAULTS.DEFAULT_CACHE_RECONNECT),
-
-  CACHE_NET_TIMEOUT: Joi
-      .number()
-      .default(DEFAULTS.DEFAULT_CACHE_NET_TIMEOUT),
 
   CORS_ENABLED: Joi
       .boolean()

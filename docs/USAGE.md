@@ -44,14 +44,6 @@ At present, the following environment variables are supported:
 | `TAXII_API_ROOT_TITLE`       | str   | MITRE ATT&CK TAXII 2.1                                                                    | A title for the API root (observed on responses to the 'Get API Root Information' endpoint)                                                                                                                                              |
 | `TAXII_API_ROOT_DESCRIPTION` | str   | This API Root contains TAXII 2.1 REST API endpoints that serve MITRE ATT&CK STIX 2.1 data | A summary or description of the API root                                                                                                                                                                                                |
 | `TAXII_CONTACT_EMAIL`        | str   | no-reply@your-company.tld                                                                 | The email address which is advertised on responses to the Discovery endpoint (/taxii2/)                                                                                                                                                 |
-| `TAXII_CACHE_TYPE`           | str   | default                                                                                   | Specifies what type of cache the TAXII server should use; Supported values: 'default' or 'memcached'                                                                                                                                    |
-| `TAXII_CACHE_HOST`           | str   | localhost                                                                                 | IP or FQDN of the cache host. Supports multiple comma-separated hosts. e.g., a.b.c.d, w.x.y.z                                                                                                                                           |
-| `TAXII_CACHE_PORT`           | int   | 6379                                                                                      | Port on which cache daemon/service is listening                                                                                                                                                                                         |
-| `TAXII_CACHE_TTL`            | int   | 600                                                                                       | Amount of time a cache entry can idle in cache before removal/expiration. Measured in seconds.                                                                                                                                          |
-| `TAXII_CACHE_MAX_ITEM_SIZE`  | int   | 50m                                                                                       | The maximum size (in bytes) per item that can be cached. Analogous to the memcached `-I` parameter which allows you to specify the maximum item size at runtime. It supports a unit postfix to allow for natural expression of item size. |
-| `TAXII_CACHE_NET_TIMEOUT`    | int   | 6000                                                                                      | Specifies how long the TAXII server will wait for responses from Memcached. Measured in ms.                                                                                                               |
-| `TAXII_CACHE_RECONNECT`      | bool  | true                                                                                      | Specifies whether the server should continue re-attempting to connect the cache host in the event there is a disconnect                                                                                                                 |
-| `TAXII_CACHE_MEM_SIZE`       | int   | 4096                                                                                      | Sets the amount of memory allocated to memcached for object storage. ONLY USED BY MEMCACHED.                                                                                                                                           |
 | `TAXII_CORS_ENABLED`         | bool  | false                                                                                     | Specifies whether CORS should be enabled on the server                                                                                                                                                                                  |
 | `TAXII_STIX_SRC_URL`         | str   | http://localhost:3000                                                                     | Specifies the address and port on which the Workbench REST API is listening.                                                                                                                                                            |
 | `TAXII_STIX_DATA_SRC`        | str   | workbench                                                                                 | Specifies how the server will source/ingest STIX data. At the moment, only 'workbench' is supported.                                                                                                                                    |
@@ -281,38 +273,6 @@ environment variable `TAXII_LOG_TO_SENTRY_DSN`. If `TAXII_LOG_TO_SENTRY_DSN` is 
 to send logs to Sentry.
 
 Please note that logging to Sentry has not been fully tested. This feature is provided as is.
-
-
-## Caching
-The TAXII server provides a dynamic cache provider that supports two types of caches:
-1. An [in-memory cache](https://docs.nestjs.com/techniques/caching) (default)
-2. [Memcached](https://memcached.org/)
-
-Caching is used by the `WorkbenchModule` to store responses from the Workbench REST API.
-
-### Memcached
-
-The TAXII server can be configured to use Memcached by setting environment variable `TAXII_CACHE_TYPE` to `memcached`. 
-
-```shell
-$ export TAXII_CACHE_TYPE=memcached
-```
-
-While external cache implementations are outside the scope of the TAXII server, a containerized instance of `memcached` 
-can easily be spun-up by using the Docker Compose template located in the [attack-workbench-deployment](https://github.com/mitre-attack/attack-workbench-deployment) 
-repository. 
-
-The following configuration parameters can be set via environment variables when `memcached` is enabled:
-- `TAXII_CACHE_HOST`: The IP address or FQDN of the Memcached server
-- `TAXII_CACHE_PORT`: The port on which the Memcached server is listening
-- `TAXII_CACHE_TTL`: The duration of time that an item should remain in the cache before removal
-- `TAXII_CACHE_MAX_ITEM_SIZE`: The maximum size of each item allowed in the cache. This value also sets the corresponding server-side setting (i.e., Maps to the `memcached -I` flag.)
-- `TAXII_CACHE_MEM_SIZE`: Sets the amount of memory allocated to memcached for object  storage. (e.g., Maps to the `memcached -m` flag.) This setting only applies to the Memcached server; not the TAXII app!
-
-Note that the TAXII application can only map to one instance of Memcached. Multiple Memcached servers cannot be used.
-
-The following configuration parameters can be set via environment variables when the in-memory (`default`) cache is enabled:
-- `TAXII_CACHE_TTL`: The duration of time that an item should remain in the cache before removal
 
 
 ## Scripts

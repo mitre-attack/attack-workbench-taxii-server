@@ -6,7 +6,6 @@ import {
 } from "./common/middleware/request-context";
 import { TaxiiModule } from "./taxii/taxii.module";
 import { StixModule } from "./stix/stix.module";
-import { TaxiiCacheModule } from "./cache/taxii-cache.module";
 import { AppConnectOptions } from "./interfaces";
 import { MongooseModule } from "@nestjs/mongoose";
 
@@ -31,8 +30,6 @@ export class AppModule {
         }),
 
         MongooseModule.forRoot(connectOptions.databaseConnectOptions.mongoUri),
-
-        TaxiiCacheModule.forRoot(connectOptions.cacheConnectOptions),
 
         /** This is where all user-configurable parameters are defined **/
         TaxiiConfigModule,

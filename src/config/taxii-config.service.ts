@@ -1,9 +1,7 @@
 import { Injectable, LogLevel } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as fs from "fs";
-import { CACHE_OPTIONS } from "../cache/constants";
 import { TaxiiConfigServiceInterface } from "./interfaces/taxii-config.service.interface";
-import { CacheConnectOptions } from "../cache/interfaces/cache-module-options.interface";
 import { StixConnectOptions } from "../stix/interfaces";
 import { isDefined } from "class-validator";
 import { AppConnectOptions } from "../interfaces";
@@ -22,7 +20,6 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
     return {
       databaseConnectOptions: this.createDatabaseConnectOptions(),
       stixConnectOptions: this.createStixConnectOptions(),
-      cacheConnectOptions: this.createCacheConnectOptions(),
     };
   }
 
@@ -39,58 +36,11 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
     };
   }
 
-  createCacheConnectOptions(): CacheConnectOptions {
-    const cacheType = this.configService.get<string>("app.cacheType");
-    switch (cacheType) {
-      // ** MEMCACHED OPTIONS ** //
-      case CACHE_OPTIONS.MEMCACHED: {
-        // const cacheHost = this.configService.get<string>("app.cacheHost");
-        // const maxValueSize: number = this.configService.get<number>(
-        //   "app.cacheMaxValueSize"
-        // );
-        // const ttl: number = this.configService.get<number>(
-        //   "app.cacheTimeToLive"
-        // );
-        // const reconnect: boolean =
-        //   this.configService.get<boolean>("app.cacheReconnect");
-        const cacheServer = `${this.configService.get<string>(
-          "app.cacheHost"
-        )}:${this.configService.get<string>("app.cachePort")}`;
-        return {
-          type: cacheType,
-          host: cacheServer,
-          ttl: this.configService.get<number>("app.cacheTimeToLive"),
-          maxValueSize: this.configService.get<number>("app.cacheMaxValueSize"),
-          reconnect: this.configService.get<boolean>("app.cacheReconnect"),
-          netTimeout: Number(
-            this.configService.get<number>("app.cacheNetTimeout")
-          ),
-        };
-      }
-      // ** DEFAULT CACHE OPTIONS ** //
-      case CACHE_OPTIONS.DEFAULT: {
-        // const ttl: number = this.configService.get<number>("app.cacheTtl");
-        return {
-          type: cacheType,
-          ttl: this.configService.get<number>("app.cacheTtl"),
-        };
-      }
-      // ** DEFAULT CACHE OPTIONS ** //
-      default: {
-        // const ttl: number = this.configService.get<number>("app.cacheTtl");
-        return {
-          ttl: this.configService.get<number>("app.cacheTtl"),
-        };
-      }
-    }
-  }
-
   createStixConnectOptions(): StixConnectOptions {
     return {
       workbench: {
         baseUrl: this.WORKBENCH_REST_API_URL,
-        authorization: this.WORKBENCH_AUTH_HEADER,
-        cacheTtl: this.CACHE_TTL,
+        authorization: this.WORKBENCH_AUTH_HEADER
       },
     };
   }
@@ -121,30 +71,6 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
 
   get CONTACT_EMAIL(): string {
     return this.configService.get<string>("app.contact");
-  }
-
-  get CACHE_TYPE(): string {
-    return this.configService.get<string>("app.cacheType");
-  }
-
-  get CACHE_HOST(): string {
-    return this.configService.get<string>("app.cacheHost");
-  }
-
-  get CACHE_PORT(): number {
-    return this.configService.get<number>("app.cachePort");
-  }
-
-  get CACHE_TTL(): number {
-    return this.configService.get<number>("app.cacheTimeToLive");
-  }
-
-  get CACHE_MAX_SIZE(): number {
-    return this.configService.get<number>("app.cacheMaxValueSize");
-  }
-
-  get CACHE_RECONNECT(): boolean {
-    return this.configService.get<string>("app.cacheReconnect") === "true";
   }
 
   get CORS_ENABLED(): boolean {

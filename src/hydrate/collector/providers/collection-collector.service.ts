@@ -22,8 +22,7 @@ export class CollectionCollectorService {
 
   constructor(
     @Inject(STIX_REPO_TOKEN) private stixRepo: StixRepositoryInterface,
-    @InjectModel(TaxiiCollection.name)
-    private collectionModel: Model<TaxiiCollectionDocument>
+    @InjectModel(TaxiiCollection.name) private collectionModel: Model<TaxiiCollectionDocument>
   ) {}
 
   @Cron(CronExpression.EVERY_30_MINUTES, {

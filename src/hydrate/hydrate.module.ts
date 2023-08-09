@@ -5,7 +5,6 @@ import { CollectorModule } from "./collector/collector.module";
 import { CollectorConnectOptions } from "./collector/interfaces/collector-connect.options";
 import { HydrateService } from "./hydrate.service";
 import { StixModule } from "../stix/stix.module";
-import { TaxiiCacheModule } from "../cache/taxii-cache.module";
 
 @Global()
 @Module({})
@@ -14,8 +13,6 @@ export class HydrateModule {
     return {
       module: HydrateModule,
       imports: [
-        TaxiiCacheModule.forRoot(options.cacheConnectOptions),
-
         ScheduleModule.forRoot(),
 
         MongooseModule.forRoot(options.databaseConnectOptions.mongoUri),

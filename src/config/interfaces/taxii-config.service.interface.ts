@@ -2,7 +2,6 @@ export interface TaxiiConfigServiceInterface {
   createAppConnectOptions();
   createCollectorConnectOptions();
   createDatabaseConnectOptions();
-  createCacheConnectOptions();
   createStixConnectOptions();
   get APP_ADDRESS();
   get APP_PORT();
@@ -11,12 +10,6 @@ export interface TaxiiConfigServiceInterface {
   get API_ROOT_TITLE();
   get API_ROOT_DESCRIPTION();
   get CONTACT_EMAIL();
-  get CACHE_TYPE();
-  get CACHE_HOST();
-  get CACHE_PORT();
-  get CACHE_TTL();
-  get CACHE_MAX_SIZE();
-  get CACHE_RECONNECT();
   get CORS_ENABLED();
   get WORKBENCH_REST_API_URL();
   get WORKBENCH_AUTH_HEADER();

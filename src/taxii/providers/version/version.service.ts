@@ -23,14 +23,14 @@ export class VersionService {
     addedAfter?: string,
     limit?: number,
     next?: number,
-    match?: MatchDto
+    matches?: MatchDto[]
   ) {
     const filters = new ObjectFiltersDto({
       collectionId,
       objectId,
       addedAfter,
       limit,
-      match,
+      matches,
     });
 
     // Hard-code filter DTO to retrieve all available versions of the target object

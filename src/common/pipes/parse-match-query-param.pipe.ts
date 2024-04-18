@@ -8,6 +8,17 @@ import { MatchDto } from "../models/match/match.dto";
 export class ParseMatchQueryParamPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata) {
     if (!value) return undefined;
-    return new MatchDto(value);
+
+    const matchDtos: MatchDto[] = [];
+
+    for (const key in value) {
+      if (value.hasOwnProperty(key)) {
+        const values = value[key].split(",");
+        const matchDto = new MatchDto({ [key]: values });
+        matchDtos.push(matchDto);
+      }
+    }
+
+    return matchDtos;
   }
 }

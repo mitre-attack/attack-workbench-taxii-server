@@ -24,20 +24,20 @@ export class EnvelopeService {
    * @param addedAfter? All returned STIX objects must have been created before the specified date
    * @param limit? The total number of returned STIX objects must not exceed the pagination limit
    * @param next? Refers to the unique envelope ID. Indicates which envelope should be returned.
-   * @param match? All returned STIX objects must match all of the specified search criteria.
+   * @param matches? All returned STIX objects must match all of the specified search criteria.
    */
   async findByCollectionId(
     collectionId: string,
     addedAfter?: string,
     limit?: number,
     next?: number,
-    match?: MatchDto
+    matches?: MatchDto[]
   ): Promise<EnvelopeDto> {
     const filters = new ObjectFiltersDto({
       collectionId,
       addedAfter,
       limit,
-      match,
+      matches,
     });
 
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.
@@ -55,7 +55,7 @@ export class EnvelopeService {
    * @param addedAfter A single timestamp
    * @param limit A single integer indicating the maximum number of objects which should be included in the response
    * @param next
-   * @param match Contains object filters such as spec_version and type. See the TAXII 2.1 specification for details.
+   * @param matches? Contains object filters such as spec_version and type. See the TAXII 2.1 specification for details.
    */
   async findByObjectId(
     collectionId: string,
@@ -63,13 +63,13 @@ export class EnvelopeService {
     addedAfter?: string,
     limit?: number,
     next?: number,
-    match?: MatchDto
+    matches?: MatchDto[]
   ): Promise<EnvelopeDto> {
     const filters = new ObjectFiltersDto({
       collectionId,
       addedAfter,
       limit,
-      match,
+      matches,
     });
 
     const stixObjects: StixObjectPropertiesInterface[] =

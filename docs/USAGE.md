@@ -5,7 +5,11 @@
 TAXII (Trusted Automated eXchange of Intelligence Information) is a protocol used to exchange cyber threat intelligence over HTTPS. TAXII 2.1 is the latest version of this protocol.
 
 ## Base URL
-The base URL for the TAXII 2.1 API is typically something like https://<hostname>/taxii/.
+The MITRE ATT&CK® TAXII 2.1 API is available at `https://attack-taxii.mitre.org`. 
+
+The MITRE ATT&CK® TAXII 2.1 API root is `/api/v21/`.
+
+Thus, the base URL all requests (excluding those sent to the [Discovery Endpoint](#endpoint-discovery)) is [https://attack-taxii.mitre.org/api/v21/](https://attack-taxii.mitre.org/api/v21/)
 
 ## Headers
 
@@ -44,7 +48,7 @@ Example response:
   ]
 }
 ```
-* In the example response above, the API root (`<api-root>`) is listed as `api/v21`. We'll use this in subsequent examples.
+* In the example response above, the API root (`<api-root>`) is listed as `api/v21`. This is the API root used by the [MITRE ATT&CK® TAXII 2.1 Server](https://attack-taxii.mitre.org). We'll use this in subsequent examples.
 
 ### Endpoint: Get API Root Information
 ```
@@ -102,7 +106,7 @@ Example response:
     {
       "id": "x-mitre-collection--90c00720-636b-4485-b342-8751d232bf09",
       "title": "ICS ATT&CK",
-      "description": "The ATT&CK for Industrial Control Systems (ICS) knowledge base categorizes the unique set of tactics, techniques, and procedures (TTPs) used by threat actors in the ICS technology domain. ATT&CK for ICS outlines the portions of an ICS attack that are out of scope of Enterprise and reflects the various phases of an adversary’s attack life cycle and the assets and systems they are known to target.",
+      "description": "The ATT&CK for Industrial Control Systems (ICS) knowledge base categorizes the unique set of tactics, techniques, and procedures (TTPs) used by threat actors in the ICS technology domain. ATT&CK for ICS outlines the portions of an ICS attack that are out of scope of Enterprise and reflects the various phases of an adversary's attack life cycle and the assets and systems they are known to target.",
       "canRead": true,
       "canWrite": false,
       "mediaTypes": [
@@ -255,11 +259,56 @@ Example response:
 GET /<api-root>/collections/<collection-id>/objects/<object-id>/versions/
 ```
 
+Returns a list of object versions from a collection.
+
+Example request:
+```bash
+curl --request GET \
+  --url https://attack-taxii.mitre.org/api/v21/collections/x-mitre-collection--1f5f1533-f617-4ca8-9ab4-6a02367fa019/objects/malware--72f54d66-675d-4587-9bd3-4ed09f9522e4/versions/ \
+  --header 'Accept: application/taxii+json;version=2.1'
+```
+
+Example response:
+```json
+{
+  "more": false,
+  "versions": [
+    "2022-04-25T14:00:00.188Z",
+    "2023-08-17T19:51:14.195Z"
+  ]
+}
+```
+
+
 ### Endpoint: Get Object Manifests
 ```
 GET /<api-root>/collections/<collection-id>/manifest/
 ```
 
+Returns manifest information about the contents of a specific collection.
+
+Example Request:
+```bash
+curl --request GET \
+  --url https://attack-taxii.mitre.org/api/v21/collections/x-mitre-collection--1f5f1533-f617-4ca8-9ab4-6a02367fa019/manifest \
+  --header 'Accept: application/taxii+json;version=2.1'
+```
+
+Example Response:
+```json
+{
+  "more": false,
+  "objects": [
+    {
+      "id": "attack-pattern--ad255bfe-a9e6-4b52-a258-8d3462abe842",
+      "date_added": "Wed May 31 2017 21:30:18 GMT+0000 (Coordinated Universal Time)",
+      "version": "2021-04-29T14:49:39.188Z",
+      "media_type": "application/stix+taxii;version=2.1"
+    }
+    ...
+  ]
+}
+```
 
 ## Authentication
 TAXII 2.1 does not specify an authentication method. It's up to the implementation to provide this. Common methods include Basic Auth and Bearer Tokens.
@@ -267,11 +316,19 @@ TAXII 2.1 does not specify an authentication method. It's up to the implementati
 ## Error Handling
 If an error occurs, the server will return a HTTP status code in the 400 or 500 range, along with a JSON object containing more information about the error.
 
-## Pagination
-The TAXII 2.1 API supports pagination via the limit and next parameters.
+## Filtering
 
-## Rate Limiting
-Rate limiting is not specified by TAXII 2.1 and is up to the implementation.
+TAXII Clients can request specific content from the TAXII Server by specifying a set of *filters* included in the request to the server. If no URL query parameter is specified then the TAXII Server returns all content for that Endpoint.
 
-## Conclusion
-This guide provides a basic overview of the TAXII 2.1 API. For more detailed information, refer to the official TAXII 2.1 specification.*
+* `added_after`, A single timestamp that filters objects to only include those objects added after the specified timestamp. The value of this parameter is a timestamp. The `added_after` parameter is not in any way related to dates or times in a STIX object or any other CTI object.<br>**Example**: `?added_after=2022-01-01`
+
+* `match[<field>]`, The match parameter defines filtering on the specified <field>. The list of fields that MUST be supported is defined per Endpoint. The match parameter can be specified any number of times, where each match instance specifies an additional filter to be applied to the resulting data and each <field> MUST NOT occur more than once in a request. Said another way, all match fields are ANDed together.
+
+**Supported Fields for Match**:
+
+| Field          | Description                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`           | The STIX ID of the object(s) that are being requested.<br>**Examples**: `?match[id]=indicator--3600ad1b-fff1-4c98-bcc9-4de3bc2e2ffb`                                                                                                                                                                                                                                                                                                      |
+| `spec_version` | The specification version(s) of the STIX object that are being requested. If no `spec_version` parameter is provided, the server will return only the latest specification version that it can provide for each object.<br>**Examples**: `?match[spec_version]=2.0`, `?match[spec_version]=2.0,2.1`                                                                                                                                       |
+| `type`         | The type of the object(s) that are being requested.<br>**Examples**: `?match[type]=indicator`, `?match[type]=indicator,sighting`                                                                                                                                                                                                                                                                                                          |
+| `version`      | The version(s) of the object(s) that are being requested from either an object or manifest endpoint. If no version parameter is provided, the server will return only the latest version for each object matching the remainder of the request.<br>**Examples**: `?match[version]=all`, `?match[version]=last,first`, `?match[version]=first,2018-03-02T01:01:01.123Z,last`, `?match[version]=2016-03-23T01:01:01.000Z,2018-03-02T01:01:` |

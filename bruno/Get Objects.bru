@@ -1,0 +1,79 @@
+meta {
+  name: Get Objects
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/api/v21/collections/{{collectionId}}/objects?limit=100
+  body: none
+  auth: none
+}
+
+query {
+  limit: 100
+  ~added_after: 2024-01-01
+  ~match[type]: tool
+  ~match[type]: intrusion-set,tool
+  ~next: 1
+  ~match[type]: intrusion-set
+}
+
+headers {
+  Accept: application/taxii+json;version=2.1
+}
+
+vars:pre-request {
+  collectionId: x-mitre-collection--dac0d2d7-8653-445c-9bff-82f934c1e858
+  ~collectionId: x-mitre-collection--1f5f1533-f617-4ca8-9ab4-6a02367fa019
+}
+
+tests {
+  const { validateObject } = require('./util/object-validation');
+  
+  test("Verify response status code", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Verify response content type", function() {
+    const contentType = res.getHeader('content-type');
+    expect(contentType).to.include('application/stix+json');
+    expect(contentType).to.include('version=2.1');
+  });
+
+  test("Verify response body structure", function() {
+    const data = res.getBody();
+    expect(data).to.have.property('more').that.is.a('boolean');
+    expect(data).to.have.property('objects').that.is.an('array');
+    
+    if (data.more === true) {
+      expect(data).to.have.property('next').that.is.a('string');
+    }
+  });
+
+  test("Verify objects properties", function() {
+    const data = res.getBody();
+    const failedObjects = [];
+
+    data.objects.forEach((obj, index) => {
+      try {
+        validateObject(obj);
+      } catch (err) {
+        failedObjects.push({
+          index: index,
+          object: obj,
+          error: err.message
+        });
+      }
+    });
+
+    if (failedObjects.length > 0) {
+      const failureMessage = `${failedObjects.length} object(s) failed validation:\n\n` +
+        failedObjects.map(failedObj => {
+          return `Index: ${failedObj.index}\nObject: ${JSON.stringify(failedObj.object)}\nError: ${failedObj.error}\n`;
+        }).join('\n');
+
+      throw new Error(failureMessage);
+    }
+  });
+}

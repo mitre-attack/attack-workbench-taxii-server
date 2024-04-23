@@ -15,45 +15,52 @@ export class FilterService {
     stixObject: StixObjectPropertiesInterface,
     filters: ObjectFiltersDto
   ): boolean {
-    const { addedAfter, match } = filters;
+    const { addedAfter, matches } = filters;
 
     // Filter by match[id], match[type], match[version], and match[spec_version]
-    if (match) {
-      const { id, type, version, spec_version } = match;
+    if (matches) {
+      for (const match of matches) {
+        const { id, type, version, spec_version } = match;
 
-      // check match[id]
-      if (!this.hasMatchingId(stixObject, id)) {
-        return false;
-      }
-
-      // check match[type]
-      if (!this.hasMatchingType(stixObject, type)) {
-        return false;
-      }
-
-      // check match[version]
-      if (!this.hasMatchingVersion(stixObject, version)) {
-        return false;
-      }
-
-      // check match[spec_version]
-      if (!this.hasMatchingSpecVersion(stixObject, spec_version)) {
-        return false;
-      }
-    }
-
-    // check added_after (include those objected added after the specified timestamp)
-    if (addedAfter) {
-      // if (new Date(stixObject.created).toISOString() <= addedAfter) {
-      if (new Date(stixObject.created) <= new Date(addedAfter)) {
         /**
-         * We only want to store objects that are *newer* than (i.e., that come before) the added_after
-         * date. So, we can say that an object should be skipped if it comes before (i.e., is older
-         * than) then added_after date
+         * For each property, we use the Array.some() method to check if any of the target 
+         * values match the corresponding property of the stixObject. 
+         * 
+         * If none of the target values match, the method returns false, indicating that 
+         * the object does not match the current match instance.
+         * 
+         * Multiple match instances are treated as an AND condition, while multiple 
+         * values within each match instance are treated as an OR condition, as per the 
+         * TAXII 2.1 specification.
          */
-        return false;
+
+        // check match[id]
+        if (id && !id.some((targetId) => this.hasMatchingId(stixObject, targetId))) {
+          return false;
+        }
+
+        // check match[type]
+        if (type && !type.some((targetType) => this.hasMatchingType(stixObject, targetType))) {
+          return false;
+        }
+
+        // check match[version]
+        if (version && !version.some((targetVersion) => this.hasMatchingVersion(stixObject, targetVersion))) {
+          return false;
+        }
+
+        // check match[spec_version]
+        if (spec_version && !spec_version.some((targetSpecVersion) => this.hasMatchingSpecVersion(stixObject, targetSpecVersion))) {
+          return false;
+        }
       }
     }
+
+    // check added_after (include those objects added after the specified timestamp)
+    if (addedAfter && new Date(stixObject.created) <= new Date(addedAfter)) {
+      return false;
+    }
+
     return true;
   }
 
@@ -270,147 +277,7 @@ export class FilterService {
   ): Promise<StixObjectPropertiesInterface> {
     return new Promise((resolve, reject) => {
       if (filters) {
-        // const { addedAfter, match } = filters;
-
-        // if (match) {
-        //   const { id, type, version, spec_version } = match;
-        //
-        //   // check match[id]
-        //   if (id) {
-        //     if (stixObject.id !== match.id) {
-        //       return reject(
-        //         `Object (${stixObject.id}) does not match 'id' filter: (${match.id})`
-        //       );
-        //     }
-        //   }
-        //
-        //   // check match[type]
-        //   if (type) {
-        //     if (stixObject.type !== match.type) {
-        //       return reject(
-        //         `Object (${stixObject.id}) does not match 'type' filter: (${match.type})`
-        //       );
-        //     }
-        //   }
-        //
-        //   // check match[version]
-        //   if (version) {
-        //     if (stixObject.modified) {
-        //       if (
-        //         new Date(stixObject.modified).toISOString() !== match.version
-        //       ) {
-        //         return reject(
-        //           `Object (${stixObject.id}) does not match 'version' filter: (${match.version})`
-        //         );
-        //       }
-        //     } else if (stixObject.created) {
-        //       if (
-        //         new Date(stixObject.created).toISOString() !== match.version
-        //       ) {
-        //         return reject(
-        //           `Object (${stixObject.id}) does not match 'version' filter: (${match.version})`
-        //         );
-        //       }
-        //     }
-        //   }
-        //
-        //   if (!this.hasMatchingSpecVersion(stixObject, spec_version)) {
-        //     return reject(
-        //       `Object (${stixObject.spec_version}) does not match 'type' filter: (${match.spec_version})`
-        //     );
-        //   }
-        //
-        //   // if (spec_version) {
-        //   //   specVersionSwitchStatement: switch (spec_version) {
-        //   //     case SPEC_VERSION.V20: {
-        //   //       // user requested STIX version 2.0 object(s)
-        //   //       if (
-        //   //         // verify that the current object is compliant with STIX 2.0
-        //   //         !this.isCompliantWithSpecVersion(stixObject, spec_version)
-        //   //       ) {
-        //   //         return reject(
-        //   //           `The requested specification version was 2.0 but the current object is a different version`
-        //   //         ); // Skip this loop iteration; continue onto the next object
-        //   //       }
-        //   //       // the object is compliant with STIX 2.0
-        //   //       break specVersionSwitchStatement; // The object passes!
-        //   //     }
-        //   //     case SPEC_VERSION.V21: {
-        //   //       // user requested STIX version 2.1 object(s)
-        //   //       if (
-        //   //         // verify that the current object is compliant with STIX 2.1
-        //   //         !this.isCompliantWithSpecVersion(stixObject, spec_version)
-        //   //       ) {
-        //   //         // the object is NOT compliant with STIX 2.1
-        //   //         return reject(
-        //   //           `The requested specification version was 2.1 but the current object is a different version`
-        //   //         ); // Skip this loop iteration; continue onto the next object
-        //   //       }
-        //   //       // the object is compliant with STIX 2.1
-        //   //       break specVersionSwitchStatement; // The object passes!
-        //   //     }
-        //   //     case SPEC_VERSION.V20_V21: {
-        //   //       // user requested STIX version 2.0 AND version 2.1 object(s)
-        //   //       // No validation is performed. Assume the object passes because all objects in the DB are either
-        //   //       // STIX 2.0 or 2.1
-        //   //       break specVersionSwitchStatement;
-        //   //     }
-        //   //     case SPEC_VERSION.V21_V20: {
-        //   //       // user requested both STIX version 2.0 and version 2.1 object(s)
-        //   //       // Assume the object passes because all objects in the DB are either STIX 2.0 or 2.1
-        //   //       break specVersionSwitchStatement;
-        //   //     }
-        //   //     default: {
-        //   //       // user requested an unsupported or invalid version. nothing to check; just reject it.
-        //   //       return reject(
-        //   //         "The requested specification version is unsupported or invalid"
-        //   //       );
-        //   //     }
-        //   //   }
-        //   // }
-        //   // // else clause will trigger if user did not pass a spec_version filter
-        //   // else {
-        //   //   /**
-        //   //    * If no spec_version parameter is provided, the server MUST return only the latest specification version
-        //   //    * that it can provide for each object matching the remainder of the request.
-        //   //    */
-        //   //
-        //   //   /**
-        //   //    * IMPORTANT NOTE: For ATT&CK Workbench TAXII 2.1 release 1.0, the default behavior mentioned above is
-        //   //    * being overridden. Instead, when no spec_version parameter is provided, the server will return the 2.0
-        //   //    * specification version of the requested object(s). This is a temporary measure to provide relief for users
-        //   //    * that are currently using the Unfetter TAXII 2.0 server (located at cti-taxii.mitre.org) and expect
-        //   //    * STIX 2.0 objects to be returned by default. This grace period is temporary and the default expected
-        //   //    * TAXII 2.1 behavior will be restored on a later ATT&CK Workbench TAXII 2.1 version release.
-        //   //    */
-        //   //   if (
-        //   //     !this.isCompliantWithSpecVersion(
-        //   //       stixObject,
-        //   //       SPEC_VERSION.DEFAULT_UNSPECIFIED
-        //   //     )
-        //   //   ) {
-        //   //     return reject(
-        //   //       `No 'specVersion' parameter is provided. Object ${stixObject.id} is not the latest specification version.`
-        //   //     );
-        //   //   }
-        //   // }
-        // }
-        //
-        // if (addedAfter) {
-        //   // if (new Date(stixObject.created).toISOString() <= addedAfter) {
-        //   if (Date.parse(stixObject.created) <= Date.parse(addedAfter)) {
-        //     /**
-        //      * We only want to store objects that are *newer* than (i.e., that come before) the added_after
-        //      * date. So, we can say that an object should be skipped if it comes before (i.e., is older
-        //      * than) then added_after date
-        //      */
-        //     // this.logger.debug(`Skipping current object (created ${currObject.created}) B/C it is older than added_after (${added_after})`, this.constructor.name);
-        //     return reject(
-        //       `Object (${stixObject.id}) was not added after: ${addedAfter}`
-        //     );
-        //   }
-        // }
-        // // All checks passed! Store the object to return!
+        // All checks passed! Store the object to return!
         if (!this.isMatch(stixObject, filters)) {
           return reject(
             `STIX object with ID ${stixObject.id} did not meet one or more search filters`

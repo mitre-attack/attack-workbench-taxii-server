@@ -38,8 +38,7 @@ export class ObjectCollectorService {
   );
 
   constructor(
-    @Inject(STIX_REPO_TOKEN)
-    private readonly workbench: StixRepositoryInterface,
+    @Inject(STIX_REPO_TOKEN) private readonly workbench: StixRepositoryInterface,
     @InjectModel(AttackObject.name) private stixObjectModel: Model<AttackObject>
   ) {}
 
@@ -55,8 +54,7 @@ export class ObjectCollectorService {
      * 2. For each collection ID, request the respective collection bundle
      * 3. Push { collection_id, stix } for each object retrieved
      */
-    const allAttackObjects: StixObjectInterface[] =
-      await this.workbench.getAllStixObjects(false);
+    const allAttackObjects: StixObjectInterface[] = await this.workbench.getAllStixObjects(false);
 
     this.logger.debug(`Retrieved ${allAttackObjects.length} ATT&CK objects`);
 
@@ -108,42 +106,63 @@ export class ObjectCollectorService {
       `Processed ${objectsToWriteToDatabase.length} ATT&CK objects`
     );
 
-    // Write each object to the database. Creates a new document if the object does not already exist. Otherwise updates
+    // Write object to the database using bulk operation. Creates a new document if the object does not already exist. Otherwise updates
     // the existing document.
+    let bulkOps = [];
+
+    // Iterate over each object in the objectsToWriteToDatabase array
     for (const object of objectsToWriteToDatabase) {
-      if ((<AttackObjectDto>object).workspace.collections.length >= 1) {
-        // only operate on the object if the object has an ATT&CK ID
 
-        // grab the collection_id for later. we're going to include the collection_id on each STIX-object document so
-        // the TAXII server can easily distinguish which collection the object belongs to
-        const collectionId: string = (<AttackObjectDto>object).workspace
-          .collections[0].collection_ref;
+      // Cast each object to the type AttackObjectDto
+      const dto = object as AttackObjectDto;
 
+      // Check if workspace and collections properties exist before accessing collections.length
+      // This ensures that we only operate on objects that have at least one collection
+      if (dto.workspace && dto.workspace.collections && dto.workspace.collections.length >= 1) {
+
+        // Grab the collection_id for later. This will be included in each STIX-object document
+        // so the TAXII server can easily distinguish which collection the object belongs to
+        const collectionId: string = dto.workspace.collections[0].collection_ref;
+
+        // Define a filter based on STIX properties of the object
         const filter: FilterQuery<AttackObject> = {
-          "stix.id": { $eq: object.stix.id },
-          "stix.modified": { $eq: object.stix.modified },
-          "stix.created": { $eq: object.stix.created },
-          "stix.spec_version": { $eq: object.stix.spec_version },
+          "stix.id": { $eq: dto.stix.id },
+          "stix.modified": { $eq: dto.stix.modified },
+          "stix.created": { $eq: dto.stix.created },
+          "stix.spec_version": { $eq: dto.stix.spec_version },
         };
-        await this.stixObjectModel
-          .updateOne(
-            filter,
-            {
-              collection_id: collectionId,
-              stix: object.stix,
+
+        // Push an update operation into the bulkOps array, setting or updating the collection_id and stix properties
+        bulkOps.push({
+          updateOne: {
+            filter: filter,
+            update: {
+              $set: {
+                collection_id: collectionId,
+                stix: dto.stix,
+              },
             },
-            {
-              upsert: true,
-              strict: false, // disabling strict mode allows us to capture properties not explicitly declared in the
-              // schema
-            }
-          )
-          .exec();
+            upsert: true, // If the object doesn't exist, insert a new document. If it does exist, update the existing document
+            strict: false, // Disabling strict mode allows us to capture properties not explicitly declared in the schema
+          },
+        });
+
+        // Execute bulkWrite for every 1000 operations or at the end of the loop
+        if (bulkOps.length === 1000) {
+          await this.stixObjectModel.bulkWrite(bulkOps);
+          bulkOps = []; // Clear the array for the next batch of operations
+        }
+
+        // Log a debug message indicating that a STIX object has been synchronized to the TAXII database
         this.logger.debug(
-          `Synchronized STIX object '${object.stix.id}' to TAXII database`
+          `Synchronized STIX object '${dto.stix.id}' to TAXII database`
         );
       }
-      // end if
+    }
+
+    // execute the remaining operations, if any
+    if (bulkOps.length > 0) {
+      await this.stixObjectModel.bulkWrite(bulkOps);
     }
 
     // end for

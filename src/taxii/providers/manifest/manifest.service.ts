@@ -22,13 +22,13 @@ export class ManifestService {
     addedAfter?: string,
     limit?: number,
     next?: number,
-    match?: MatchDto
+    matches?: MatchDto[]
   ): Promise<ManifestDto> {
     const searchFilters = new ObjectFiltersDto({
       collectionId,
       addedAfter,
       limit,
-      match,
+      matches,
     });
 
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.

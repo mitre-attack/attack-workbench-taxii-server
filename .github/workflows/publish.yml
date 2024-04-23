@@ -1,7 +1,11 @@
-name: publish
+name: Build and Publish Docker Image
+
 on:
   push:
-    branches: [main, develop]
+    branches:
+      - develop
+  release:
+    types: [published]
 
 jobs:
   publish:
@@ -11,13 +15,23 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3
 
-      - name: Build the Docker image
+      - name: Extract tag name
+        if: github.event_name == 'release'
+        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Validate tag
+        if: github.event_name == 'release'
+        run: |
+          if ! [[ "${{ env.TAG }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]]; then
+            echo "Invalid tag format. The tag must follow the semantic versioning format: X.Y.Z or X.Y.Z-prerelease"
+            exit 1
+          fi
+
+      - name: Build and publish Docker image
         run: |
           echo $GITHUB_TOKEN | docker login ghcr.io -u mitre-attack --password-stdin
-          docker build . --tag ghcr.io/mitre-attack/attack-workbench-taxii-server:$TAG
-          docker push ghcr.io/mitre-attack/attack-workbench-taxii-server:$TAG
+          docker build . --tag ghcr.io/mitre-attack/attack-workbench-taxii-server:${TAG:-latest}
+          docker push ghcr.io/mitre-attack/attack-workbench-taxii-server:${TAG:-latest}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref == 'refs/head/main' && 'latest' || 'develop' }}
-
-
+          TAG: ${{ env.TAG }}

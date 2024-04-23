@@ -8,46 +8,46 @@ export class MatchDto {
   @ApiProperty({
     description: SWAGGER.Match.Id.Description,
     required: false,
-    type: String,
+    type: [String],
   })
-  @IsString()
+  @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
   @Expose()
-  id?: string;
+  id?: string[];
 
   @ApiProperty({
     description: SWAGGER.Match.Type.Description,
     required: false,
-    type: String,
+    type: [String],
   })
-  @IsString()
+  @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
   @Expose()
-  type?: string;
+  type?: string[];
 
   @ApiProperty({
     description: SWAGGER.Match.Version.Description,
     required: false,
-    type: String,
+    type: [String],
   })
-  @IsString()
+  @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
   @Expose()
-  version?: string;
+  version?: string[];
 
   @ApiProperty({
     description: SWAGGER.Match.SpecVersion.Description,
     required: false,
-    type: String,
+    type: [String],
   })
-  @IsString()
+  @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
   @Expose()
-  spec_version?: string;
+  spec_version?: string[];
 
   get specVersion() {
     return this.spec_version;

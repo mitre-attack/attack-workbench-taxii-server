@@ -6,7 +6,7 @@ export interface ObjectFiltersOptions {
   objectId?: string;
   addedAfter?: string;
   limit?: number;
-  match?: MatchDto;
+  matches?: MatchDto[];
 }
 
 export class ObjectFiltersDto {
@@ -48,7 +48,7 @@ export class ObjectFiltersDto {
    *      ?match[spec_version]=...
    */
   @Type(() => MatchDto)
-  match?: MatchDto;
+  matches?: MatchDto[];
 
   /**
    * Default constructor

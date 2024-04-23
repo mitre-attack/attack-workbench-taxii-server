@@ -10,8 +10,6 @@ The following resources provide supporting documentation about the TAXII protoco
 - [Introduction to TAXII](https://oasis-open.github.io/cti-documentation/taxii/intro.html)
 - [TAXII 2.1 Specification](https://docs.oasis-open.org/cti/taxii/v2.1/os/taxii-v2.1-os.html)
 - [OASIS Open TAXII Resources](https://oasis-open.github.io/cti-documentation/resources.html#taxii-21-specification)
-<!-- TODO: this will need to change when the official TAXII 2.1 server is hosted and docs are migrated to attack-workbench-data -->
-<!-- [accessing ATT&CK data via TAXII](https://github.com/mitre/cti/blob/master/USAGE.md#access-from-the-attck-taxii-server) -->
 
 The ATT&CK Workbench application requires additional components for full operation. 
 The [ATT&CK Workbench Frontend](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend) 
@@ -55,7 +53,8 @@ The application uses Swagger UI module to dynamically document the available RES
 be accessed at the path: `/api-docs`.
 
 The [docs](/docs/README.md) folder contains additional documentation about using the TAXII Server:
-- [USAGE](/docs/USAGE.md): Includes advanced details and instructions for setting up the TAXII Server.
+- [SETUP](/docs/SETUP.md): Includes advanced details and instructions for setting up the TAXII Server.
+- [USAGE](/docs/USAGE.md): User Guide on how to query/use the TAXII 2.1 REST API.
 - [CONTRIBUTING](/docs/CONTRIBUTING.md): information about how to contribute to this project.
 
 ## Install and run
@@ -121,11 +120,9 @@ npm install
 ##### Step 3. Configure the system
 
 The app is configured using environment variables loaded from a dotenv file. A template is provided for your convenience. 
-See the [USAGE](./docs/USAGE.md#environment-variables) document for a list of supported environment variables and usage 
-descriptions. 
+See the [SETUP](./docs/SETUP.md#environment-variables) document for a list of supported environment variables and usage descriptions. 
 
-Store the dotenv file in the root `config/` directory, and ensure that the `TAXII_ENV` environment variable reflects the 
-dotenv file name. `TAXII_ENV` determines the name of the environment variable which gets loaded by the server. For example:
+Store the dotenv file in the root `config/` directory, and ensure that the `TAXII_ENV` environment variable reflects the dotenv file name. `TAXII_ENV` determines the name of the environment variable which gets loaded by the server. For example:
 - If `TAXII_ENV` is equal to `dev`, then the server attempts to load `config/dev.env`.
 - If `TAXII_ENV` is equal to `prod`, then the server attempts to load `config/prod.env`.
 

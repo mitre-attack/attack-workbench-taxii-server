@@ -1,0 +1,36 @@
+meta {
+  name: Server Discovery
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/taxii2/
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/taxii+json;version=2.1
+}
+
+tests {
+  test("Verify response status code", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Verify response content type", function() {
+    const contentType = res.getHeader('content-type');
+    expect(contentType).to.include('application/stix+json');
+    expect(contentType).to.include('version=2.1');
+  });
+  
+  test("Verify response body", function() {
+    const data = res.getBody();
+    expect(data).to.have.property('title').that.is.a('string');
+    expect(data).to.have.property('description').that.is.a('string');
+    expect(data).to.have.property('default').that.is.a('string');
+    expect(data).to.have.property('api_roots').that.is.an('array');
+    expect(data.api_roots).to.include(data.default);
+  });
+}

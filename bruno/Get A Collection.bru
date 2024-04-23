@@ -1,0 +1,55 @@
+meta {
+  name: Get A Collection
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{host}}/api/v21/collections/{{collectionId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/taxii+json;version=2.1
+}
+
+vars:pre-request {
+  collectionId: x-mitre-collection--dac0d2d7-8653-445c-9bff-82f934c1e858
+  ~collectionId: x-mitre-collection--1f5f1533-f617-4ca8-9ab4-6a02367fa019
+}
+
+tests {
+  test("Verify response status code", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Verify response content type", function() {
+    const contentType = res.getHeader('content-type');
+    expect(contentType).to.include('application/stix+json');
+    expect(contentType).to.include('version=2.1');
+  });
+
+  test("Verify response body", function() {
+    const collection = res.getBody();
+
+    expect(collection).to.have.property('id').that.is.a('string').and.is.not.empty;
+
+    expect(collection).to.have.property('title').that.is.a('string').and.is.not.empty;
+
+    if (collection.hasOwnProperty('description')) {
+      expect(collection.description).to.be.a('string');
+    }
+
+    expect(collection).to.have.property('canRead').that.is.a('boolean');
+
+    expect(collection).to.have.property('canWrite').that.is.a('boolean');
+
+    if (collection.hasOwnProperty('mediaTypes')) {
+      expect(collection.mediaTypes).to.be.an('array').and.not.be.empty;
+      collection.mediaTypes.forEach(mediaType => {
+        expect(mediaType).to.be.a('string').and.include('application/taxii+json');
+      });
+    }
+  });
+}

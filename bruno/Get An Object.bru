@@ -1,0 +1,73 @@
+meta {
+  name: Get An Object
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{host}}/api/v21/collections/{{collectionId}}/objects/{{objectId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/taxii+json;version=2.1
+}
+
+vars:pre-request {
+  collectionId: x-mitre-collection--dac0d2d7-8653-445c-9bff-82f934c1e858
+  objectId: intrusion-set--bef4c620-0787-42a8-a96d-b7eb6e85917c
+}
+
+tests {
+  const { validateObject } = require('./util/object-validation');
+
+  test("Verify response status code", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Verify response content type", function() {
+    const contentType = res.getHeader('content-type');
+    expect(contentType).to.include('application/stix+json');
+    expect(contentType).to.include('version=2.1');
+  });
+
+  test("Verify returned object ID matches requested object ID", function() {
+    const requestedObjectId = 'intrusion-set--bef4c620-0787-42a8-a96d-b7eb6e85917c';
+    const data = res.getBody();
+    expect(data.objects).to.be.an('array');
+    if (data.objects.length > 0) {
+      data.objects.forEach(obj => {
+        expect(obj.id).to.equal(requestedObjectId);
+      });
+    }
+  });
+
+  test("Verify object properties", function() {
+    const data = res.getBody();
+    const failedObjects = [];
+
+    expect(data.objects).to.be.an('array');
+
+    data.objects.forEach((obj, index) => {
+      try {
+        validateObject(obj);
+      } catch (err) {
+        failedObjects.push({
+          index: index,
+          object: obj,
+          error: err.message
+        });
+      }
+    });
+
+    if (failedObjects.length > 0) {
+      const failureMessage = `${failedObjects.length} object(s) failed validation:\n\n` +
+        failedObjects.map(failedObj => {
+          return `Index: ${failedObj.index}\nObject: ${JSON.stringify(failedObj.object)}\nError: ${failedObj.error}\n`;
+        }).join('\n');
+
+      throw new Error(failureMessage);
+    }
+  });
+}

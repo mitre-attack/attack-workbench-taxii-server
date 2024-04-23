@@ -1,0 +1,33 @@
+{
+  "name": "bruno",
+  "version": "1.0.0",
+  "description": "API tests for MITRE ATT&CK Workbench TAXII 2.1 API Server",
+  "main": "index.js",
+  "scripts": {
+    "test": "bru run --env aws --format junit --output report.xml"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mitre-attack/attack-workbench-taxii-server.git"
+  },
+  "keywords": [
+    "taxii",
+    "stix",
+    "mitre",
+    "attack",
+    "att&ck",
+    "cti"
+  ],
+  "author": "Sean Sica",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/mitre-attack/attack-workbench-taxii-server/issues"
+  },
+  "homepage": "https://github.com/mitre-attack/attack-workbench-taxii-server#readme",
+  "dependencies": {
+    "@usebruno/cli": "^1.14.0",
+    "xml2js": "^0.6.2",
+    "xmldom": "^0.6.0",
+    "xpath": "^0.0.34"
+  }
+}

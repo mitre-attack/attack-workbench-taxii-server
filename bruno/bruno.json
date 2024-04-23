@@ -1,0 +1,13 @@
+{
+  "version": "1",
+  "name": "TAXII 2.1 Server",
+  "type": "collection",
+  "presets": {
+    "requestType": "http",
+    "requestUrl": ""
+  },
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

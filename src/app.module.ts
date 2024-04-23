@@ -6,9 +6,9 @@ import {
 } from "./common/middleware/request-context";
 import { TaxiiModule } from "./taxii/taxii.module";
 import { StixModule } from "./stix/stix.module";
-import { TaxiiCacheModule } from "./cache/taxii-cache.module";
 import { AppConnectOptions } from "./interfaces";
 import { MongooseModule } from "@nestjs/mongoose";
+import { TaxiiLoggerModule } from "./common/logger/taxii-logger.module";
 
 @Global()
 @Module({})
@@ -30,12 +30,13 @@ export class AppModule {
           isGlobal: true,
         }),
 
-        MongooseModule.forRoot(connectOptions.databaseConnectOptions.mongoUri),
 
-        TaxiiCacheModule.forRoot(connectOptions.cacheConnectOptions),
+        MongooseModule.forRoot(connectOptions.databaseConnectOptions.mongoUri),
 
         /** This is where all user-configurable parameters are defined **/
         TaxiiConfigModule,
+
+        TaxiiLoggerModule,
 
         /** This is where all TAXII providers and HTTP controllers are hosted. **/
         TaxiiModule,

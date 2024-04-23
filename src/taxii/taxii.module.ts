@@ -17,7 +17,6 @@ import { CollectionsController } from "src/taxii/controllers/collections/collect
 import { RootController } from "src/taxii/controllers/root/root.controller";
 
 // ** providers ** //
-import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
 import {
   DiscoveryModule,
   CollectionModule,
@@ -35,7 +34,6 @@ import {
     ManifestModule,
     VersionModule,
     EnvelopeModule,
-    TaxiiLoggerModule,
   ],
   controllers: [CollectionsController, RootController],
   providers: [

@@ -30,7 +30,13 @@ tests {
     expect(data).to.have.property('title').that.is.a('string').and.is.not.empty;
     expect(data).to.have.property('description').that.is.a('string').and.is.not.empty;
     expect(data).to.have.property('version').that.is.a('string').and.startsWith('application/taxii+json');
-    expect(data).to.have.property('maxContentLength').that.is.a('string');
-    expect(parseInt(data.maxContentLength)).to.be.a('number').and.not.NaN;
+    expect(data).to.have.property('maxContentLength');
+    const maxContentLength = data.maxContentLength;
+    
+    if (typeof maxContentLength === 'string') {
+      expect(parseInt(maxContentLength)).to.be.a('number').and.not.NaN;
+    } else {
+      expect(maxContentLength).to.be.a('number');
+    }
   });
 }

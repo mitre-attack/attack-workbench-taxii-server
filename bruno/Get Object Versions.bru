@@ -1,0 +1,57 @@
+meta {
+  name: Get Object Versions
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{host}}/api/v21/collections/{{collectionId}}/objects/{{objectId}}/versions/
+  body: none
+  auth: none
+}
+
+query {
+  ~limit: 1
+}
+
+headers {
+  Accept: application/taxii+json;version=2.1
+}
+
+vars:pre-request {
+  collectionId: x-mitre-collection--1f5f1533-f617-4ca8-9ab4-6a02367fa019
+  objectId: malware--72f54d66-675d-4587-9bd3-4ed09f9522e4
+}
+
+tests {
+  test("Verify response status code", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Verify response content type", function() {
+    const contentType = res.getHeader('content-type');
+    expect(contentType).to.include('application/stix+json');
+    expect(contentType).to.include('version=2.1');
+  });
+
+  test("Verify response body structure", function() {
+    const data = res.getBody();
+    expect(data).to.have.property('more').that.is.a('boolean');
+
+    if (data.hasOwnProperty('versions')) {
+      expect(data.versions).to.be.an('array');
+    } else {
+      expect(data).to.be.an('object').and.to.be.empty;
+    }
+  });
+
+  test("Verify version properties", function() {
+    const data = res.getBody();
+
+    if (data.hasOwnProperty('versions')) {
+      data.versions.forEach(version => {
+        expect(version).to.be.a('string');
+      });
+    }
+  });
+}

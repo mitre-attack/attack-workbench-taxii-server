@@ -1,0 +1,29 @@
+# This workflow runs the API tests for the bruno application on the latest version of Ubuntu
+
+name: API Tests - Bruno
+
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+  checks: write
+jobs:
+  run_bruno_api_test:
+    name: API Tests by Bruno
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies and run tests
+        run: |
+          cd bruno
+          npm install
+          npm run test
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()          # run this step even if previous step failed
+        with:
+          name: Bruno API Tests             # Name of the check run which will be created
+          path: bruno/report.xml                  # Path to test results
+          reporter: java-junit              # Format of test results

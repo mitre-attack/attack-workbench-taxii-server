@@ -113,16 +113,16 @@ export class CollectionsController {
     @TimestampQuery("added_after") addedAfter?: string,
     @NumberQuery("limit") limit?: number,
     @NumberQuery("next") next?: number,
-    @MatchQuery("match") match?: MatchDto
+    @Query("match", ParseMatchQueryParamPipe) matches?: MatchDto[]
   ): Promise<ManifestDto> {
     this.logger.debug(
       `Received request for object manifests with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${JSON.stringify(
-        match
+        matches
       )} }`,
       this.constructor.name
     );
     return await this.manifestService
-      .getManifestsByCollection(collectionId, addedAfter, limit, next, match)
+      .getManifestsByCollection(collectionId, addedAfter, limit, next, matches)
       .then((manifest) => manifest.toJSON());
   }
 
@@ -139,14 +139,20 @@ export class CollectionsController {
     @Query("added_after", ParseTimestampPipe) addedAfter?: string,
     @NumberQuery("limit") limit?: number,
     @NumberQuery("next") next?: number,
-    @Query("match", ParseMatchQueryParamPipe) match?: MatchDto
+    @Query("match", ParseMatchQueryParamPipe) matches?: MatchDto[]
+    /**
+     * Quick note on the above multi-step pipeline that processes "matches":
+     * The ParseArrayPipe is used to parse the match query parameter as an array. 
+     * It will automatically split the comma-separated values into an array.
+     * The ParseMatchQueryParamPipe is then applied to each element of the parsed array to transform it into a MatchDto object.
+     */
   ): Promise<EnvelopeDto> {
     this.logger.debug(
-      `Received request for objects with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${match} }`,
+      `Received request for objects with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, matches: ${JSON.stringify(matches)} }`,
       this.constructor.name
     );
     return await this.envelopeService
-      .findByCollectionId(collectionId, addedAfter, limit, next, match)
+      .findByCollectionId(collectionId, addedAfter, limit, next, matches)
       .then((envelope) => envelope.toJSON());
   }
 
@@ -164,14 +170,14 @@ export class CollectionsController {
     @NumberQuery("limit") limit?: number,
     @NumberQuery("next") next?: number,
     @Query("added_after", ParseTimestampPipe) addedAfter?: string,
-    @Query("match", ParseMatchQueryParamPipe) match?: MatchDto
+    @Query("match", ParseMatchQueryParamPipe) matches?: MatchDto[]
   ): Promise<EnvelopeDto> {
     this.logger.debug(
       `Received request for an object with options { collectionId: ${collectionId}, objectId: ${objectId} }`,
       this.constructor.name
     );
     return await this.envelopeService
-      .findByObjectId(collectionId, objectId, addedAfter, limit, next, match)
+      .findByObjectId(collectionId, objectId, addedAfter, limit, next, matches)
       .then((envelope) => envelope.toJSON());
   }
 
@@ -218,10 +224,10 @@ export class CollectionsController {
     @Query("added_after", ParseTimestampPipe) addedAfter?: string,
     @NumberQuery("limit") limit?: number,
     @NumberQuery("next") next?: number,
-    @Query("match", ParseMatchQueryParamPipe) match?: MatchDto
+    @Query("match", ParseMatchQueryParamPipe) matches?: MatchDto[]
   ): Promise<VersionDto> {
     this.logger.debug(
-      `Received request for object versions with options { collectionId: ${collectionId}, objectId: ${objectId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${match} }`,
+      `Received request for object versions with options { collectionId: ${collectionId}, objectId: ${objectId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${JSON.stringify(matches)} }`,
       this.constructor.name
     );
     return this.versionsService
@@ -231,7 +237,7 @@ export class CollectionsController {
         addedAfter,
         limit,
         next,
-        match
+        matches
       )
       .then((versions) => versions.toJSON());
   }

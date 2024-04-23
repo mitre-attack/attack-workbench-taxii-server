@@ -33,7 +33,11 @@ tests {
   });
   
   test("Verify returned object ID matches requested object ID", function() {
-    const requestedObjectId = 'intrusion-set--bef4c620-0787-42a8-a96d-b7eb6e85917c';
+    const url = req.getUrl();  // Get the URL from the request
+    // Regular expression to match the objectId in the URL format
+    const objectIdRegex = /objects\/([^\/]+)/;
+    // Use the regex to find the objectId
+    let requestedObjectId = url.match(objectIdRegex)[1];
     const data = res.getBody();
     expect(data.objects).to.be.an('array');
     if (data.objects.length > 0) {

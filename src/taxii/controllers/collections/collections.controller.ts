@@ -3,7 +3,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseArrayPipe,
   Post,
   Query,
   UseFilters,
@@ -114,7 +113,7 @@ export class CollectionsController {
     @TimestampQuery("added_after") addedAfter?: string,
     @NumberQuery("limit") limit?: number,
     @NumberQuery("next") next?: number,
-    @Query("match", ParseArrayPipe, ParseMatchQueryParamPipe) matches?: MatchDto[]
+    @Query("match", ParseMatchQueryParamPipe) matches?: MatchDto[]
   ): Promise<ManifestDto> {
     this.logger.debug(
       `Received request for object manifests with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${JSON.stringify(
@@ -140,7 +139,7 @@ export class CollectionsController {
     @Query("added_after", ParseTimestampPipe) addedAfter?: string,
     @NumberQuery("limit") limit?: number,
     @NumberQuery("next") next?: number,
-    @Query("match", ParseArrayPipe, ParseMatchQueryParamPipe) matches?: MatchDto[]
+    @Query("match", ParseMatchQueryParamPipe) matches?: MatchDto[]
     /**
      * Quick note on the above multi-step pipeline that processes "matches":
      * The ParseArrayPipe is used to parse the match query parameter as an array. 
@@ -171,7 +170,7 @@ export class CollectionsController {
     @NumberQuery("limit") limit?: number,
     @NumberQuery("next") next?: number,
     @Query("added_after", ParseTimestampPipe) addedAfter?: string,
-    @Query("match", ParseArrayPipe, ParseMatchQueryParamPipe) matches?: MatchDto[]
+    @Query("match", ParseMatchQueryParamPipe) matches?: MatchDto[]
   ): Promise<EnvelopeDto> {
     this.logger.debug(
       `Received request for an object with options { collectionId: ${collectionId}, objectId: ${objectId} }`,
@@ -225,7 +224,7 @@ export class CollectionsController {
     @Query("added_after", ParseTimestampPipe) addedAfter?: string,
     @NumberQuery("limit") limit?: number,
     @NumberQuery("next") next?: number,
-    @Query("match", ParseArrayPipe, ParseMatchQueryParamPipe) matches?: MatchDto[]
+    @Query("match", ParseMatchQueryParamPipe) matches?: MatchDto[]
   ): Promise<VersionDto> {
     this.logger.debug(
       `Received request for object versions with options { collectionId: ${collectionId}, objectId: ${objectId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${JSON.stringify(matches)} }`,

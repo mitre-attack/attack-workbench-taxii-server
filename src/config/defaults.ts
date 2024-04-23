@@ -1,6 +1,6 @@
 export const DEFAULT_ENV = "dev";
 export const DEFAULT_APP_ADDRESS = "0.0.0.0";
-export const DEFAULT_APP_PORT = 5000;
+export const DEFAULT_APP_PORT = 5002;
 export const DEFAULT_MAX_CONTENT_LENGTH = 1000;
 export const DEFAULT_API_ROOT_PATH = "api/v21";
 export const DEFAULT_API_ROOT_TITLE = "MITRE ATT&CK TAXII 2.1";

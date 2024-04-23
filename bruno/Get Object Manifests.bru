@@ -1,0 +1,78 @@
+meta {
+  name: Get Object Manifests
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{host}}/api/v21/collections/{{collectionId}}/manifest
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/taxii+json;version=2.1
+}
+
+vars:pre-request {
+  collectionId: x-mitre-collection--dac0d2d7-8653-445c-9bff-82f934c1e858
+}
+
+tests {
+  test("Verify response status code", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Verify response content type", function() {
+    const contentType = res.getHeader('content-type');
+    expect(contentType).to.include('application/stix+json');
+    expect(contentType).to.include('version=2.1');
+  });
+
+  test("Verify response body structure", function() {
+    const data = res.getBody();
+    expect(data).to.have.property('more').that.is.a('boolean');
+
+    if (data.hasOwnProperty('objects')) {
+      expect(data.objects).to.be.an('array');
+    } else {
+      expect(data).to.be.an('object').and.to.be.empty;
+    }
+  });
+
+  test("Verify manifest-record properties", function() {
+    const data = res.getBody();
+    const failedObjects = [];
+
+    if (data.hasOwnProperty('objects')) {
+      data.objects.forEach((obj, index) => {
+        try {
+          expect(obj).to.have.property('id').that.is.a('string');
+          expect(obj).to.have.property('date_added').that.is.a('string');
+          
+          if (!obj.id.includes('marking-definition')) {
+            expect(obj).to.have.property('version').that.is.a('string');
+          }
+          
+          if (obj.hasOwnProperty('media_type')) {
+            expect(obj.media_type).to.be.a('string');
+          }
+        } catch (err) {
+          failedObjects.push({
+            index: index,
+            object: obj,
+            error: err.message
+          });
+        }
+        if (failedObjects.length > 0) {
+          const failureMessage = `${failedObjects.length} object(s) failed validation:\n\n` +
+            failedObjects.map(failedObj => {
+              return `Index: ${failedObj.index}\nObject: ${JSON.stringify(failedObj.object)}\nError: ${failedObj.error}\n`;
+            }).join('\n');
+
+          throw new Error(failureMessage);
+        }
+      });
+    }
+  });
+}

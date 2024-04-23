@@ -1,0 +1,36 @@
+meta {
+  name: Get API Root Information
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/api/v21/
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/taxii+json;version=2.1
+}
+
+tests {
+  test("Verify response status code", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Verify response content type", function() {
+    const contentType = res.getHeader('content-type');
+    expect(contentType).to.include('application/stix+json');
+    expect(contentType).to.include('version=2.1');
+  });
+  
+  test("Verify response body", function() {
+    const data = res.getBody();
+    expect(data).to.have.property('title').that.is.a('string').and.is.not.empty;
+    expect(data).to.have.property('description').that.is.a('string').and.is.not.empty;
+    expect(data).to.have.property('version').that.is.a('string').and.startsWith('application/taxii+json');
+    expect(data).to.have.property('maxContentLength').that.is.a('string');
+    expect(parseInt(data.maxContentLength)).to.be.a('number').and.not.NaN;
+  });
+}

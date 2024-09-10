@@ -30,7 +30,7 @@ tests {
 
   test("Verify response content type", function() {
     const contentType = res.getHeader('content-type');
-    expect(contentType).to.include('application/stix+json');
+    expect(contentType).to.include('application/taxii+json');
     expect(contentType).to.include('version=2.1');
   });
 

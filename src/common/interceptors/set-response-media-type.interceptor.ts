@@ -24,14 +24,7 @@ export class SetResponseMediaType implements NestInterceptor {
 
         const requestedMediaType: MediaTypeObject = req[MEDIA_TYPE_TOKEN];
 
-        // requestedMediaType._subType = requestedMediaType._subType.replace(
-        //   "taxii",
-        //   "stix"
-        // );
-
         const contentType = requestedMediaType.toString();
-
-        contentType.replace("taxii", "stix");
 
         res.setHeader("Content-Type", contentType);
       })

@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { TaxiiConfigService } from "src/config";
 import { DiscoverOptions, DiscoveryDto, ApiRootDto } from "./dto";
+import { DEFAULT_CONTENT_TYPE } from "src/common/middleware/content-negotiation/supported-media-types";
 
 @Injectable()
 export class DiscoveryService {
@@ -22,9 +23,9 @@ export class DiscoveryService {
     return new ApiRootDto({
       title: this.config.API_ROOT_TITLE,
       description: this.config.API_ROOT_DESCRIPTION,
-      version: "application/taxii+json;version=2.1", // ** A value of "application/taxii+json;version=2.1" MUST
-      // be included in this list to indicate conformance with
-      // this specification. ** //
+      versions: [
+        DEFAULT_CONTENT_TYPE, // ** A value of "application/taxii+json;version=2.1" MUST be included in this list to indicate conformance with this specification. ** //
+      ],
       maxContentLength: this.config.MAX_CONTENT_LENGTH,
     });
   }

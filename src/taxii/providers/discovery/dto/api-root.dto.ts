@@ -1,11 +1,11 @@
-import { IsEnum, IsOptional, IsString } from "class-validator";
+import { IsNumber, IsOptional, IsString } from "class-validator";
 import { Exclude, Expose } from "class-transformer";
 
 export interface ApiRootOptions {
-  title?: string;
+  title: string;
   description?: string;
-  version?: string;
-  maxContentLength?: number;
+  versions: string[];
+  maxContentLength: number;
 }
 
 @Exclude()
@@ -37,8 +37,7 @@ export class ApiRootDto {
    * @required    true
    */
   @Expose()
-  //@IsEnum(DEFAULT_MEDIA_TYPE)  TODO: determine how to validate that string is equal to MediaType.get()
-  version: string;
+  versions: string[]; // TODO validate each media type in the list
 
   /**
    * @descr       The maximum size of the request body in octets (8-bit bytes) that the server can support. The
@@ -51,9 +50,9 @@ export class ApiRootDto {
    * @type        Number (integer)
    * @required    true
    */
-  @Expose()
-  //@IsEnum(MaxContentLength)
-  maxContentLength: 1000;
+  @Expose({ name: 'max_content_length' })
+  @IsNumber()
+  maxContentLength: 1000; // TODO revisit this. 1000 is just a placeholder and has no bearing on server functionality. it is also a static unchangable value.
 
   constructor(options: ApiRootOptions) {
     Object.assign(this, options);

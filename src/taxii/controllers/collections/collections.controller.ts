@@ -8,9 +8,6 @@ import {
   UseFilters,
   UseInterceptors,
 } from "@nestjs/common";
-
-import { ApiExcludeEndpoint, ApiHeader, ApiOkResponse } from "@nestjs/swagger";
-
 // ** logger ** //
 import { TaxiiLoggerService as Logger } from "src/common/logger/taxii-logger.service";
 
@@ -38,6 +35,7 @@ import { TaxiiExceptionFilter } from "src/common/exceptions/taxii-exception.filt
 import { TimestampQuery } from "src/common/decorators/timestamp.query.decorator";
 import { NumberQuery } from "src/common/decorators/number.query.decorator";
 import { TaxiiServiceUnavailableException } from "src/common/exceptions";
+import { SnakeCaseInterceptor } from "src/common/interceptors/snake-case.interceptor";
 import {
   SetTaxiiDateHeadersInterceptor,
   TaxiiDateFrom,
@@ -46,8 +44,10 @@ import {
 // ** transformation pipes ** //
 import { ParseTimestampPipe } from "src/common/pipes/parse-timestamp.pipe";
 import { ParseMatchQueryParamPipe } from "src/common/pipes/parse-match-query-param.pipe";
+import { instanceToPlain } from "class-transformer";
 
 // ** open-api ** //
+import { ApiExcludeEndpoint, ApiHeader, ApiOkResponse } from "@nestjs/swagger";
 import { SwaggerDocumentation as SWAGGER } from "./collections.controller.swagger.json";
 import { VersionsResource } from "../../providers/version/dto/versions-resource";
 import { EnvelopeResource } from "src/taxii/providers/envelope/dto/envelope-resource";
@@ -60,6 +60,7 @@ import { ManifestResource } from "../../providers/manifest/dto";
   description: SWAGGER.AcceptHeader.Description,
 })
 @Controller("/collections")
+@UseInterceptors(SnakeCaseInterceptor)
 @UseFilters(new TaxiiExceptionFilter())
 export class CollectionsController {
   constructor(
@@ -97,7 +98,8 @@ export class CollectionsController {
       `Received request for a single collection with options { collectionId: ${collectionId} }`,
       this.constructor.name
     );
-    return await this.collectionService.findOne(collectionId);
+    const collection = await this.collectionService.findOne(collectionId);
+    return instanceToPlain(collection, { excludeExtraneousValues: true }) as TaxiiCollectionDto;
   }
 
   @ApiOkResponse({

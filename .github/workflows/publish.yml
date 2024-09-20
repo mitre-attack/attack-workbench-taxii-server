@@ -30,7 +30,7 @@ jobs:
       - name: Build and publish Docker image
         run: |
           echo $GITHUB_TOKEN | docker login ghcr.io -u mitre-attack --password-stdin
-          docker build . --tag ghcr.io/mitre-attack/attack-workbench-taxii-server:${TAG:-latest}
+          docker build --no-cache --tag ghcr.io/mitre-attack/attack-workbench-taxii-server:${TAG:-latest} .
           docker push ghcr.io/mitre-attack/attack-workbench-taxii-server:${TAG:-latest}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

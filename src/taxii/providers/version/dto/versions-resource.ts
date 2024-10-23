@@ -4,7 +4,7 @@ import { VersionDto } from "src/taxii/providers/version/dto/version.dto";
 export class VersionsResource extends OmitType(VersionDto, [
   "id",
   "next",
-  "items",
+  "objects",
 ]) {
   @ApiProperty({
     description:

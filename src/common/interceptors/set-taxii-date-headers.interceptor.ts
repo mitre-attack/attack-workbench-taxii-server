@@ -56,7 +56,7 @@ export class SetTaxiiDateHeadersInterceptor implements NestInterceptor {
         // (i.e., an EnvelopeDto instance or a ManifestDto instance)
         // The objects property will be either an envelope (Array<StixObjectPropertiesDto>) or a
         // manifest (Array<ManifestRecordDto>)
-        if (data.items) {
+        if (data.objects) {
           // ok cool - so we're about to send either an envelope or manifest to the user, which case we need
           // to set the headers which indicates the date_added timestamp of the first object and the last
           // object of the response.
@@ -69,7 +69,7 @@ export class SetTaxiiDateHeadersInterceptor implements NestInterceptor {
           switch (this.type) {
             case TaxiiDateFrom.ENVELOPE: {
               // get the array of objects from the response body
-              const stixObjects: StixObjectPropertiesInterface[] = data.items;
+              const stixObjects: StixObjectPropertiesInterface[] = data.objects;
               if (stixObjects.length >= 1) {
                 addedFirst = stixObjects[0].created;
                 addedLast = stixObjects[stixObjects.length - 1].created;
@@ -82,7 +82,7 @@ export class SetTaxiiDateHeadersInterceptor implements NestInterceptor {
               break;
             }
             case TaxiiDateFrom.MANIFEST: {
-              const manifestRecords: ManifestRecordDto[] = data.items;
+              const manifestRecords: ManifestRecordDto[] = data.objects;
               if (manifestRecords.length >= 1) {
                 addedFirst = manifestRecords[0].dateAdded;
                 addedLast =
@@ -97,7 +97,7 @@ export class SetTaxiiDateHeadersInterceptor implements NestInterceptor {
             }
             case TaxiiDateFrom.VERSIONS: {
               // TODO confirm this works then delete TODO: complete this block after version endpoint is implemented
-              const versions: string[] = data.items;
+              const versions: string[] = data.objects;
               if (versions.length >= 1) {
                 addedFirst = versions[0];
                 addedLast = versions[versions.length - 1];

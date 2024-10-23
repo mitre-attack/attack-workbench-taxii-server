@@ -38,7 +38,7 @@ export class DiscoveryDto {
 
   /**
    * @descr       The default API Root that a TAXII Client MAY use. Absence of this property indicates that there
-   *              is no default API Root. The default API Root MUST be an item in api_roots.
+   *              is no default API Root. The default API Root MUST be an object in api_roots.
    * @type        string
    * @required    false
    */

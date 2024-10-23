@@ -19,14 +19,14 @@ export class PaginationService {
    * Handles pagination of STIX object, manifest-record, and version string arrays. This is where all pagination logic
    * lives. The other class methods (which are public) call this method to process pages. They themselves just
    * transform the generic response object (an instance of GenericPageDto) to their respective resource types.
-   * @param items A list of either: ManifestRecordDto (if being called by the ManifestService), string (if being
+   * @param objects A list of either: ManifestRecordDto (if being called by the ManifestService), string (if being
    *              called by the VersionService), StixObjectPropertiesInterface (if being called by the EnvelopeService)
    * @param limit The number of objects that should be included on the page
    * @param next Specifies which page is being requested
    * @private
    */
   private async getPage(
-    items: any[],
+    objects: any[],
     limit?: number,
     next?: number
   ): Promise<GenericPageDto> {
@@ -48,14 +48,14 @@ export class PaginationService {
           this.constructor.name
         );
         /**
-         * The following `if` condition determines whether pagination is even possible for the supplied `items`,
+         * The following `if` condition determines whether pagination is even possible for the supplied `objects`,
          * `limit`, and `next` combination. For example, it is possible for the user to request a page that does not
          * exist.
          */
-        if (limit * next <= items.length) {
+        if (limit * next <= objects.length) {
           /**
            * Example:
-           * all_items = [a,b,c,d,e,f,g], length=7
+           * all_objects = [a,b,c,d,e,f,g], length=7
            * limit=2, next=2
            * resulting pages = {
            *  page-0: [a,b],
@@ -64,25 +64,25 @@ export class PaginationService {
            *  page-3: [g] <-- `isMore` determines if this page exists
            *  }
            *  We know there are additional pages after page-2 because:
-           *  - nextPage + currentPage < totalItems
-           *  - (limit) + (limit*next) < items.length
+           *  - nextPage + currentPage < totalobjects
+           *  - (limit) + (limit*next) < objects.length
            *  - (2) + (2*2) < 7
            *  - 6 < 7
            */
-          const isMore: boolean = limit + limit * next < items.length;
+          const isMore: boolean = limit + limit * next < objects.length;
 
           return new GenericPageDto({
             more: isMore,
             next: isMore ? String(next + 1) : undefined,
-            items: items.slice(limit * next, limit + limit * next),
+            objects: objects.slice(limit * next, limit + limit * next),
           });
         }
 
         /**
-         * The values for `next` and `limit` are invalid for the selected items array. Usually this happens as a result
+         * The values for `next` and `limit` are invalid for the selected objects array. Usually this happens as a result
          * of the user requesting a page that does not exist.
          *
-         * e.g., We have 10 items and want to paginate by 5 (limit=5). Therefore, there should be two pages. However,
+         * e.g., We have 10 objects and want to paginate by 5 (limit=5). Therefore, there should be two pages. However,
          * the user requested page 3 (next=3), resulting in an out of bounds exception. In this case, we return a 400
          * response.
          */
@@ -96,66 +96,66 @@ export class PaginationService {
         // Paginating by `limit`. This will only ever resolve to the first page, since `next` is the mechanism by which
         // we step through pages.
 
-        const isMore: boolean = limit < items.length;
+        const isMore: boolean = limit < objects.length;
 
         // Return page 1
         return new GenericPageDto({
           more: isMore,
           next: isMore ? "1" : undefined,
-          items: items.slice(0, limit),
+          objects: objects.slice(0, limit),
         });
       }
     }
 
     this.logger.debug(
-      "Pagination bypassed. Returning page containing all available items",
+      "Pagination bypassed. Returning page containing all available objects",
       this.constructor.name
     );
     return new GenericPageDto({
       more: false,
-      items: items,
+      objects: objects,
     });
   }
 
   /**
    * Paginates an array of STIX objects
-   * @param items The array of STIX objects that should be paginated
+   * @param objects The array of STIX objects that should be paginated
    * @param limit The number of objects that should be included on the page
    * @param next Specifies which page is being requested
    */
   async getEnvelope(
-    items: StixObjectPropertiesInterface[],
+    objects: StixObjectPropertiesInterface[],
     limit?: number,
     next?: number
   ): Promise<EnvelopeDto> {
-    return new EnvelopeDto(await this.getPage(items, limit, next));
+    return new EnvelopeDto(await this.getPage(objects, limit, next));
   }
 
   /**
    * Paginates an array of manifest records
-   * @param items The array of manifest records that should be paginated
+   * @param objects The array of manifest records that should be paginated
    * @param limit The number of manifest records that should be included on the page
    * @param next Specifies which page is being requested
    */
   async getManifest(
-    items: ManifestRecordDto[],
+    objects: ManifestRecordDto[],
     limit?: number,
     next?: number
   ): Promise<ManifestDto> {
-    return new ManifestDto(await this.getPage(items, limit, next));
+    return new ManifestDto(await this.getPage(objects, limit, next));
   }
 
   /**
    * Paginates an array of object versions
-   * @param items The array of object versions (which are just strings) that should be paginated
+   * @param objects The array of object versions (which are just strings) that should be paginated
    * @param limit The number of versions that should be included on the page
    * @param next Specifies which page is being requested
    */
   async getVersion(
-    items: string[],
+    objects: string[],
     limit?: number,
     next?: number
   ): Promise<VersionDto> {
-    return new VersionDto(await this.getPage(items, limit, next));
+    return new VersionDto(await this.getPage(objects, limit, next));
   }
 }

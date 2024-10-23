@@ -4,24 +4,24 @@ export interface GenericPageOptions<T> {
   id?: string;
   more?: boolean;
   next?: string;
-  items?: T[];
+  objects?: T[];
 }
 
 export class GenericPageDto {
   id: string;
   more: boolean;
   next: string;
-  items: any[];
+  objects: any[];
 
   constructor(options: GenericPageOptions<any>) {
     this.id = options.id ? options.id : new IdentifierDto().toString();
     this.more = options.more ? options.more : false;
     this.next = options.next ? options.next : undefined;
-    this.items = options.items ? options.items : [];
+    this.objects = options.objects ? options.objects : [];
   }
 
   /**
-   * toJSON allows the controller to remove the items/objects property from the object if there are no elements in
+   * toJSON allows the controller to remove the objects property from the object if there are no elements in
    * the array. This is a requirement of the TAXII 2.1 specification.
    *
    * The specification states:
@@ -29,8 +29,8 @@ export class GenericPageDto {
    * property is required, the list MUST be present and MUST have at least one value.
    */
   toJSON() {
-    if (this.items.length === 0) {
-      this.items = undefined;
+    if (this.objects.length === 0) {
+      this.objects = undefined;
     }
     return this;
   }

@@ -13,7 +13,7 @@ export interface EnvelopeConstructorOptions
   id?: string; // <-- INHERITED
   more?: boolean; // <-- INHERITED
   next?: string; // <-- INHERITED
-  items?: StixObjectPropertiesInterface[];
+  objects?: StixObjectPropertiesInterface[];
 }
 
 @Exclude()
@@ -37,7 +37,7 @@ export class EnvelopeDto
   @IsOptional()
   @Type(() => StixObjectDto)
   @Expose({ name: "objects" })
-  items: StixObjectPropertiesInterface[];
+  objects: StixObjectPropertiesInterface[];
 
   constructor(options: EnvelopeConstructorOptions) {
     super(options);

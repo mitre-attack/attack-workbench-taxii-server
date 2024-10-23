@@ -12,7 +12,7 @@ export interface ManifestConstructorProperties
   id?: string; // <-- INHERITED
   more?: boolean; // <-- INHERITED
   next?: string; // <-- INHERITED
-  items?: ManifestRecordDto[];
+  objects?: ManifestRecordDto[];
 }
 
 export class ManifestDto
@@ -35,7 +35,7 @@ export class ManifestDto
   @IsOptional()
   @Type(() => ManifestRecordDto)
   @Expose({ name: "objects" })
-  items: ManifestRecordDto[];
+  objects: ManifestRecordDto[];
 
   constructor(options: ManifestConstructorProperties) {
     super(options);

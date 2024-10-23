@@ -46,7 +46,7 @@ export class EnvelopeBundleDto
     for (let i = 0; i < this.pages.length; i++) {
       const curEnvelope: EnvelopeDto = this.pages[i];
       const curOldestObjectInEnvelope =
-        curEnvelope.items[curEnvelope.items.length - 1].created;
+        curEnvelope.objects[curEnvelope.objects.length - 1].created;
       if (new Date(curOldestObjectInEnvelope).toISOString() == addedAfter) {
         /** If the date matches the supplied added_after query parameter, then try to serve the *next*
                  envelope after this one, because the user wants all objects after the specified added_after date **/
@@ -82,7 +82,7 @@ export class EnvelopeBundleDto
           id: new IdentifierDto().toString(),
           more: false,
           next: undefined,
-          items: objects.slice(i, stop),
+          objects: objects.slice(i, stop),
         });
         if (this.pages.length > 0) {
           // If this is not the first envelope in the bundle, update prev before pushing the new envelope
@@ -98,7 +98,7 @@ export class EnvelopeBundleDto
         id: new IdentifierDto().toString(),
         more: false,
         next: undefined,
-        items: objects,
+        objects: objects,
       });
 
       // if this is not the first envelope in the bundle...

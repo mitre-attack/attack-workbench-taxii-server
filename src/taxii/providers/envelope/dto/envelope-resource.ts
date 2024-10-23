@@ -7,7 +7,7 @@ import { StixObjectDto } from "src/stix/dto/stix-object.dto";
 export class EnvelopeResource extends OmitType(EnvelopeDto, [
   "id",
   "next",
-  "items",
+  "objects",
 ]) {
   @ApiProperty({
     description:

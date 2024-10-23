@@ -28,7 +28,7 @@ export class DiscoveryResource extends OmitType(DiscoveryDto, []) {
 
   @ApiProperty({
     description:
-      "The default API Root that a TAXII Client MAY use. Absence of this property indicates that there is no default API Root. The default API Root MUST be an item in api_roots.",
+      "The default API Root that a TAXII Client MAY use. Absence of this property indicates that there is no default API Root. The default API Root MUST be an object in api_roots.",
     type: String,
     required: false,
   })

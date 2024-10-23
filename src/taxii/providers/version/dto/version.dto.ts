@@ -10,7 +10,7 @@ export interface VersionConstructorOptions extends GenericPageOptions<string> {
   id?: string; // <-- INHERITED
   more?: boolean; // <-- INHERITED
   next?: string; // <-- INHERITED
-  items?: string[];
+  objects?: string[];
 }
 
 export class VersionDto
@@ -33,7 +33,7 @@ export class VersionDto
   @IsOptional()
   @Type(() => String)
   @Expose({ name: "versions" })
-  items: string[];
+  objects: string[];
 
   constructor(options: VersionConstructorOptions) {
     super(options);

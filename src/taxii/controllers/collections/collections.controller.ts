@@ -124,8 +124,7 @@ export class CollectionsController {
       this.constructor.name
     );
     return await this.manifestService
-      .getManifestsByCollection(collectionId, addedAfter, limit, next, matches)
-      .then((manifest) => manifest.toJSON());
+      .getManifestsByCollection(collectionId, addedAfter, limit, next, matches);
   }
 
   @ApiOkResponse({
@@ -153,9 +152,7 @@ export class CollectionsController {
       `Received request for objects with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, matches: ${JSON.stringify(matches)} }`,
       this.constructor.name
     );
-    return await this.envelopeService
-      .findByCollectionId(collectionId, addedAfter, limit, next, matches)
-      .then((envelope) => envelope.toJSON());
+    return await this.envelopeService.findByCollectionId(collectionId, addedAfter, limit, next, matches);
   }
 
   @ApiOkResponse({
@@ -174,13 +171,13 @@ export class CollectionsController {
     @Query("added_after", ParseTimestampPipe) addedAfter?: string,
     @Query("match", ParseMatchQueryParamPipe) matches?: MatchDto[]
   ): Promise<EnvelopeDto> {
+
     this.logger.debug(
       `Received request for an object with options { collectionId: ${collectionId}, objectId: ${objectId} }`,
       this.constructor.name
     );
-    return await this.envelopeService
-      .findByObjectId(collectionId, objectId, addedAfter, limit, next, matches)
-      .then((envelope) => envelope.toJSON());
+
+    return await this.envelopeService.findByObjectId(collectionId, objectId, addedAfter, limit, next, matches);
   }
 
   @ApiExcludeEndpoint()
@@ -240,7 +237,6 @@ export class CollectionsController {
         limit,
         next,
         matches
-      )
-      .then((versions) => versions.toJSON());
+    );
   }
 }

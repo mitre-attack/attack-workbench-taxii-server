@@ -37,7 +37,7 @@ export class EnvelopeDto
   @IsOptional()
   @Type(() => StixObjectDto)
   @Expose({ name: "objects" })
-  objects: StixObjectPropertiesInterface[];
+  objects: StixObjectDto[];
 
   constructor(options: EnvelopeConstructorOptions) {
     super(options);

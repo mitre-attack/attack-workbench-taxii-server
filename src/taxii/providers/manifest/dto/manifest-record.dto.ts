@@ -1,5 +1,5 @@
 import { Exclude, Expose, Type } from "class-transformer";
-import { IsString } from "class-validator";
+import { IsDate, IsString } from "class-validator";
 import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 
 /**
@@ -13,13 +13,12 @@ export class ManifestRecordDto {
   @Expose()
   id: string;
 
-  @Type(() => String)
   @Expose({ name: "date_added" })
-  dateAdded: string;
+  dateAdded: Date;
 
-  @IsString()
+  @IsDate()
   @Expose()
-  version: string;
+  version: Date;
 
   @IsString()
   @Expose({ name: "media_type" })

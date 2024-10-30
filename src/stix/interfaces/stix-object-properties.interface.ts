@@ -8,8 +8,8 @@ export interface StixObjectPropertiesInterface {
   type: string;
   spec_version?: string;
   create_by_ref?: string;
-  created: string;
-  modified: string;
+  created: Date;
+  modified: Date;
   revoked?: boolean;
   labels?: Array<string>;
   confidence?: number;

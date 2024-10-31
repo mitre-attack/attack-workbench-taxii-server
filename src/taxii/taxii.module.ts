@@ -25,6 +25,8 @@ import {
   ManifestModule,
   ObjectModule,
 } from "./providers";
+import { SnakeCaseInterceptor } from "src/common/interceptors/snake-case.interceptor";
+import { TaxiiSerializerInterceptor } from "src/common/interceptors/taxii-serializer.interceptor";
 
 @Module({
   imports: [
@@ -38,7 +40,8 @@ import {
   controllers: [CollectionsController, RootController],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: SetResponseMediaType },
-    { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
+    // { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
+    // { provide: APP_INTERCEPTOR, useClass: TaxiiSerializerInterceptor }
   ],
 })
 export class TaxiiModule implements NestModule {

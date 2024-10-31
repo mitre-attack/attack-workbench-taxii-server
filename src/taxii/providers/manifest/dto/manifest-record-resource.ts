@@ -26,7 +26,7 @@ export class ManifestRecordResource extends OmitType(ManifestRecordDto, [
     type: String,
     required: true,
   })
-  version: Date;
+  version: string;
 
   @ApiProperty({
     description:

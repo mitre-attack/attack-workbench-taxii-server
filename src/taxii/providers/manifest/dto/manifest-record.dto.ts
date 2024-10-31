@@ -1,33 +1,45 @@
-import { Exclude, Expose, Type } from "class-transformer";
-import { IsDate, IsString } from "class-validator";
-import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
+import { Expose } from "class-transformer";
+import { IsDate, IsOptional, IsString } from "class-validator";
+import { DEFAULT_CONTENT_TYPE } from "src/common/middleware/content-negotiation/supported-media-types";
+import { StixObjectDto } from "src/stix/dto/stix-object.dto";
 
 /**
  * The manifest-record type captures metadata about a single version of an object, indicated by the id property. The
  * metadata includes information such as when that version of the object was added to the Collection, the version of the
  * object itself, and the media type that this specific version of the object is available in.
  */
-@Exclude()
 export class ManifestRecordDto {
-  @IsString()
   @Expose()
+  @IsString()
   id: string;
 
-  @Expose({ name: "date_added" })
+  @Expose({ name: 'date_added' })
+  @IsDate()
   dateAdded: Date;
 
-  @IsDate()
   @Expose()
-  version: Date;
-
   @IsString()
-  @Expose({ name: "media_type" })
-  mediaType: string;
+  version: string;
 
-  constructor(stixObject: StixObjectPropertiesInterface) {
+  @Expose({ name: 'media_type' })
+  @IsString()
+  @IsOptional()
+  mediaType?: string;
+
+  constructor(stixObject: StixObjectDto) {
+    if (!stixObject) return;
+
     this.id = stixObject.id;
+
+    // The date and time this object was added.
+    // TODO we are not currently this value, so we are using the created timestamp from the STIX object
     this.dateAdded = stixObject.created;
-    this.mediaType = "application/stix+taxii;version=2.1";
-    this.version = stixObject.modified;
+
+    // Use modified timestamp if available, otherwise use created timestamp
+    const versionDate = stixObject.modified || stixObject.created;
+    this.version = new Date(versionDate).toISOString();
+
+    // Always set media type to STIX 2.1
+    this.mediaType = DEFAULT_CONTENT_TYPE;
   }
 }

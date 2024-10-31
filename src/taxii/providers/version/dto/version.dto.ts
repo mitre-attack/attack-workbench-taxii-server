@@ -1,41 +1,22 @@
-import { SinglePageInterface } from "src/taxii/providers/pagination/interfaces/single-page.interface";
 import { Exclude, Expose, Type } from "class-transformer";
-import { IsBoolean, IsOptional, IsString } from "class-validator";
-import {
-  GenericPageDto,
-  GenericPageOptions,
-} from "../../pagination/dto/generic-page.dto";
+import { IsArray, IsString } from "class-validator";
+import { GenericPageDto } from "../../pagination/dto/generic-page.dto";
 
-export interface VersionConstructorOptions extends GenericPageOptions<string> {
-  id?: string; // <-- INHERITED
-  more?: boolean; // <-- INHERITED
-  next?: string; // <-- INHERITED
-  objects?: string[];
+interface VersionDtoConstructor {
+  more?: boolean;
+  next?: string;
+  versions?: string[];
 }
 
-export class VersionDto
-  extends GenericPageDto
-  implements SinglePageInterface<string>
-{
-  @Exclude()
-  id: string;
-
+export class VersionDto extends GenericPageDto {
   @Expose()
-  @IsOptional()
-  @IsBoolean()
-  more: boolean;
-
-  @Expose()
-  @IsString()
-  @IsOptional()
-  next: string;
-
-  @IsOptional()
+  @IsArray()
+  // @IsString({ each: true })
   @Type(() => String)
-  @Expose({ name: "versions" })
-  objects: string[];
+  versions: string[];
 
-  constructor(options: VersionConstructorOptions) {
-    super(options);
+  constructor(data?: VersionDtoConstructor) {
+    super(data);
+    this.versions = data.versions;
   }
 }

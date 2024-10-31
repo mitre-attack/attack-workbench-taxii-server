@@ -1,11 +1,7 @@
 import { ApiProperty, OmitType } from "@nestjs/swagger";
 import { VersionDto } from "src/taxii/providers/version/dto/version.dto";
 
-export class VersionsResource extends OmitType(VersionDto, [
-  "id",
-  "next",
-  "objects",
-]) {
+export class VersionsResource extends OmitType(VersionDto, ["next"]) {
   @ApiProperty({
     description:
       "This property identifies if there is more content available based on the search criteria. The absence of this property means the value is false.",

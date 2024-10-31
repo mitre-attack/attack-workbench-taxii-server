@@ -65,7 +65,6 @@ export class VersionService {
         description: `A STIX object with ${objectId} could not be found in collection ${collectionId}.`,
       });
     }
-    // return await this.paginationService.getEnvelopes(stixObjects, limit, next);
-    return this.paginationService.getVersion(objectVersions, limit, next);
+    return await this.paginationService.getVersion(objectVersions, limit, next);
   }
 }

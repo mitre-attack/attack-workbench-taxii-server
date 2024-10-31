@@ -1,19 +1,14 @@
+import { Exclude, Expose } from "class-transformer";
 import { IsEmail, IsOptional, IsString } from "class-validator";
 
-export interface DiscoverOptions {
-  title?: string;
-  contact?: string;
-  description?: string;
-  default?: string;
-  api_roots?: string[];
-}
-
+@Exclude()
 export class DiscoveryDto {
   /**
    * @descr       A human readable plain text name used to identify this server.
    * @type        string
    * @required    true
    */
+  @Expose()
   @IsString()
   title: string;
 
@@ -23,6 +18,7 @@ export class DiscoveryDto {
    * @type        string
    * @required    false
    */
+  @Expose()
   @IsEmail({}, { message: "Invalid email address" })
   @IsOptional()
   contact?: string;
@@ -32,6 +28,7 @@ export class DiscoveryDto {
    * @type        string
    * @required    false
    */
+  @Expose()
   @IsString()
   @IsOptional()
   description?: string;
@@ -42,7 +39,7 @@ export class DiscoveryDto {
    * @type        string
    * @required    false
    */
-  // @ValidateNested()
+  @Expose()
   @IsOptional()
   default?: string;
 
@@ -54,11 +51,11 @@ export class DiscoveryDto {
    * @type        Array
    * @required    false
    */
-  // @MinLength(1, { each: true })
+  @Expose()
   @IsOptional()
-  api_roots?: string[];
+  apiRoots?: string[];
 
-  constructor(options?: DiscoverOptions) {
-    Object.assign(this, options);
+  constructor(partial?: Partial<DiscoveryDto>) {
+    Object.assign(this, partial);
   }
 }

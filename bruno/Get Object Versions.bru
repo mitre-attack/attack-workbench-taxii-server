@@ -38,9 +38,12 @@ tests {
     const data = res.getBody();
     expect(data).to.have.property('more').that.is.a('boolean');
 
+    // The list of object versions returned by the request. 
     if (data.hasOwnProperty('versions')) {
       expect(data.versions).to.be.an('array');
     } else {
+      // If there are no versions returned, this key MUST be omitted, 
+      // and the response is an empty object.
       expect(data).to.be.an('object').and.to.be.empty;
     }
   });

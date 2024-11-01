@@ -11,6 +11,7 @@ import { SetRequestIdMiddleware } from "src/common/middleware/set-request-id.mid
 import { ContentNegotiationMiddleware } from "src/common/middleware/content-negotiation";
 import { ResLoggerMiddleware } from "src/common/middleware/res-logger.middleware";
 import { SetResponseMediaType } from "src/common/interceptors/set-response-media-type.interceptor";
+import { SnakeCaseInterceptor } from "src/common/interceptors/snake-case.interceptor";
 
 //** controllers **//
 import { CollectionsController } from "src/taxii/controllers/collections/collections.controller";
@@ -25,8 +26,6 @@ import {
   ManifestModule,
   ObjectModule,
 } from "./providers";
-import { SnakeCaseInterceptor } from "src/common/interceptors/snake-case.interceptor";
-import { TaxiiSerializerInterceptor } from "src/common/interceptors/taxii-serializer.interceptor";
 
 @Module({
   imports: [
@@ -38,10 +37,19 @@ import { TaxiiSerializerInterceptor } from "src/common/interceptors/taxii-serial
     EnvelopeModule,
   ],
   controllers: [CollectionsController, RootController],
+  /**
+   * This provider configuration ensures that:
+   *  1. The TAXII headers are set (using @UseInterceptors on relevant controller methods)
+   *  2. The response is properly serialized by the ClassSerializerInterceptor
+   *  3. Then transformed to snake case
+   *  4. Finally, has the media type set while preserving the response data
+   * 
+   * NOTE: // Order matters! Serialize first, then transform
+   */
   providers: [
-    { provide: APP_INTERCEPTOR, useClass: SetResponseMediaType },
-    // { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
-    // { provide: APP_INTERCEPTOR, useClass: TaxiiSerializerInterceptor }
+    { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: SnakeCaseInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: SetResponseMediaType }
   ],
 })
 export class TaxiiModule implements NestModule {

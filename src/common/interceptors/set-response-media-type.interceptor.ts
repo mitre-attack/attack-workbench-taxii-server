@@ -17,10 +17,8 @@ import {
 @Injectable()
 export class SetResponseMediaType implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    console.log('MediaType - Starting interception');
     return next.handle().pipe(
       map(data => {
-        console.log('MediaType - Received data:', data);
         const req = context.switchToHttp().getRequest<Request>();
         const res = context.switchToHttp().getResponse<Response>();
         const requestedMediaType: MediaTypeObject = req[MEDIA_TYPE_TOKEN];

@@ -8,7 +8,6 @@ export class TaxiiSerializerInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         return next.handle().pipe(
             map(data => {
-                console.log('Serializer - Input:', data);
                 
                 if (!data) {
                     return {};
@@ -19,15 +18,12 @@ export class TaxiiSerializerInterceptor implements NestInterceptor {
                     excludeExtraneousValues: true,
                     exposeDefaultValues: false
                 });
-                console.log('Serializer - After instanceToPlain:', plainObject);
 
                 // Then convert to snake case
                 const snakeCaseObject = this.toSnakeCase(plainObject);
-                console.log('Serializer - After snake case:', snakeCaseObject);
 
                 // Remove undefined/null properties
                 const cleanObject = this.removeEmptyProperties(snakeCaseObject);
-                console.log('Serializer - Final result:', cleanObject);
 
                 return cleanObject;
             })

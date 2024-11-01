@@ -1,12 +1,10 @@
 import {
-  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
   Param,
   Post,
   Query,
-  SerializeOptions,
   UseFilters,
   UseInterceptors,
 } from "@nestjs/common";
@@ -22,31 +20,24 @@ import {
 } from "src/taxii/providers";
 
 // ** dtos ** //
-import {
-  TaxiiCollectionDto,
-  TaxiiCollectionsDto,
-} from "src/taxii/providers/collection/dto";
+import { TaxiiCollectionDto, TaxiiCollectionsDto } from "src/taxii/providers/collection/dto";
 import { EnvelopeDto } from "src/taxii/providers/envelope/dto";
 import { ManifestDto } from "src/taxii/providers/manifest/dto";
 import { MatchDto } from "src/common/models/match/match.dto";
 import { VersionDto } from "src/taxii/providers/version/dto/version.dto";
 
 // ** middleware ** //
-import { MatchQuery } from "src/common/decorators/match.query.decorator";
 import { TaxiiExceptionFilter } from "src/common/exceptions/taxii-exception.filter";
 import { TimestampQuery } from "src/common/decorators/timestamp.query.decorator";
 import { NumberQuery } from "src/common/decorators/number.query.decorator";
 import { TaxiiServiceUnavailableException } from "src/common/exceptions";
-// import { SnakeCaseInterceptor } from "src/common/interceptors/snake-case.interceptor";
-import {
-  SetTaxiiDateHeadersInterceptor,
-  TaxiiDateFrom,
-} from "src/common/interceptors/set-taxii-date-headers.interceptor";
+import { SnakeCaseInterceptor } from "src/common/interceptors/snake-case.interceptor";
+import { SetTaxiiDateHeadersInterceptor, TaxiiDateFrom } from "src/common/interceptors/set-taxii-date-headers.interceptor";
 
 // ** transformation pipes ** //
 import { ParseTimestampPipe } from "src/common/pipes/parse-timestamp.pipe";
 import { ParseMatchQueryParamPipe } from "src/common/pipes/parse-match-query-param.pipe";
-import { instanceToPlain, plainToInstance } from "class-transformer";
+import { instanceToPlain } from "class-transformer";
 
 // ** open-api ** //
 import { ApiExcludeEndpoint, ApiHeader, ApiOkResponse } from "@nestjs/swagger";
@@ -56,18 +47,12 @@ import { EnvelopeResource } from "src/taxii/providers/envelope/dto/envelope-reso
 import { TaxiiCollectionsResource } from "../../providers/collection/dto/taxii-collections-dto/taxii-collections-resource";
 import { TaxiiCollectionResource } from "../../providers/collection/dto/taxii-collection-dto/taxii-collection-resource";
 import { ManifestResource } from "../../providers/manifest/dto";
-import { SnakeCaseInterceptor } from "src/common/interceptors/snake-case.interceptor";
-import { DebugInterceptor } from "src/common/interceptors/debug.interceptor";
-import { TaxiiSerializerInterceptor } from "src/common/interceptors/taxii-serializer.interceptor";
 
 @ApiHeader({
   name: SWAGGER.AcceptHeader.Name,
   description: SWAGGER.AcceptHeader.Description,
 })
-@Controller("/collections")
-@UseInterceptors(ClassSerializerInterceptor, SnakeCaseInterceptor)  // Order matters! Serialize first, then transform to snake case
-  // @UseInterceptors(ClassSerializerInterceptor)
-// @UseInterceptors(SnakeCaseInterceptor)
+  @Controller("/collections")
 @UseFilters(new TaxiiExceptionFilter())
 export class CollectionsController {
   constructor(
@@ -114,14 +99,7 @@ export class CollectionsController {
     type: ManifestResource,
   })
   @Get("/:collectionId/manifest/")
-  @UseInterceptors(
-    new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.MANIFEST })
-    )
-  // @SerializeOptions({
-  //   excludeExtraneousValues: true,
-  //   exposeDefaultValues: false,
-  //   enableImplicitConversion: true
-  // })
+  @UseInterceptors(new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.MANIFEST }))
   async getObjectManifests(
     @Param("collectionId") collectionId: string,
     @TimestampQuery("added_after") addedAfter?: string,
@@ -144,9 +122,7 @@ export class CollectionsController {
     type: EnvelopeResource,
   })
   @Get("/:collectionId/objects/")
-  @UseInterceptors(
-    new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.ENVELOPE })
-  )
+  @UseInterceptors(new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.ENVELOPE }))
   async getObjects(
     @Param("collectionId") collectionId: string,
     @Query("added_after", ParseTimestampPipe) addedAfter?: string,
@@ -172,9 +148,7 @@ export class CollectionsController {
     type: EnvelopeResource,
   })
   @Get("/:collectionId/objects/:objectId")
-  @UseInterceptors(
-    new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.ENVELOPE })
-  )
+  @UseInterceptors(new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.ENVELOPE }))
   async getAnObject(
     @Param("collectionId") collectionId: string,
     @Param("objectId") objectId: string,
@@ -226,26 +200,7 @@ export class CollectionsController {
     type: VersionsResource,
   })
   @Get("/:collectionId/objects/:objectId/versions/")
-    // @UseInterceptors(
-    //   new DebugInterceptor('Start'),
-    //   ClassSerializerInterceptor,
-    //   new DebugInterceptor('After Class Serializer'),
-    //   SnakeCaseInterceptor,
-    //   new DebugInterceptor('After Snake Case'),
-    //   new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.VERSIONS })
-    // )
-    @UseInterceptors(
-      new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.VERSIONS })
-    )
-  // @UseInterceptors(
-  //     TaxiiSerializerInterceptor,
-  //     new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.VERSIONS })
-  //   )
-  // @SerializeOptions({
-  //   excludeExtraneousValues: true,
-  //   exposeDefaultValues: false,
-  //   enableImplicitConversion: true
-  // })
+  @UseInterceptors(new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.VERSIONS }))
   async getObjectVersions(
     @Param("collectionId") collectionId: string,
     @Param("objectId") objectId: string,
@@ -258,8 +213,7 @@ export class CollectionsController {
       `Received request for object versions with options { collectionId: ${collectionId}, objectId: ${objectId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${JSON.stringify(matches)} }`,
       this.constructor.name
     );
-    console.log('Controller - Before service call');
-    const response = await this.versionsService.findObjectVersions(
+    return await this.versionsService.findObjectVersions(
       collectionId,
       objectId,
       addedAfter,
@@ -267,19 +221,5 @@ export class CollectionsController {
       next,
       matches
     );
-    console.log('Controller - Service returned:', response);
-
-    // Create a new DTO instance
-    // const response = new VersionDto({
-    //   more: versions.more,
-    //   next: versions.next,
-    //   versions: versions.versions
-    // });
-
-    console.log('Controller - Final response:', response);
-    console.log('Controller - Response instanceof VersionDto:', response instanceof VersionDto);
-    console.log('Controller - Response properties:', Object.keys(response));
-    console.log('Controller - instanceToPlain:', instanceToPlain(response, { excludeExtraneousValues: true }) as VersionDto);
-    return response;
   }
 }

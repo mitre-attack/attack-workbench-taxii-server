@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch NestJS Debug",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "start:debug"
+            ],
+            "console": "integratedTerminal",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "internalConsoleOptions": "neverOpen",
+            "env": {
+                "NODE_ENV": "development",
+                "TAXII_ENV": "dev",
+                "TS_NODE_PROJECT": "${workspaceFolder}/tsconfig.json"
+            }
+        }
+    ]
+}

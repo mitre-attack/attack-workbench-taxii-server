@@ -84,11 +84,5 @@ export class EnvelopeService {
 
     // Paginate the array of STIX objects and return the requested page & page count.
     return await this.paginationService.getEnvelope(stixObjects, limit, next);
-    /**
-     * NOTE: `next` is hard-coded to zero (0) because (at the time of this writing) the TAXII 2.1 specification did
-     * not include a `next` URL filtering query parameter in Section "5.6 Get an Object"
-     *
-     * See: https://docs.oasis-open.org/cti/taxii/v2.1/csprd02/taxii-v2.1-csprd02.html#_Toc16526041
-     */
   }
 }

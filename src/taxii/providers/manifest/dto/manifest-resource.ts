@@ -3,7 +3,7 @@ import { ManifestDto } from "./manifest.dto";
 import { ManifestRecordDto } from "./manifest-record.dto";
 import { ManifestRecordResource } from "./manifest-record-resource";
 
-export class ManifestResource extends OmitType(ManifestDto, ["id", "objects"]) {
+export class ManifestResource extends OmitType(ManifestDto, ["objects"]) {
   @ApiProperty({
     description:
       "This property identifies if there is more content available based on the search criteria. The absence of this property means the value is false.",

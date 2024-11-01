@@ -20,26 +20,19 @@ import {
 } from "src/taxii/providers";
 
 // ** dtos ** //
-import {
-  TaxiiCollectionDto,
-  TaxiiCollectionsDto,
-} from "src/taxii/providers/collection/dto";
+import { TaxiiCollectionDto, TaxiiCollectionsDto } from "src/taxii/providers/collection/dto";
 import { EnvelopeDto } from "src/taxii/providers/envelope/dto";
 import { ManifestDto } from "src/taxii/providers/manifest/dto";
 import { MatchDto } from "src/common/models/match/match.dto";
-import { VersionDto } from "src/taxii/providers/version/dto/version.dto";
+import { VersionsDto } from "src/taxii/providers/version/dto/versions.dto";
 
 // ** middleware ** //
-import { MatchQuery } from "src/common/decorators/match.query.decorator";
 import { TaxiiExceptionFilter } from "src/common/exceptions/taxii-exception.filter";
 import { TimestampQuery } from "src/common/decorators/timestamp.query.decorator";
 import { NumberQuery } from "src/common/decorators/number.query.decorator";
 import { TaxiiServiceUnavailableException } from "src/common/exceptions";
 import { SnakeCaseInterceptor } from "src/common/interceptors/snake-case.interceptor";
-import {
-  SetTaxiiDateHeadersInterceptor,
-  TaxiiDateFrom,
-} from "src/common/interceptors/set-taxii-date-headers.interceptor";
+import { SetTaxiiDateHeadersInterceptor, TaxiiDateFrom } from "src/common/interceptors/set-taxii-date-headers.interceptor";
 
 // ** transformation pipes ** //
 import { ParseTimestampPipe } from "src/common/pipes/parse-timestamp.pipe";
@@ -59,8 +52,7 @@ import { ManifestResource } from "../../providers/manifest/dto";
   name: SWAGGER.AcceptHeader.Name,
   description: SWAGGER.AcceptHeader.Description,
 })
-@Controller("/collections")
-@UseInterceptors(SnakeCaseInterceptor)
+  @Controller("/collections")
 @UseFilters(new TaxiiExceptionFilter())
 export class CollectionsController {
   constructor(
@@ -107,9 +99,7 @@ export class CollectionsController {
     type: ManifestResource,
   })
   @Get("/:collectionId/manifest/")
-  @UseInterceptors(
-    new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.MANIFEST })
-  )
+  @UseInterceptors(new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.MANIFEST }))
   async getObjectManifests(
     @Param("collectionId") collectionId: string,
     @TimestampQuery("added_after") addedAfter?: string,
@@ -124,8 +114,7 @@ export class CollectionsController {
       this.constructor.name
     );
     return await this.manifestService
-      .getManifestsByCollection(collectionId, addedAfter, limit, next, matches)
-      .then((manifest) => manifest.toJSON());
+      .getManifestsByCollection(collectionId, addedAfter, limit, next, matches);
   }
 
   @ApiOkResponse({
@@ -133,9 +122,7 @@ export class CollectionsController {
     type: EnvelopeResource,
   })
   @Get("/:collectionId/objects/")
-  @UseInterceptors(
-    new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.ENVELOPE })
-  )
+  @UseInterceptors(new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.ENVELOPE }))
   async getObjects(
     @Param("collectionId") collectionId: string,
     @Query("added_after", ParseTimestampPipe) addedAfter?: string,
@@ -153,9 +140,7 @@ export class CollectionsController {
       `Received request for objects with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, matches: ${JSON.stringify(matches)} }`,
       this.constructor.name
     );
-    return await this.envelopeService
-      .findByCollectionId(collectionId, addedAfter, limit, next, matches)
-      .then((envelope) => envelope.toJSON());
+    return await this.envelopeService.findByCollectionId(collectionId, addedAfter, limit, next, matches);
   }
 
   @ApiOkResponse({
@@ -163,9 +148,7 @@ export class CollectionsController {
     type: EnvelopeResource,
   })
   @Get("/:collectionId/objects/:objectId")
-  @UseInterceptors(
-    new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.ENVELOPE })
-  )
+  @UseInterceptors(new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.ENVELOPE }))
   async getAnObject(
     @Param("collectionId") collectionId: string,
     @Param("objectId") objectId: string,
@@ -174,13 +157,13 @@ export class CollectionsController {
     @Query("added_after", ParseTimestampPipe) addedAfter?: string,
     @Query("match", ParseMatchQueryParamPipe) matches?: MatchDto[]
   ): Promise<EnvelopeDto> {
+
     this.logger.debug(
       `Received request for an object with options { collectionId: ${collectionId}, objectId: ${objectId} }`,
       this.constructor.name
     );
-    return await this.envelopeService
-      .findByObjectId(collectionId, objectId, addedAfter, limit, next, matches)
-      .then((envelope) => envelope.toJSON());
+
+    return await this.envelopeService.findByObjectId(collectionId, objectId, addedAfter, limit, next, matches);
   }
 
   @ApiExcludeEndpoint()
@@ -217,9 +200,7 @@ export class CollectionsController {
     type: VersionsResource,
   })
   @Get("/:collectionId/objects/:objectId/versions/")
-  @UseInterceptors(
-    new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.VERSIONS })
-  )
+  @UseInterceptors(new SetTaxiiDateHeadersInterceptor({ useType: TaxiiDateFrom.VERSIONS }))
   async getObjectVersions(
     @Param("collectionId") collectionId: string,
     @Param("objectId") objectId: string,
@@ -227,20 +208,18 @@ export class CollectionsController {
     @NumberQuery("limit") limit?: number,
     @NumberQuery("next") next?: number,
     @Query("match", ParseMatchQueryParamPipe) matches?: MatchDto[]
-  ): Promise<VersionDto> {
+  ): Promise<VersionsDto> {
     this.logger.debug(
       `Received request for object versions with options { collectionId: ${collectionId}, objectId: ${objectId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${JSON.stringify(matches)} }`,
       this.constructor.name
     );
-    return this.versionsService
-      .findObjectVersions(
-        collectionId,
-        objectId,
-        addedAfter,
-        limit,
-        next,
-        matches
-      )
-      .then((versions) => versions.toJSON());
+    return await this.versionsService.findObjectVersions(
+      collectionId,
+      objectId,
+      addedAfter,
+      limit,
+      next,
+      matches
+    );
   }
 }

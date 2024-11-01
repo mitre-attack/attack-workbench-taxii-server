@@ -45,9 +45,9 @@ tests {
                   expect(collection.alias).to.be.a('string');
               }
               
-              expect(collection).to.have.property('canRead').that.is.a('boolean');
+              expect(collection).to.have.property('can_read').that.is.a('boolean');
               
-              expect(collection).to.have.property('canWrite').that.is.a('boolean');
+              expect(collection).to.have.property('can_write').that.is.a('boolean');
               
               if (collection.hasOwnProperty('mediaTypes')) {
                   expect(collection.mediaTypes).to.be.an('array').and.not.be.empty;

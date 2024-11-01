@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { TaxiiConfigService } from "src/config";
-import { DiscoverOptions, DiscoveryDto, ApiRootDto } from "./dto";
+import { DiscoveryDto, ApiRootDto } from "./dto";
 import { DEFAULT_CONTENT_TYPE } from "src/common/middleware/content-negotiation/supported-media-types";
 
 @Injectable()
@@ -8,15 +8,14 @@ export class DiscoveryService {
   constructor(private readonly config: TaxiiConfigService) {}
 
   discover(): DiscoveryDto {
-    const options: DiscoverOptions = {
+    return new DiscoveryDto({
       title: this.config.API_ROOT_TITLE,
       contact: this.config.CONTACT_EMAIL,
       description: this.config.API_ROOT_DESCRIPTION,
       default: this.config.API_ROOT_PATH,
-      api_roots: [this.config.API_ROOT_PATH],
-    };
+      apiRoots: [this.config.API_ROOT_PATH],
+    });
 
-    return new DiscoveryDto(options);
   }
 
   findApiRootInformation(): ApiRootDto {

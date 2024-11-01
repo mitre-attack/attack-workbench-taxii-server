@@ -1,4 +1,4 @@
-import { ClassSerializerInterceptor, Controller, Get, Param, UseInterceptors } from "@nestjs/common";
+import { Controller, Get, Param } from "@nestjs/common";
 import { TaxiiServiceUnavailableException } from "src/common/exceptions";
 import { TaxiiLoggerService as Logger } from "src/common/logger/taxii-logger.service";
 import { DiscoveryService } from "src/taxii/providers";
@@ -7,10 +7,8 @@ import { ApiOkResponse } from "@nestjs/swagger";
 import { DiscoveryResource } from "../../providers/discovery/dto";
 import { SwaggerDocumentation as SWAGGER } from "./root.controller.swagger.json";
 import { ApiRootResource } from "../../providers/discovery/dto";
-import { SnakeCaseInterceptor } from "src/common/interceptors/snake-case.interceptor";
 
 @Controller()
-@UseInterceptors(SnakeCaseInterceptor)
 export class RootController {
   constructor(
     private readonly discoveryService: DiscoveryService,

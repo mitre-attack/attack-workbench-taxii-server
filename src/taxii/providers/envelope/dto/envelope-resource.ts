@@ -5,7 +5,6 @@ import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-p
 import { StixObjectDto } from "src/stix/dto/stix-object.dto";
 
 export class EnvelopeResource extends OmitType(EnvelopeDto, [
-  "id",
   "next",
   "objects",
 ]) {

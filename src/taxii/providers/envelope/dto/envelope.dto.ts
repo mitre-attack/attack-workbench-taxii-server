@@ -1,45 +1,14 @@
-import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
-import { SinglePageInterface } from "src/taxii/providers/pagination/interfaces/single-page.interface";
-import { Exclude, Expose, Type } from "class-transformer";
-import { IsBoolean, IsOptional, IsString } from "class-validator";
-import { StixObjectDto } from "src/stix/dto/stix-object.dto";
-import {
-  GenericPageDto,
-  GenericPageOptions,
-} from "../../pagination/dto/generic-page.dto";
+import { Expose, Transform } from "class-transformer";
+import { IsArray, IsOptional } from "class-validator";
+import { GenericPageDto } from "../../pagination/dto/generic-page.dto";
 
-export interface EnvelopeConstructorOptions
-  extends GenericPageOptions<StixObjectPropertiesInterface> {
-  id?: string; // <-- INHERITED
-  more?: boolean; // <-- INHERITED
-  next?: string; // <-- INHERITED
-  objects?: StixObjectPropertiesInterface[];
-}
-
-@Exclude()
-export class EnvelopeDto
-  extends GenericPageDto
-  implements SinglePageInterface<StixObjectPropertiesInterface>
-{
-  @Exclude()
-  id: string;
-
+export class EnvelopeDto extends GenericPageDto {
   @Expose()
-  @IsOptional()
-  @IsBoolean()
-  more: boolean;
+  @IsArray()
+  objects?: Record<string, any>[];
 
-  @Expose()
-  @IsString()
-  @IsOptional()
-  next: string;
-
-  @IsOptional()
-  @Type(() => StixObjectDto)
-  @Expose({ name: "objects" })
-  objects: StixObjectPropertiesInterface[];
-
-  constructor(options: EnvelopeConstructorOptions) {
-    super(options);
+  constructor(partial: Partial<EnvelopeDto>) {
+    super(partial);
+    this.objects = partial?.objects || [];
   }
 }

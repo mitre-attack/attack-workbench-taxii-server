@@ -24,7 +24,7 @@ import { TaxiiCollectionDto, TaxiiCollectionsDto } from "src/taxii/providers/col
 import { EnvelopeDto } from "src/taxii/providers/envelope/dto";
 import { ManifestDto } from "src/taxii/providers/manifest/dto";
 import { MatchDto } from "src/common/models/match/match.dto";
-import { VersionDto } from "src/taxii/providers/version/dto/version.dto";
+import { VersionsDto } from "src/taxii/providers/version/dto/versions.dto";
 
 // ** middleware ** //
 import { TaxiiExceptionFilter } from "src/common/exceptions/taxii-exception.filter";
@@ -208,7 +208,7 @@ export class CollectionsController {
     @NumberQuery("limit") limit?: number,
     @NumberQuery("next") next?: number,
     @Query("match", ParseMatchQueryParamPipe) matches?: MatchDto[]
-  ): Promise<VersionDto> {
+  ): Promise<VersionsDto> {
     this.logger.debug(
       `Received request for object versions with options { collectionId: ${collectionId}, objectId: ${objectId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${JSON.stringify(matches)} }`,
       this.constructor.name

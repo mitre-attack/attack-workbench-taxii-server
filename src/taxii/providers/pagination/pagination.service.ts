@@ -4,7 +4,7 @@ import { TaxiiNotFoundException } from "src/common/exceptions";
 import { EnvelopeDto } from "../envelope";
 import { isNumber } from "@nestjs/common/utils/shared.utils";
 import { ManifestDto, ManifestRecordDto } from "../manifest/dto";
-import { VersionDto } from "../version/dto/version.dto";
+import { VersionsDto } from "../version/dto/versions.dto";
 import { StixObjectDto } from "src/stix/dto/stix-object.dto";
 
 @Injectable()
@@ -124,9 +124,9 @@ export class PaginationService {
     versions: string[],
     limit?: number,
     next?: number
-  ): Promise<VersionDto> {
+  ): Promise<VersionsDto> {
     const page = await this.getPage(versions, limit, next);
-    return new VersionDto({
+    return new VersionsDto({
       more: page.more,
       next: page.next,
       versions: page.items

@@ -1,8 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { OmitType } from "@nestjs/swagger";
 import { EnvelopeDto } from "./envelope.dto";
-import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
-import { StixObjectDto } from "src/stix/dto/stix-object.dto";
 
 export class EnvelopeResource extends OmitType(EnvelopeDto, [
   "next",
@@ -27,8 +25,8 @@ export class EnvelopeResource extends OmitType(EnvelopeDto, [
   @ApiProperty({
     description:
       "This property contains one or more STIX Objects. Objects in this list MUST be a STIX Object (e.g., SDO, SCO, SRO, Language Content object, or a Marking Definition object).",
-    type: [StixObjectDto],
+    type: [Object],
     required: false,
   })
-  objects: StixObjectPropertiesInterface[];
+  objects: { [key: string]: any }[];
 }

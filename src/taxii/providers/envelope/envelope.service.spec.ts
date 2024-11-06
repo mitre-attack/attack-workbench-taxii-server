@@ -11,7 +11,7 @@ import {
   rootMongooseTestModule,
 } from "src/../test/test.mongoose.module";
 import { MongooseModule } from "@nestjs/mongoose";
-import { AttackObject, AttackObjectSchema } from "src/hydrate/collector/schema";
+import { AttackObjectEntity, AttackObjectSchema } from "src/hydrate/collector/schema";
 
 describe("EnvelopeService", () => {
   let envelopeService: EnvelopeService;
@@ -23,7 +23,7 @@ describe("EnvelopeService", () => {
         TaxiiConfigModule,
         rootMongooseTestModule(),
         MongooseModule.forFeature([
-          { name: AttackObject.name, schema: AttackObjectSchema },
+          { name: AttackObjectEntity.name, schema: AttackObjectSchema },
         ]),
       ],
       providers: [

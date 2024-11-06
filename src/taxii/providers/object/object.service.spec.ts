@@ -9,7 +9,7 @@ import {
   rootMongooseTestModule,
 } from "src/../test/test.mongoose.module";
 import { MongooseModule } from "@nestjs/mongoose";
-import { AttackObject, AttackObjectSchema } from "src/hydrate/collector/schema";
+import { AttackObjectEntity, AttackObjectSchema } from "src/hydrate/collector/schema";
 import { FilterModule } from "../filter/filter.module";
 
 describe("ObjectService", () => {
@@ -24,7 +24,7 @@ describe("ObjectService", () => {
         ObjectModule,
         rootMongooseTestModule(),
         MongooseModule.forFeature([
-          { name: AttackObject.name, schema: AttackObjectSchema },
+          { name: AttackObjectEntity.name, schema: AttackObjectSchema },
         ]),
       ],
       providers: [ObjectService, ObjectRepository],

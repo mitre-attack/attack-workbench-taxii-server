@@ -9,7 +9,7 @@ import { FilterService } from "../filter";
 import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 import { ObjectRepository } from "./object.repository";
 import { StixObjectDto } from "src/stix/dto/stix-object.dto";
-import { AttackObject } from "src/hydrate/collector/schema";
+import { AttackObjectEntity as MongooseAttackObject } from "src/hydrate/collector/schema";
 
 @Injectable()
 export class ObjectService {
@@ -23,7 +23,7 @@ export class ObjectService {
 
   async *findAsyncIterableByCollectionId(
     filters: ObjectFiltersDto
-  ): AsyncIterableIterator<StixObjectDto> {
+  ): AsyncIterableIterator<Object> {
     // A collection ID is required at a minimum
 
     if (!filters.collectionId) {
@@ -35,24 +35,22 @@ export class ObjectService {
 
     // Retrieve a list of STIX objects from the database
 
-    const attackObjects: AsyncIterableIterator<AttackObject> =
+    const attackObjects: AsyncIterableIterator<MongooseAttackObject> =
       this.stixObjectRepo.findByCollectionId(filters.collectionId);
 
     // For each attackObject document returned from the database...
     for await (const attackObject of attackObjects) {
       // Convert the document into a DTO instance
-      const stixObject = new StixObjectDto({
-        ...attackObject["_doc"].stix["_doc"],
-      });
+      // const stixObject = new StixObjectDto({
+      //   ...attackObject["_doc"].stix["_doc"],
+      // });
+      const stixObject = { ...attackObject["_doc"].stix["_doc"] };
 
       // Run the DTO instance through the filterService, then append it onto the return array
       // The filterService will reject the promise if the DTO fails any of the filter checks, thus the object will not
       // appended to the array if any filter check fails.
       try {
-        const object: StixObjectDto = await this.filterService.filterObject(
-          stixObject,
-          filters
-        );
+        const object = await this.filterService.filterObject(stixObject, filters);
         yield object;
       } catch (e) {
         // Object does not match one or more filters - skip it
@@ -66,7 +64,7 @@ export class ObjectService {
    */
   async findByCollectionId(
     filters: ObjectFiltersDto
-  ): Promise<StixObjectDto[]> {
+  ): Promise<Object[]> {
     // A collection ID is required at a minimum
 
     if (!filters.collectionId) {
@@ -78,29 +76,23 @@ export class ObjectService {
 
     // Retrieve a list of STIX objects from the database
 
-    const attackObjects: AsyncIterableIterator<AttackObject> =
+    const attackObjects: AsyncIterableIterator<MongooseAttackObject> =
       this.stixObjectRepo.findByCollectionId(filters.collectionId);
 
     // Extract the STIX object from each document returned from the database
 
-    const stixObjects: StixObjectDto[] = [];
+    const stixObjects: Object[] = [];
 
     // For each attackObject document returned from the database...
     for await (const attackObject of attackObjects) {
-      // Convert the document into a DTO instance
-      const stixObject = new StixObjectDto({
-        ...attackObject["_doc"].stix["_doc"],
-        // FIXME is there a way we can refine the initial database query to avoid having to sift through all of this extra data?
-      });
+
+      const stixObject = { ...attackObject["_doc"].stix["_doc"] };
 
       // Run the DTO instance through the filterService, then append it onto the return array
       // The filterService will reject the promise if the DTO fails any of the filter checks, thus the object will not
       // appended to the array if any filter check fails.
       try {
-        const object: StixObjectDto = await this.filterService.filterObject(
-          stixObject,
-          filters
-        );
+        const object = await this.filterService.filterObject(stixObject, filters);
         stixObjects.push(object);
       } catch (e) {
         // Object does not match one or more filters - skip it
@@ -126,10 +118,10 @@ export class ObjectService {
     collectionId: string,
     objectId: string,
     filters?: ObjectFiltersDto
-  ): Promise<StixObjectPropertiesInterface[]> {
+  ): Promise<Object[]> {
     // Retrieve the STIX object from the database
 
-    const attackObjects: AttackObject[] = await this.stixObjectRepo.findOne(
+    const attackObjects: MongooseAttackObject[] = await this.stixObjectRepo.findOne(
       collectionId,
       objectId
     );
@@ -144,14 +136,8 @@ export class ObjectService {
     }
 
     const allVersionsOfObject = attackObjects.map((attackObject) => {
-      return new StixObjectDto({
-        ...attackObject["_doc"].stix["_doc"],
-        // FIXME is there a way we can refine the initial database query to avoid having to sift through all of this extra data?
-      });
+      return { ...attackObject["_doc"].stix["_doc"] };
     });
-
-    // There may be other non-STIX properties on this object. We only want to returned the embedded STIX object(s).
-    // const object = stixObject.map((object) => object.stix);
 
     return !filters
       ? allVersionsOfObject

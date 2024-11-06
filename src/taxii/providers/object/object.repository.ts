@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { InjectModel } from "@nestjs/mongoose";
 import {
-  AttackObject,
+  AttackObjectEntity,
   AttackObjectDocument,
 } from "src/hydrate/collector/schema/attack-object.schema";
 import { Model } from "mongoose";
@@ -17,7 +17,7 @@ export class ObjectRepository {
    */
   constructor(
     private readonly logger: Logger,
-    @InjectModel(AttackObject.name)
+    @InjectModel(AttackObjectEntity.name)
     private attackObjectsModel: Model<AttackObjectDocument>
   ) {
     logger.setContext(ObjectRepository.name);
@@ -29,7 +29,7 @@ export class ObjectRepository {
    */
   async *findByCollectionId(
     collectionId: string
-  ): AsyncIterableIterator<AttackObject> {
+  ): AsyncIterableIterator<AttackObjectEntity> {
     const cursor = this.attackObjectsModel
       .find({
         collection_id: collectionId,
@@ -59,10 +59,10 @@ export class ObjectRepository {
     collectionId: string,
     objectId: string
     // versions = false
-  ): Promise<AttackObject[]> {
+  ): Promise<AttackObjectEntity[]> {
     // Begin by retrieving all documents that match the specified object parameters
 
-    const attackObjects: AttackObject[] = await this.attackObjectsModel
+    const attackObjects: AttackObjectEntity[] = await this.attackObjectsModel
       .find({
         collection_id: collectionId,
         "stix.id": { $eq: objectId },

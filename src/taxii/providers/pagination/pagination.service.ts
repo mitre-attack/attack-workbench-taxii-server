@@ -5,7 +5,7 @@ import { EnvelopeDto } from "../envelope";
 import { isNumber } from "@nestjs/common/utils/shared.utils";
 import { ManifestDto, ManifestRecordDto } from "../manifest/dto";
 import { VersionsDto } from "../version/dto/versions.dto";
-import { StixObjectDto } from "src/stix/dto/stix-object.dto";
+// import { StixObjectDto } from "src/stix/dto/stix-object.dto";
 
 @Injectable()
 export class PaginationService {
@@ -83,7 +83,7 @@ export class PaginationService {
    * @param next Specifies which page is being requested
    */
   async getEnvelope(
-    objects: StixObjectDto[],
+    objects: Object[],
     limit?: number,
     next?: number
   ): Promise<EnvelopeDto> {

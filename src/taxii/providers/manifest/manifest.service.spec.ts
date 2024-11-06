@@ -10,7 +10,7 @@ import {
   rootMongooseTestModule,
 } from "src/../test/test.mongoose.module";
 import { MongooseModule } from "@nestjs/mongoose";
-import { AttackObject, AttackObjectSchema } from "src/hydrate/collector/schema";
+import { AttackObjectEntity, AttackObjectSchema } from "src/hydrate/collector/schema";
 
 describe("ManifestService", () => {
   let manifestService: ManifestService;
@@ -24,7 +24,7 @@ describe("ManifestService", () => {
         FilterModule,
         rootMongooseTestModule(),
         MongooseModule.forFeature([
-          { name: AttackObject.name, schema: AttackObjectSchema },
+          { name: AttackObjectEntity.name, schema: AttackObjectSchema },
         ]),
       ],
       providers: [ManifestService, PaginationService],

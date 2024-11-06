@@ -1,9 +1,18 @@
 import { Injectable } from "@nestjs/common";
 import { ObjectFiltersDto } from "./dto";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
-import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 import { SPEC_VERSION } from "./constants";
 import { isDefined } from "class-validator";
+
+// TODO remove this after integrating attack-data-model
+type BasicStixObject = {
+  id: string;
+  type: string;
+  spec_version: string;
+  version: string;
+  created: string;
+  modified: string;
+}
 
 @Injectable()
 export class FilterService {
@@ -12,7 +21,7 @@ export class FilterService {
   }
 
   private isMatch(
-    stixObject: StixObjectPropertiesInterface,
+    stixObject: BasicStixObject,
     filters: ObjectFiltersDto
   ): boolean {
     const { addedAfter, matches } = filters;
@@ -65,7 +74,7 @@ export class FilterService {
   }
 
   private hasMatchingId(
-    stixObject: StixObjectPropertiesInterface,
+    stixObject: BasicStixObject,
     targetId: string
   ): boolean {
     // check match[id]
@@ -78,7 +87,7 @@ export class FilterService {
   }
 
   private hasMatchingType(
-    stixObject: StixObjectPropertiesInterface,
+    stixObject: BasicStixObject,
     targetType: string
   ): boolean {
     if (targetType) {
@@ -90,7 +99,7 @@ export class FilterService {
   }
 
   private hasMatchingVersion(
-    stixObject: StixObjectPropertiesInterface,
+    stixObject: BasicStixObject,
     targetVersion: string
   ): boolean {
     if (targetVersion) {
@@ -116,7 +125,7 @@ export class FilterService {
    *                          is version 2.1
    */
   private isCompliantWithSpecVersion(
-    referenceObject: StixObjectPropertiesInterface,
+    referenceObject: BasicStixObject,
     targetSpecVersion: string
   ): boolean {
     if (targetSpecVersion === SPEC_VERSION.V20) {
@@ -155,7 +164,7 @@ export class FilterService {
    * @private
    */
   private hasMatchingSpecVersion(
-    stixObject: StixObjectPropertiesInterface,
+    stixObject: BasicStixObject,
     targetSpecVersion: string
   ): boolean {
     if (isDefined(targetSpecVersion)) {
@@ -232,9 +241,9 @@ export class FilterService {
    * @param filters The set of URL query parameters to filter the objects by.
    */
   filterObjects(
-    stixObjects: StixObjectPropertiesInterface[],
+    stixObjects: BasicStixObject[],
     filters?: ObjectFiltersDto
-  ): StixObjectPropertiesInterface[] {
+  ): Object[] {
     this.logger.debug(
       `Executing sortAscending with filters ${JSON.stringify(filters)}`,
       this.constructor.name
@@ -249,7 +258,7 @@ export class FilterService {
       // let {id, type, version, specVersion} = match;
 
       // A placeholder array to store objects that match at least one search param. This array will be returned.
-      const matchingObjects: StixObjectPropertiesInterface[] = [];
+      const matchingObjects: Object[] = [];
 
       stixObjects.forEach((currObject) => {
         if (this.isMatch(currObject, filters)) {
@@ -272,9 +281,9 @@ export class FilterService {
    * @param filters The set of URL query parameters to filter the object by.
    */
   async filterObject(
-    stixObject: StixObjectPropertiesInterface,
+    stixObject: BasicStixObject,
     filters?: ObjectFiltersDto
-  ): Promise<StixObjectPropertiesInterface> {
+  ): Promise<Object> {
     return new Promise((resolve, reject) => {
       if (filters) {
         // All checks passed! Store the object to return!

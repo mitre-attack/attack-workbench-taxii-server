@@ -37,7 +37,8 @@ export class VersionService {
     // filters.versions = true;
 
     // Retrieve the STIX object from the connected STIX repository.
-    const objects: StixObjectPropertiesInterface[] =
+    // TODO cast `objects` this to correct type when attack-data-model is integrated
+    const objects: { [key: string]: any }[] =
       await this.objectService.findOne(collectionId, objectId, filters);
 
     /**

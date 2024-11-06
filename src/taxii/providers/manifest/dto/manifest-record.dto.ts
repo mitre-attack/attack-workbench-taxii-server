@@ -1,7 +1,6 @@
 import { Expose } from "class-transformer";
 import { IsDate, IsOptional, IsString } from "class-validator";
 import { DEFAULT_CONTENT_TYPE } from "src/common/middleware/content-negotiation/supported-media-types";
-import { StixObjectDto } from "src/stix/dto/stix-object.dto";
 
 /**
  * The manifest-record type captures metadata about a single version of an object, indicated by the id property. The
@@ -26,20 +25,19 @@ export class ManifestRecordDto {
   @IsOptional()
   mediaType?: string;
 
-  constructor(stixObject: StixObjectDto) {
+  constructor(stixObject: { [key: string]: any }) {
     if (!stixObject) return;
 
     this.id = stixObject.id;
 
-    // The date and time this object was added.
-    // TODO we are not currently this value, so we are using the created timestamp from the STIX object
-    this.dateAdded = stixObject.created;
+    // Use the created timestamp as a fallback date added value if dateAdded isn't explicitly set
+    this.dateAdded = new Date(stixObject.created);
 
     // Use modified timestamp if available, otherwise use created timestamp
     const versionDate = stixObject.modified || stixObject.created;
     this.version = new Date(versionDate).toISOString();
 
-    // Always set media type to STIX 2.1
+    // Always set media type to STIX 2.1 by default
     this.mediaType = DEFAULT_CONTENT_TYPE;
   }
 }

@@ -1,3 +1,4 @@
+import { z } from "zod";
 import {
   ConsoleLogger,
   Inject,
@@ -17,6 +18,8 @@ import { AttackObjectDto } from "src/stix/dto/attack-object.dto";
 import { StixIdentityPrefix, WorkbenchRESTEndpoint } from "src/stix/constants";
 import { WorkbenchConnectOptionsInterface } from "src/stix/interfaces/workbench-connect-options.interface";
 import { WORKBENCH_OPTIONS } from "src/stix/constants";
+// import { type StixBundle, stixBundleSchema } from "@mitre-attack/attack-data-model";
+// Dynamically import the ESM module
 
 @Injectable()
 export class WorkbenchRepository {
@@ -112,6 +115,49 @@ export class WorkbenchRepository {
   /****************************************
    * PUBLIC METHODS:
    ***************************************/
+
+  /**
+   * Retrieves a STIX bundle containing all STIX objects for a specified ATT&CK domain.
+   * 
+   * @param domain The ATT&CK domain to retrieve ("enterprise-attack", "mobile-attack", or "ics-attack").
+   * @returns The STIX bundle for the specified domain.
+   */
+  async getStixBundle(domain: string) {
+    const { stixBundleSchema } = await import('@mitre-attack/attack-data-model');
+
+    
+    // Validate the domain parameter to ensure it matches one of the supported domains
+    const supportedDomains = ["enterprise-attack", "mobile-attack", "ics-attack"];
+    if (!supportedDomains.includes(domain)) {
+      throw new Error(
+        `Invalid domain specified: ${domain}. Supported domains are: ${supportedDomains.join(", ")}`
+      );
+    }
+
+    // Construct the URL for fetching the STIX bundle
+    const url = `${this.baseUrl}/api/stix-bundles?domain=${domain}&includeRevoked=true&includeDeprecated=true&stixVersion=2.1`;
+
+    // Fetch the bundle data from the Workbench REST API
+    const response = await this.fetchHttp(url);
+
+    // Validate the response structure to ensure it's a valid STIX bundle
+    try {
+      const [stixBundle] = response; // The response is an array with a single STIX bundle object
+      return stixBundleSchema.parse(stixBundle); // Use ADM's `stixBundleSchema` for validation
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        // Log details about the validation errors encountered
+        const errorMessages = error.errors.map(
+          (issue) => `Path: ${issue.path.join(".")}, Error: ${issue.message}`
+        );
+        this.logger.error(
+          `STIX bundle validation failed for domain "${domain}":\n${errorMessages.join("\n")}`
+        );
+      }
+      throw new Error(`Failed to retrieve or validate STIX bundle for domain "${domain}".`);
+    }
+  }
+
 
   /**
    * Retrieves a list of all available STIX objects

@@ -1,5 +1,5 @@
 import {
-  ClassSerializerInterceptor,
+  // ClassSerializerInterceptor,
   MiddlewareConsumer,
   Module,
   NestModule,
@@ -12,6 +12,7 @@ import { ContentNegotiationMiddleware } from "src/common/middleware/content-nego
 import { ResLoggerMiddleware } from "src/common/middleware/res-logger.middleware";
 import { SetResponseMediaType } from "src/common/interceptors/set-response-media-type.interceptor";
 import { SnakeCaseInterceptor } from "src/common/interceptors/snake-case.interceptor";
+import { ZodSerializerInterceptor } from "nestjs-zod";
 
 //** controllers **//
 import { CollectionsController } from "src/taxii/controllers/collections/collections.controller";
@@ -47,7 +48,8 @@ import {
    * NOTE: // Order matters! Serialize first, then transform
    */
   providers: [
-    { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
+    // { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: ZodSerializerInterceptor },
     { provide: APP_INTERCEPTOR, useClass: SnakeCaseInterceptor },
     { provide: APP_INTERCEPTOR, useClass: SetResponseMediaType }
   ],

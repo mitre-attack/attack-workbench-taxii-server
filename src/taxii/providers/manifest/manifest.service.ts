@@ -5,7 +5,6 @@ import { ObjectFiltersDto } from "../filter/dto";
 import { MatchDto } from "src/common/models/match/match.dto";
 import { PaginationService } from "../pagination";
 import { ManifestDto, ManifestRecordDto } from "./dto";
-import { StixObjectDto } from "src/stix/dto/stix-object.dto";
 
 @Injectable()
 export class ManifestService {
@@ -33,7 +32,7 @@ export class ManifestService {
 
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.
 
-    const stixObjects: AsyncIterableIterator<StixObjectDto> =
+    const stixObjects: AsyncIterableIterator<Object> =
       await this.objectService.findAsyncIterableByCollectionId(searchFilters);
 
     // Convert STIX objects to manifest-records

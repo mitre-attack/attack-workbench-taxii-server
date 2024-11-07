@@ -14,7 +14,7 @@ import {
 } from "src/../test/test.mongoose.module";
 import { MongooseModule } from "@nestjs/mongoose";
 import {
-  AttackObject,
+  AttackObjectEntity,
   AttackObjectSchema,
   TaxiiCollection,
   TaxiiCollectionSchema,
@@ -34,7 +34,7 @@ describe("CollectionsController", () => {
         VersionModule,
         rootMongooseTestModule(),
         MongooseModule.forFeature([
-          { name: AttackObject.name, schema: AttackObjectSchema },
+          { name: AttackObjectEntity.name, schema: AttackObjectSchema },
           { name: TaxiiCollection.name, schema: TaxiiCollectionSchema },
         ]),
       ],

@@ -9,7 +9,7 @@ import {
   rootMongooseTestModule,
   closeInMongodConnection,
 } from "src/../test/test.mongoose.module";
-import { AttackObject, AttackObjectSchema } from "src/hydrate/collector/schema";
+import { AttackObjectEntity, AttackObjectSchema } from "src/hydrate/collector/schema";
 
 describe("VersionService", () => {
   let versionService: VersionService;
@@ -22,7 +22,7 @@ describe("VersionService", () => {
         ObjectModule,
         rootMongooseTestModule(),
         MongooseModule.forFeature([
-          { name: AttackObject.name, schema: AttackObjectSchema },
+          { name: AttackObjectEntity.name, schema: AttackObjectSchema },
         ]),
       ],
       providers: [VersionService, PaginationService],

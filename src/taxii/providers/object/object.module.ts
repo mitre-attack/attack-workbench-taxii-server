@@ -5,14 +5,14 @@ import { ObjectRepository } from "./object.repository";
 import { MongooseModule } from "@nestjs/mongoose";
 import {
   AttackObjectSchema,
-  AttackObject,
+  AttackObjectEntity,
 } from "src/hydrate/collector/schema/attack-object.schema";
 
 @Module({
   imports: [
     FilterModule,
     MongooseModule.forFeature([
-      { name: AttackObject.name, schema: AttackObjectSchema },
+      { name: AttackObjectEntity.name, schema: AttackObjectSchema },
     ]),
   ],
   providers: [ObjectService, ObjectRepository],

@@ -17,6 +17,7 @@ import { AttackObjectDto } from "src/stix/dto/attack-object.dto";
 import { StixIdentityPrefix, WorkbenchRESTEndpoint } from "src/stix/constants";
 import { WorkbenchConnectOptionsInterface } from "src/stix/interfaces/workbench-connect-options.interface";
 import { WORKBENCH_OPTIONS } from "src/stix/constants";
+import { StixBundleDto } from "src/stix/dto/stix-bundle.dto";
 
 @Injectable()
 export class WorkbenchRepository {
@@ -114,6 +115,49 @@ export class WorkbenchRepository {
    ***************************************/
 
   /**
+ * Retrieves a STIX bundle containing all STIX objects for a specified ATT&CK domain.
+ * 
+ * @param domain The ATT&CK domain to retrieve ("enterprise-attack", "mobile-attack", or "ics-attack").
+ * @returns The STIX bundle for the specified domain.
+ */
+  async getStixBundle(domain: string, version: '2.0' | '2.1'): Promise<StixBundleDto> {
+
+    // Validate the domain parameter to ensure it matches one of the supported domains
+    const supportedDomains = ["enterprise-attack", "mobile-attack", "ics-attack"];
+    if (!supportedDomains.includes(domain)) {
+      throw new Error(
+        `Invalid domain specified: ${domain}. Supported domains are: ${supportedDomains.join(", ")}`
+      );
+    }
+
+    // Construct the URL for fetching the STIX bundle
+    const url = `${this.baseUrl}/api/stix-bundles?domain=${domain}&includeRevoked=true&includeDeprecated=true&stixVersion=${version}`;
+
+    // Fetch the bundle data from the Workbench REST API
+    const response: StixBundleDto = await this.fetchHttp(url);
+
+    return response;
+
+    // TODO migrate to the following code once the @mitre-attack/attack-data-model is integrated
+    // Validate the response structure to ensure it's a valid STIX bundle
+    // try {
+    //   const [stixBundle] = response; // The response is an array with a single STIX bundle object
+    //   return stixBundleSchema.parse(stixBundle); // Use ADM's `stixBundleSchema` for validation
+    // } catch (error) {
+    //   if (error instanceof z.ZodError) {
+    //     // Log details about the validation errors encountered
+    //     const errorMessages = error.errors.map(
+    //       (issue) => `Path: ${issue.path.join(".")}, Error: ${issue.message}`
+    //     );
+    //     this.logger.error(
+    //       `STIX bundle validation failed for domain "${domain}":\n${errorMessages.join("\n")}`
+    //     );
+    //   }
+    //   throw new Error(`Failed to retrieve or validate STIX bundle for domain "${domain}".`);
+    // }
+  }
+
+  /**
    * Retrieves a list of all available STIX objects
    */
   async getAllStixObjects(
@@ -162,20 +206,7 @@ export class WorkbenchRepository {
     // Fetch the data from Workbench
     const response: AttackObjectDto[] = await this.fetchHttp(url);
 
-    // Deserialize the response data into Array<WorkbenchCollectionDto>
-    const collections: WorkbenchCollectionDto[] = [];
-
-    /**
-     * Each object in the array is transformed into a WorkbenchCollectionDto and then pushed to the
-     * StixCollectionsDto (plural) object.
-     */
-    response.forEach((collection) => {
-      const wbCollection = plainToClass(WorkbenchCollectionDto, collection, {
-        excludeExtraneousValues: true,
-      });
-      collections.push(wbCollection);
-    });
-    return collections;
+    return response.map((collection) => ({ stix: collection.stix }) as WorkbenchCollectionDto);
   }
 
   /**

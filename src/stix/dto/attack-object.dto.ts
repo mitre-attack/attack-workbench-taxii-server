@@ -1,11 +1,10 @@
 import { StixObjectInterface } from "src/stix/interfaces/stix-object.interface";
-import { StixObjectDto } from "./stix-object.dto";
 import { Expose, Type } from "class-transformer";
 
 export class AttackObjectDto implements StixObjectInterface {
   @Expose()
-  @Type(() => StixObjectDto)
-  stix: StixObjectDto;
+  @Type(Object)
+  stix: { [key: string]: any };
 
   workspace: WorkbenchWorkspace;
 }

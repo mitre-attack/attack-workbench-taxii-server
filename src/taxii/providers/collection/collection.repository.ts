@@ -3,9 +3,9 @@ import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { TaxiiCollectionDto, TaxiiCollectionsDto } from "./dto";
 import { InjectModel } from "@nestjs/mongoose";
 import {
-  TaxiiCollection,
+  TaxiiCollectionEntity,
   TaxiiCollectionDocument,
-} from "src/hydrate/collector/schema";
+} from "src/hydrate/schema";
 import { Model } from "mongoose";
 import { isNull } from "lodash";
 
@@ -18,7 +18,7 @@ export class CollectionRepository {
    */
   constructor(
     private readonly logger: Logger,
-    @InjectModel(TaxiiCollection.name)
+    @InjectModel(TaxiiCollectionEntity.name)
     private collectionModel: Model<TaxiiCollectionDocument>
   ) {
     this.logger.setContext(CollectionRepository.name);
@@ -29,7 +29,7 @@ export class CollectionRepository {
    * @param id The unique identifier of a STIX collection-_dto
    */
   async findOne(id: string): Promise<TaxiiCollectionDto> {
-    const response: TaxiiCollection = await this.collectionModel
+    const response: TaxiiCollectionEntity = await this.collectionModel
       .findOne({ id: id })
       .exec();
 

@@ -4,7 +4,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import {
   AttackObjectEntity,
   AttackObjectDocument,
-} from "src/hydrate/collector/schema/attack-object.schema";
+} from "src/hydrate/schema/attack-object.schema";
 import { Model } from "mongoose";
 import { TaxiiNotFoundException } from "src/common/exceptions";
 
@@ -32,8 +32,9 @@ export class ObjectRepository {
   ): AsyncIterableIterator<AttackObjectEntity> {
     const cursor = this.attackObjectsModel
       .find({
-        collection_id: collectionId,
+        '_meta.workbenchCollection.id': collectionId
       })
+      .sort({ '_meta.createdAt': 1 }) // Automatically uses the index on _meta.createdAt to sort the results
       .cursor();
 
     for (
@@ -64,9 +65,10 @@ export class ObjectRepository {
 
     const attackObjects: AttackObjectEntity[] = await this.attackObjectsModel
       .find({
-        collection_id: collectionId,
+        '_meta.workbenchCollection.id': collectionId,
         "stix.id": { $eq: objectId },
       })
+      .sort({ '_meta.createdAt': 1 }) // Automatically uses the index on _meta.createdAt to sort the results
       .exec();
 
     // Raise an exception if an empty array was received. We need at least one object to process anything. Something is

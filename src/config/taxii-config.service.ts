@@ -6,8 +6,7 @@ import { StixConnectOptions } from "../stix/interfaces";
 import { isDefined } from "class-validator";
 import { AppConnectOptions } from "../interfaces";
 import { DatabaseConnectOptions } from "../interfaces/database-connect-options.interface";
-import { CollectorConnectOptions } from "../hydrate/collector/interfaces/collector-connect.options";
-
+import { HydrateConnectOptions } from "src/hydrate/interfaces/hydrate-connect.options";
 /**
  * This provider is responsible for loading all user-definable configuration parameters (imported from
  * environment variables) and making them available to all necessary app services
@@ -23,7 +22,7 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
     };
   }
 
-  createCollectorConnectOptions(): CollectorConnectOptions {
+  createHydrateConnectOptions(): HydrateConnectOptions {
     return {
       hydrateOnBoot: this.HYDRATE_ON_BOOT,
       ...this.createAppConnectOptions(),

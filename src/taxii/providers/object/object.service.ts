@@ -6,10 +6,8 @@ import {
 } from "src/common/exceptions";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { FilterService } from "../filter";
-import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 import { ObjectRepository } from "./object.repository";
-import { StixObjectDto } from "src/stix/dto/stix-object.dto";
-import { AttackObjectEntity as MongooseAttackObject } from "src/hydrate/collector/schema";
+import { AttackObjectEntity as MongooseAttackObject } from "src/hydrate/schema";
 
 @Injectable()
 export class ObjectService {

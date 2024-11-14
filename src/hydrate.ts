@@ -14,17 +14,11 @@ export async function bootstrap() {
     tempConfigApp.get(TaxiiConfigService);
 
   const app: NestApplication = await NestFactory.create(
-    HydrateModule.register(tempConfigService.createCollectorConnectOptions())
+    HydrateModule.register(tempConfigService.createHydrateConnectOptions())
   );
 
   // ** Initialize the Nest application ** //
   await app.init();
-
-  // Start the 'get-attack-objects' cron job to pre-populate the TAXII DB (MongoDB) with STIX
-  if (tempConfigService.HYDRATE_ON_BOOT) {
-    const provider = app.get(HydrateService);
-    await provider.hydrate();
-  }
 
   console.log(`Bootstrap process completed...cleaning up...`);
   await tempConfigApp.close();

@@ -1,6 +1,6 @@
 export interface TaxiiConfigServiceInterface {
   createAppConnectOptions();
-  createCollectorConnectOptions();
+  createHydrateConnectOptions();
   createDatabaseConnectOptions();
   createStixConnectOptions();
   get APP_ADDRESS();

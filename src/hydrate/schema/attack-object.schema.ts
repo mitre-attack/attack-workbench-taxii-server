@@ -1,7 +1,9 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document } from "mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+
 import { StixProperties, StixPropertiesSchema } from "./stix-properties.schema";
-import * as mongoose from "mongoose";
+import { MetaDataEntity, MetaDataSchema } from ".";
+
 
 @Schema({
   collection: "object-resources",
@@ -14,18 +16,16 @@ import * as mongoose from "mongoose";
    */
   strict: false
 })
-export class AttackObjectEntity extends Document {
-  @Prop(mongoose.Schema.Types.String)
-  collection_id: string;
-
+export class AttackObjectEntity {
   @Prop({ type: StixPropertiesSchema })
   stix: StixProperties;
 
-  @Prop(mongoose.Schema.Types.Date)
-  created_at: Date;
+  @Prop({ type: MetaDataSchema })
+  _meta: MetaDataEntity;
 }
 
 export type AttackObjectDocument = AttackObjectEntity & Document;
 
-// Create the schema
 export const AttackObjectSchema = SchemaFactory.createForClass(AttackObjectEntity);
+
+AttackObjectSchema.index({ 'stix.created': 1 });

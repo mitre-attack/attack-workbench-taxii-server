@@ -8,17 +8,34 @@ import {
 } from "class-validator";
 import { Exclude, Expose, Type } from "class-transformer";
 import { ALL_MEDIA_TYPES } from "src/common/middleware/content-negotiation";
+import { WorkbenchCollectionDto } from "src/stix/dto/workbench-collection.dto";
 
 @Exclude()
 export class TaxiiCollectionDto {
-  constructor(partial: Partial<TaxiiCollectionDto>) {
-    Object.assign(this, partial);
-    if (!partial["title"]) {
-      this.title = this["name"] ? this["name"] : undefined;
+
+  constructor(partial: Partial<TaxiiCollectionDto> | WorkbenchCollectionDto) {
+
+    // If we're passed a WorkbenchCollectionDto, extract the STIX data
+    if (partial instanceof WorkbenchCollectionDto) {
+      partial = partial.stix;
     }
+
+    // Handle case where partial is the STIX object directly
+    if (partial && 'stix' in partial) {
+      partial = partial.stix;
+    }
+
+    Object.assign(this, partial);
+
+    // Handle title/name conversion
+    if (!this.title) {
+      this.title = (partial as any)?.name;
+    }
+
+    // Set default values
     this.canRead = true;
     this.canWrite = false;
-    if (!partial["media_types"]) {
+    if (!this.mediaTypes) {
       this.mediaTypes = ALL_MEDIA_TYPES;
     }
   }

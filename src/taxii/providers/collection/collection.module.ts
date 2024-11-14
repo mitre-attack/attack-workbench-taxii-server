@@ -2,9 +2,9 @@ import { Module } from "@nestjs/common";
 import { CollectionService } from "./collection.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import {
-  TaxiiCollection,
+  TaxiiCollectionEntity,
   TaxiiCollectionSchema,
-} from "src/hydrate/collector/schema";
+} from "src/hydrate/schema";
 import { StixModule } from "src/stix/stix.module";
 import { CollectionRepository } from "./collection.repository";
 
@@ -12,7 +12,7 @@ import { CollectionRepository } from "./collection.repository";
   imports: [
     StixModule,
     MongooseModule.forFeature([
-      { name: TaxiiCollection.name, schema: TaxiiCollectionSchema },
+      { name: TaxiiCollectionEntity.name, schema: TaxiiCollectionSchema },
     ]),
   ],
   providers: [CollectionService, CollectionRepository],

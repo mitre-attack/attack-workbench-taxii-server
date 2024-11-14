@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-// import { CollectionWorkbenchRepository } from "./collection.workbench.repository";
 import { TaxiiCollectionDto, TaxiiCollectionsDto } from "./dto";
 import { TaxiiNotFoundException } from "src/common/exceptions";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
@@ -9,7 +8,6 @@ import { CollectionRepository } from "./collection.repository";
 export class CollectionService {
   constructor(
     private readonly logger: Logger,
-    // private readonly stixCollectionsRepo: CollectionWorkbenchRepository,
     private readonly stixCollectionsRepo: CollectionRepository
   ) {
     this.logger.setContext(CollectionService.name);

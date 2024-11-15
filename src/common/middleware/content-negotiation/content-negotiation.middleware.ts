@@ -20,6 +20,11 @@ export class ContentNegotiationMiddleware implements NestMiddleware {
     // Get a hook into the request context so we can do logging
     const ctx: RequestContext = RequestContextModel.get();
 
+    // Do not enforce TAXII headers on health check endpoint
+    if (req.path == "/health/ping") {
+      return next();
+    }
+
     // Extract 'Accept' header
     const mediaType: string = req.headers["accept"];
 

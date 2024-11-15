@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from "@nestjs/common";
+import { Controller, Get, HttpCode, HttpStatus, Param } from "@nestjs/common";
 import { TaxiiServiceUnavailableException } from "src/common/exceptions";
 import { TaxiiLoggerService as Logger } from "src/common/logger/taxii-logger.service";
 import { DiscoveryService } from "src/taxii/providers";
@@ -15,6 +15,12 @@ export class RootController {
     private readonly logger: Logger
   ) {
     logger.setContext(RootController.name);
+  }
+
+  @Get("/health/ping")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  healthPing(): void {
+    this.logger.debug('Health ping.');
   }
 
   @ApiOkResponse({

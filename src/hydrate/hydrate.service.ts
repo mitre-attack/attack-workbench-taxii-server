@@ -11,6 +11,8 @@ import { STIX_REPO_TOKEN } from "src/stix/constants";
 import { StixRepositoryInterface } from "src/stix/providers/stix.repository.interface";
 import { GET_TAXII_RESOURCES_JOB_TOKEN, HYDRATE_OPTIONS_TOKEN } from "./constants";
 import { HydrateConnectOptions } from "./interfaces/hydrate-connect.options";
+import { SemverParts } from "./interfaces/semver-parts.interface";
+
 
 /**
  * Service responsible for synchronizing TAXII collections and objects with ATT&CK Workbench.
@@ -149,6 +151,71 @@ export class HydrateService implements OnModuleInit {
   }
 
   /**
+   * Parses a semantic version string into its constituent parts.
+   * Handles version strings with or without patch numbers (e.g., "16.0", "16.0.0").
+   * 
+   * @private
+   * @param {string} version - The version string to parse (e.g., "16.0.1")
+   * @returns {SemverParts} Object containing major, minor, and patch numbers
+   * 
+   * @example
+   * // Returns { major: 16, minor: 0, patch: 1 }
+   * this.parseSemverString("16.0.1")
+   * 
+   * @example
+   * // Returns { major: 16, minor: 0, patch: 0 }
+   * this.parseSemverString("16.0")
+   */
+  private parseSemverString(version: string): SemverParts {
+    const parts = version.split('.').map(Number);
+    return {
+      major: parts[0] || 0,
+      minor: parts[1] || 0,
+      patch: parts[2] || 0
+    };
+  }
+
+  /**
+   * Compares two semantic version strings according to semver rules.
+   * Performs comparison in order: MAJOR -> MINOR -> PATCH.
+   * Treats missing version parts as 0 (e.g., "16.1" is treated as "16.1.0").
+   * 
+   * @private
+   * @param {string} version1 - First version string to compare
+   * @param {string} version2 - Second version string to compare
+   * @returns {boolean} true if version1 is greater than version2, false otherwise
+   * 
+   * @example
+   * // Returns true
+   * this.compareSemver("16.1.0", "16.0.0")
+   * 
+   * @example
+   * // Returns false
+   * this.compareSemver("16.0.0", "16.0.1")
+   * 
+   * @example
+   * // Returns false (treats "16.0" as "16.0.0")
+   * this.compareSemver("16.0", "16.0.0")
+   */
+  private compareSemver(version1: string, version2: string): boolean {
+    const v1 = this.parseSemverString(version1);
+    const v2 = this.parseSemverString(version2);
+
+    // Compare major versions first
+    if (v1.major !== v2.major) {
+      return v1.major > v2.major;
+    }
+
+    // If major versions are equal, compare minor versions
+    if (v1.minor !== v2.minor) {
+      return v1.minor > v2.minor;
+    }
+
+    // If major and minor versions are equal, compare patch versions
+    return v1.patch > v2.patch;
+  }
+
+  /**
    * Determines if a Workbench collection is newer than an existing TAXII collection.
    * 
    * The comparison is done in two stages:
@@ -170,8 +237,7 @@ export class HydrateService implements OnModuleInit {
 
     // If versions are different, compare them numerically
     if (workbenchVersion !== existingVersion) {
-      // TODO refactor to compare based on MAJOR > MINOR > PATCH (not integer based comparison)
-      const comparison = parseFloat(workbenchVersion) > parseFloat(existingVersion);
+      const comparison = this.compareSemver(workbenchVersion, existingVersion);
       this.logger.debug(
         `Versions differ - comparison result: ${comparison} ` +
         `(${parseFloat(workbenchVersion)} > ${parseFloat(existingVersion)})`

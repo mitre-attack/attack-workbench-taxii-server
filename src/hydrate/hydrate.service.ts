@@ -34,6 +34,7 @@ export class HydrateService implements OnModuleInit {
 
   async onModuleInit() {
     try {
+      // Ensure indexes first
       await this.ensureIndex(
         this.stixObjectModel.collection,
         { '_meta.createdAt': 1 },
@@ -52,11 +53,24 @@ export class HydrateService implements OnModuleInit {
         { background: true, name: 'taxii_object_lookup' }
       );
 
+      this.logger.debug('Successfully ensured all required indexes');
+
+      // Try hydration only after indexes are created
       if (this.options.hydrateOnBoot) {
-        await this.hydrate();
+        try {
+          this.logger.debug('Hydration on boot enabled - starting initial hydration');
+          await this.hydrate();
+        } catch (hydrateError) {
+          // Log but don't throw hydration errors during startup
+          this.logger.error(
+            'Initial hydration failed - will retry during next scheduled run',
+            hydrateError.stack
+          );
+        }
       }
     } catch (error) {
-      this.logger.error('Failed to ensure indexes', error);
+      // Only throw if we couldn't create indexes
+      this.logger.error('Failed to ensure indexes - cannot continue', error.stack);
       throw error;
     }
   }

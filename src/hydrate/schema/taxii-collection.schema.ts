@@ -4,36 +4,28 @@ import * as mongoose from "mongoose";
 
 @Schema()
 export class WorkbenchCollectionEntity {
-
-  @Prop({ type: mongoose.Schema.Types.String, required: false })
-  id: string;
-
-  @Prop({ type: mongoose.Schema.Types.String, required: false })
-  title: string;
-
-  @Prop(mongoose.Schema.Types.String)
+  @Prop({ type: mongoose.Schema.Types.String, required: true })
   version: string;
 
-  @Prop(mongoose.Schema.Types.Date)
+  @Prop({ type: mongoose.Schema.Types.Date, required: true })
   modified: Date;
 }
 
 export const WorkbenchCollectionSchema = SchemaFactory.createForClass(WorkbenchCollectionEntity);
 
 @Schema()
-export class MetaDataEntity {
-  @Prop({ type: WorkbenchCollectionSchema })
+export class CollectionMetaDataEntity {
+  @Prop({ type: WorkbenchCollectionSchema, required: true })
   workbenchCollection: WorkbenchCollectionEntity;
 
-  // Not set on collection-resource objects
-  @Prop({ type: mongoose.Schema.Types.String, required: false })
-  stixSpecVersion: string;
-
-  @Prop(mongoose.Schema.Types.Date)
+  @Prop({ type: mongoose.Schema.Types.Date, required: true })
   createdAt: Date;
+
+  @Prop({ type: mongoose.Schema.Types.Boolean, required: true, default: true })
+  active: boolean;
 }
 
-export const MetaDataSchema = SchemaFactory.createForClass(MetaDataEntity);
+export const CollectionMetaDataSchema = SchemaFactory.createForClass(CollectionMetaDataEntity);
 
 @Schema({
   collection: "collection-resources",
@@ -41,33 +33,51 @@ export const MetaDataSchema = SchemaFactory.createForClass(MetaDataEntity);
 export class TaxiiCollectionEntity {
   @Prop({
     required: true,
-    unique: true,
-    message: "collection_id must be unique",
+    unique: false, // Changed to false since same ID can exist across versions
+    type: mongoose.Schema.Types.String,
   })
   id: string;
 
-  @Prop({ required: true })
+  @Prop({ type: mongoose.Schema.Types.String, required: true })
   title: string;
 
-  @Prop({ required: false })
+  @Prop({ type: mongoose.Schema.Types.String, required: false })
   description: string;
 
-  @Prop({ required: false })
+  @Prop({ type: mongoose.Schema.Types.String, required: false })
   alias: string;
 
-  @Prop({ required: true })
+  @Prop({ type: mongoose.Schema.Types.Boolean, required: true })
   canRead: boolean;
 
-  @Prop({ required: true })
+  @Prop({ type: mongoose.Schema.Types.Boolean, required: true })
   canWrite: boolean;
 
   @Prop({ type: [String], required: false })
   mediaTypes: string[];
 
-  @Prop({ type: MetaDataSchema })
-  _meta: MetaDataEntity;
+  @Prop({ type: CollectionMetaDataSchema, required: true })
+  _meta: CollectionMetaDataEntity;
 }
 
 export type TaxiiCollectionDocument = TaxiiCollectionEntity & Document;
 
 export const TaxiiCollectionSchema = SchemaFactory.createForClass(TaxiiCollectionEntity);
+
+// Required for "Get A Collection" endpoint
+TaxiiCollectionSchema.index(
+  { id: 1, '_meta.active': 1 },
+  {
+    background: true,
+    name: 'taxii_collection_lookup'
+  }
+);
+
+// Required for collision detection in hydration
+TaxiiCollectionSchema.index(
+  { title: 1, '_meta.active': 1 },
+  {
+    background: true,
+    name: 'collection_title_lookup'
+  }
+);

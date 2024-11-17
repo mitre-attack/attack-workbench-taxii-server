@@ -3,7 +3,8 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 import { InjectModel } from "@nestjs/mongoose";
 import { Logger } from "@nestjs/common";
 import { LoggerService } from "@nestjs/common/services/logger.service";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
+import * as mongoose from "mongoose";
 import { TaxiiCollectionEntity, TaxiiCollectionDocument, AttackObjectEntity, AttackObjectDocument } from "./schema";
 import { TaxiiCollectionDto } from "src/taxii/providers/collection/dto";
 import { WorkbenchCollectionDto } from "src/stix/dto/workbench-collection.dto";
@@ -13,6 +14,13 @@ import { GET_TAXII_RESOURCES_JOB_TOKEN, HYDRATE_OPTIONS_TOKEN } from "./constant
 import { HydrateConnectOptions } from "./interfaces/hydrate-connect.options";
 import { SemverParts } from "./interfaces/semver-parts.interface";
 
+/**
+ * Interface for the collision handling response
+ */
+interface CollisionHandlingResult {
+  shouldSync: boolean;
+  collectionId: Types.ObjectId | null;
+}
 
 /**
  * Service responsible for synchronizing TAXII collections and objects with ATT&CK Workbench.
@@ -22,18 +30,20 @@ import { SemverParts } from "./interfaces/semver-parts.interface";
  * 2. Object Management: Maintaining STIX objects associated with each collection
  * 
  * Key Features:
+ * - Version Control: Maintains active/inactive state for collections and objects
+ * - Collection Relationships: Objects reference their parent collection via MongoDB ObjectId
  * - Collision Detection: Handles cases where a Workbench collection shares a title with an existing TAXII collection
- * - Drift Management: Removes orphaned TAXII collections (and their objects) when corresponding Workbench collections are deleted
+ * - Drift Management: Deactivates orphaned TAXII collections when corresponding Workbench collections are deleted
  * - TAXII-Compliant Sorting: Ensures objects are retrievable in ascending order by addition date per TAXII 2.1 spec
  * 
  * @remarks
  * The service maintains a close relationship between TAXII collections and Workbench collections.
  * A TAXII collection in this implementation *is* a Workbench collection - they have a 1:1 relationship.
  * If no collections have been published in Workbench, the TAXII server will have no collections.
+ * Versioning is handled through active/inactive states rather than updates or deletions.
  */
 @Injectable()
 export class HydrateService implements OnModuleInit {
-
   private readonly logger: LoggerService = new Logger(HydrateService.name);
 
   constructor(
@@ -44,18 +54,14 @@ export class HydrateService implements OnModuleInit {
   ) {}
 
   /**
-   * Initializes the service when the module starts and ensures required database indexes exist for TAXII-compliant operation.
-   *  - Ensures required database indexes exist
-   *  - Triggers initial hydration if configured
+   * Initializes the service when the module starts.
+   * 
+   * - Ensures required database indexes exist
+   * - Triggers initial hydration if configured
    * 
    * Per TAXII 2.1 specification section 3.4:
    * "For Object and Manifest Endpoints, objects returned MUST be sorted in ascending 
    * order by the date it was added. Meaning, the most recently added object is last in the list."
-   * 
-   * We implement this requirement by:
-   * 1. Tracking addition date in _meta.createdAt
-   * 2. Creating an ascending index on this field
-   * 3. Using this index in all object retrieval queries
    * 
    * @remarks
    * The index is created with { background: true } to avoid blocking database operations
@@ -63,27 +69,82 @@ export class HydrateService implements OnModuleInit {
    * collection may already contain data.
    */
   async onModuleInit() {
-    // Create ascending index on _meta.createdAt for TAXII-compliant sorting
-    await this.stixObjectModel.collection.createIndex(
-      { '_meta.createdAt': 1 },
-      {
-        background: true,
-        name: 'taxii_added_date_asc',
+    try {
+      // Ensure TAXII-compliant sorting index
+      await this.ensureIndex(
+        this.stixObjectModel.collection,
+        { '_meta.createdAt': 1 },
+        {
+          background: true,
+          name: 'taxii_object_sorting'
+        }
+      );
+
+      // Ensure index for retrieving objects by collection
+      await this.ensureIndex(
+        this.stixObjectModel.collection,
+        {
+          '_meta.collectionRef.id': 1,
+          '_meta.active': 1
+        },
+        {
+          background: true,
+          name: 'taxii_objects_by_collection'
+        }
+      );
+
+      // Ensure index for retrieving specific objects
+      await this.ensureIndex(
+        this.stixObjectModel.collection,
+        {
+          '_meta.collectionRef.id': 1,
+          'stix.id': 1,
+          '_meta.active': 1
+        },
+        {
+          background: true,
+          name: 'taxii_object_lookup'
+        }
+      );
+
+      this.logger.debug('Ensured TAXII-compliant indexes exist');
+
+      if (this.options.hydrateOnBoot) {
+        this.logger.debug('Hydration on boot enabled - starting initial hydration');
+        await this.hydrate();
       }
-    );
+    } catch (error) {
+      this.logger.error('Failed to ensure indexes', error);
+      throw error;
+    }
+  }
 
-    this.logger.debug('Ensured TAXII-compliant sorting index exists');
-
-    // Perform initial hydration if configured
-    if (this.options.hydrateOnBoot) {
-      this.logger.debug('Hydration on boot enabled - starting initial hydration');
-      await this.hydrate();
+  /**
+   * Safely ensures an index exists.
+   */
+  private async ensureIndex(
+    collection: any,
+    indexSpec: object,
+    options: object = {}
+  ): Promise<void> {
+    try {
+      await collection.createIndex(indexSpec, options);
+      this.logger.debug(`Successfully created/verified index: ${JSON.stringify(indexSpec)}`);
+    } catch (error) {
+      if (error.code === 85 || error.code === 86) {
+        this.logger.debug(`Index already exists for spec: ${JSON.stringify(indexSpec)}`);
+        return;
+      }
+      throw error;
     }
   }
 
   /**
    * Safely converts a string or Date to a Date object.
    * Returns current date if input is invalid.
+   * 
+   * @param date - The date to convert
+   * @returns A valid Date object
    */
   private safeDate(date: string | Date | undefined): Date {
     if (!date) {
@@ -98,7 +159,7 @@ export class HydrateService implements OnModuleInit {
    * Creates a new TAXII collection entity from a Workbench collection.
    * 
    * @param workbenchCollection - The source Workbench collection
-   * @returns A new TAXII collection entity with metadata linking it to its Workbench origin
+   * @returns A new TAXII collection entity with metadata
    */
   private createTaxiiCollectionEntity(workbenchCollection: WorkbenchCollectionDto): TaxiiCollectionEntity {
     const taxiiDto = new TaxiiCollectionDto(workbenchCollection);
@@ -116,55 +177,60 @@ export class HydrateService implements OnModuleInit {
           version: workbenchCollection.stix.x_mitre_version,
           modified: this.safeDate(workbenchCollection.stix.modified)
         },
-        createdAt: new Date()
+        createdAt: new Date(),
+        active: true
       }
     });
   }
 
+  private createCollectionRef(workbenchCollection: WorkbenchCollectionDto) {
+    return {
+      id: workbenchCollection.stix.id,
+      title: workbenchCollection.stix.name,
+      version: workbenchCollection.stix.x_mitre_version,
+      modified: this.safeDate(workbenchCollection.stix.modified)
+    };
+  }
+
   /**
-   * Creates a new STIX object entity with proper metadata for TAXII compliance.
+   * Creates a new STIX object entity with proper metadata.
    * 
    * @param stixObject - The raw STIX object from Workbench
-   * @param collectionId - ID of the collection this object belongs to
+   * @param collectionId - MongoDB ObjectId of the parent collection
    * @returns A new STIX object entity with required metadata
    * 
    * @remarks
    * The _meta.createdAt field is crucial as it's used to implement TAXII's
    * requirement for sorting objects by addition date.
    */
-  private createObjectEntity(stixObject: any, collectionId: string): AttackObjectEntity {
+  private createObjectEntity(
+    stixObject: any,
+    collectionRef: ReturnType<typeof this.createCollectionRef>
+  ): AttackObjectEntity {
     return {
       stix: stixObject,
       _meta: {
-        workbenchCollection: {
-          id: collectionId,
-          title: stixObject.name,
-          version: stixObject.x_mitre_version,
-          modified: this.safeDate(stixObject.modified)
-        },
-        // All objects retrieved from 'Get Collection Bundles' are represented in STIX 2.1
-        stixSpecVersion: '2.1',
-        // This timestamp is used for TAXII-compliant sorting
-        createdAt: new Date()
+        collectionRef,
+        stixSpecVersion: '2.1', // always 2.1 because Workbench Collection Bundles only contain 2.1 objects
+        createdAt: new Date(),
+        active: true
       }
     };
   }
 
   /**
    * Parses a semantic version string into its constituent parts.
-   * Handles version strings with or without patch numbers (e.g., "16.0", "16.0.0").
    * 
-   * @private
-   * @param {string} version - The version string to parse (e.g., "16.0.1")
-   * @returns {SemverParts} Object containing major, minor, and patch numbers
+   * @param version - Version string (e.g., "16.0.1")
+   * @returns Object containing major, minor, and patch numbers
    * 
    * @example
    * // Returns { major: 16, minor: 0, patch: 1 }
-   * this.parseSemverString("16.0.1")
+   * parseSemverString("16.0.1")
    * 
    * @example
    * // Returns { major: 16, minor: 0, patch: 0 }
-   * this.parseSemverString("16.0")
+   * parseSemverString("16.0")
    */
   private parseSemverString(version: string): SemverParts {
     const parts = version.split('.').map(Number);
@@ -177,25 +243,18 @@ export class HydrateService implements OnModuleInit {
 
   /**
    * Compares two semantic version strings according to semver rules.
-   * Performs comparison in order: MAJOR -> MINOR -> PATCH.
-   * Treats missing version parts as 0 (e.g., "16.1" is treated as "16.1.0").
    * 
-   * @private
-   * @param {string} version1 - First version string to compare
-   * @param {string} version2 - Second version string to compare
-   * @returns {boolean} true if version1 is greater than version2, false otherwise
+   * @param version1 - First version string
+   * @param version2 - Second version string
+   * @returns true if version1 is greater than version2
    * 
    * @example
    * // Returns true
-   * this.compareSemver("16.1.0", "16.0.0")
+   * compareSemver("16.1.0", "16.0.0")
    * 
    * @example
    * // Returns false
-   * this.compareSemver("16.0.0", "16.0.1")
-   * 
-   * @example
-   * // Returns false (treats "16.0" as "16.0.0")
-   * this.compareSemver("16.0", "16.0.0")
+   * compareSemver("16.0", "16.0.1")
    */
   private compareSemver(version1: string, version2: string): boolean {
     const v1 = this.parseSemverString(version1);
@@ -231,17 +290,13 @@ export class HydrateService implements OnModuleInit {
     const existingVersion = existingCollection._meta.workbenchCollection.version;
 
     this.logger.debug(
-      `Comparing versions - Workbench: ${workbenchVersion} (${typeof workbenchVersion}), ` +
-      `Existing: ${existingVersion} (${typeof existingVersion})`
+      `Comparing versions - Workbench: ${workbenchVersion}, Existing: ${existingVersion}`
     );
 
-    // If versions are different, compare them numerically
+    // If versions are different, compare them
     if (workbenchVersion !== existingVersion) {
       const comparison = this.compareSemver(workbenchVersion, existingVersion);
-      this.logger.debug(
-        `Versions differ - comparison result: ${comparison} ` +
-        `(${parseFloat(workbenchVersion)} > ${parseFloat(existingVersion)})`
-      );
+      this.logger.debug(`Versions differ - comparison result: ${comparison}`);
       return comparison;
     }
 
@@ -250,8 +305,7 @@ export class HydrateService implements OnModuleInit {
     const existingModified = existingCollection._meta.workbenchCollection.modified;
 
     this.logger.debug(
-      `Versions match, comparing dates - Workbench: ${workbenchModified}, ` +
-      `Existing: ${existingModified}`
+      `Versions match, comparing dates - Workbench: ${workbenchModified}, Existing: ${existingModified}`
     );
 
     return workbenchModified > existingModified;
@@ -261,44 +315,59 @@ export class HydrateService implements OnModuleInit {
    * Handles potential collisions between Workbench and TAXII collections.
    * 
    * A collision occurs when a Workbench collection has the same title as an
-   * existing TAXII collection. In such cases, we keep the newer version based
-   * on version number and modification date.
+   * existing TAXII collection. In such cases, we compare versions and:
+   * 1. If Workbench version is newer:
+   *    - Mark existing collection and its objects as inactive
+   *    - Create new active collection
+   * 2. If existing version is newer:
+   *    - Keep existing collection
    * 
    * @param workbenchCollection - The collection from Workbench to process
-   * @returns true if the collection was created/updated, false if no action was needed
+   * @returns Object containing sync status and collection ID for object creation
    */
   private async handleCollisionAndSync(
     workbenchCollection: WorkbenchCollectionDto
   ): Promise<boolean> {
-
     this.logger.debug('Handling collision and synchronization of TAXII collections...');
 
-    // Find existing collection with same title
     const existingCollection = await this.collectionModel.findOne({
-      title: workbenchCollection.stix.name
+      title: workbenchCollection.stix.name,
+      '_meta.active': true
     }).exec();
 
     if (!existingCollection) {
-      // No collision - create new collection
       this.logger.debug('No collision detected - creating new TAXII collection');
       const taxiiEntity = this.createTaxiiCollectionEntity(workbenchCollection);
       await this.collectionModel.create(taxiiEntity);
       return true;
     }
 
-    // If collection exists, check if workbench version is newer
     if (this.isNewer(workbenchCollection, existingCollection)) {
-      this.logger.debug('Collision detected - prefer Workbench collection');
-      const taxiiEntity = this.createTaxiiCollectionEntity(workbenchCollection);
-      await this.collectionModel.findOneAndUpdate(
-        { id: existingCollection.id },
-        taxiiEntity,
-        { new: true }
+      this.logger.debug('Collision detected - creating new version and deactivating old');
+
+      // Mark existing collection as inactive
+      await this.collectionModel.findByIdAndUpdate(
+        existingCollection._id,
+        { '$set': { '_meta.active': false } }
       );
+
+      // Mark existing collection's objects as inactive
+      await this.stixObjectModel.updateMany(
+        {
+          '_meta.collectionRef.id': existingCollection.id,
+          '_meta.active': true
+        },
+        { '$set': { '_meta.active': false } }
+      );
+
+      // Create new active collection
+      const taxiiEntity = this.createTaxiiCollectionEntity(workbenchCollection);
+      await this.collectionModel.create(taxiiEntity);
+
       return true;
     }
-    this.logger.debug('Collision detected - prefer existing collection');
 
+    this.logger.debug('Collision detected - keep existing collection');
     return false;
   }
 
@@ -310,8 +379,8 @@ export class HydrateService implements OnModuleInit {
    * 1. A collection is unpublished in Workbench
    * 2. A collection is deleted from Workbench
    * 
-   * This method removes both the orphaned collections and their associated objects
-   * to maintain consistency between Workbench and the TAXII server.
+   * Instead of deleting orphaned collections, we mark them (and their objects)
+   * as inactive to maintain history.
    * 
    * @param workbenchCollections - Current list of collections from Workbench
    */
@@ -319,14 +388,15 @@ export class HydrateService implements OnModuleInit {
     workbenchCollections: WorkbenchCollectionDto[]
   ): Promise<void> {
     try {
-      // Get all collection titles from Workbench
       const workbenchTitles = new Set(
         workbenchCollections.map(collection => collection.stix.name)
       );
 
-      // Find collections that exist in TAXII but not in Workbench
       const orphanedCollections = await this.collectionModel
-        .find({ title: { $nin: Array.from(workbenchTitles) } })
+        .find({
+          title: { $nin: Array.from(workbenchTitles) },
+          '_meta.active': true
+        })
         .exec();
 
       if (orphanedCollections.length === 0) {
@@ -334,30 +404,21 @@ export class HydrateService implements OnModuleInit {
         return;
       }
 
-      // Get IDs of orphaned collections
-      const orphanedIds = orphanedCollections.map(collection => collection.id);
-
-      // Delete orphaned objects first
-      await this.stixObjectModel.deleteMany({
-        '_meta.workbenchCollection.id': { $in: orphanedIds }
-      }).exec();
-
-      // Then delete the orphaned collections
-      await this.collectionModel.deleteMany({
-        id: { $in: orphanedIds }
-      }).exec();
-
-      this.logger.debug(
-        `Deleted ${orphanedCollections.length} orphaned collections and their associated objects`
+      // Mark collections as inactive
+      await this.collectionModel.updateMany(
+        { _id: { $in: orphanedCollections.map(c => c._id) } },
+        { '$set': { '_meta.active': false } }
       );
 
-      // Log detailed information about deleted collections
-      orphanedCollections.forEach(collection => {
-        this.logger.debug(
-          `Deleted orphaned collection: ${collection.id} (${collection.title}), ` +
-          `version: ${collection._meta.workbenchCollection.version}`
-        );
-      });
+      // Mark their objects as inactive
+      await this.stixObjectModel.updateMany(
+        { '_meta.collectionRef.id': { $in: orphanedCollections.map(c => c.id) } },
+        { '$set': { '_meta.active': false } }
+      );
+
+      this.logger.debug(
+        `Marked ${orphanedCollections.length} collections and their objects as inactive`
+      );
 
     } catch (e) {
       this.logger.error('Failed to handle orphaned collections', e.stack);
@@ -368,63 +429,52 @@ export class HydrateService implements OnModuleInit {
   /**
    * Synchronizes STIX objects for a given collection.
    * 
-   * @param collectionId - ID of the collection whose objects need syncing
-   * @param replace - If true, all existing objects for this collection are replaced
+   * This method is responsible for:
+   * 1. Retrieving the collection's objects from Workbench
+   * 2. Creating new object documents with proper collection references
+   * 3. Maintaining TAXII-compliant addition dates for sorting
+   * 
+   * @param collectionId - MongoDB ObjectId of the collection
+   * @param workbenchId - Workbench ID of the collection for fetching objects
    * 
    * @remarks
-   * This method implements bulk operations for efficiency, processing objects in
-   * batches of 1000. Each object's _meta.createdAt is set to ensure proper
-   * TAXII-compliant sorting.
+   * Implements bulk operations for efficiency, processing objects in batches.
+   * Each object is created with an active state and proper collection reference.
    */
   private async syncCollectionObjects(
-    collectionId: string,
-    replace: boolean = false
+    workbenchCollection: WorkbenchCollectionDto
   ): Promise<void> {
     try {
-      // Get collection bundle from Workbench
-      const bundle = await this.stixRepo.getCollectionBundle(collectionId);
+      const bundle = await this.stixRepo.getCollectionBundle(workbenchCollection.stix.id);
 
       if (!bundle.objects || bundle.objects.length === 0) {
-        this.logger.debug(`No objects found in collection ${collectionId}`);
+        this.logger.debug(`No objects found in collection ${workbenchCollection.stix.id}`);
         return;
       }
 
-      // If replacing, delete existing objects for this collection
-      if (replace) {
-        await this.stixObjectModel.deleteMany({
-          '_meta.workbenchCollection.id': collectionId
-        }).exec();
-      }
+      // Create collection reference once for all objects
+      const collectionRef = this.createCollectionRef(workbenchCollection);
 
-      // Create bulk operations array
-      const bulkOps = bundle.objects.map(stixObject => {
-        const entity = this.createObjectEntity(stixObject, collectionId);
-        return {
-          updateOne: {
-            filter: {
-              'stix.id': stixObject.id,
-              'stix.modified': stixObject.modified,
-              '_meta.workbenchCollection.id': collectionId
-            },
-            update: { $set: entity },
-            upsert: true
-          }
-        };
-      });
+      // Create new objects with embedded collection reference
+      const bulkOps = bundle.objects.map(stixObject => ({
+        insertOne: {
+          document: this.createObjectEntity(stixObject, collectionRef)
+        }
+      }));
 
-      // Execute bulk operations in batches of 1000
+      // Execute bulk operations in batches
       for (let i = 0; i < bulkOps.length; i += 1000) {
         const batch = bulkOps.slice(i, i + 1000);
         await this.stixObjectModel.bulkWrite(batch);
       }
 
       this.logger.debug(
-        `Synchronized ${bundle.objects.length} objects for collection ${collectionId}`
+        `Synchronized ${bundle.objects.length} objects for collection ${workbenchCollection.stix.id}`
       );
 
     } catch (e) {
       this.logger.error(
-        `Failed to sync objects for collection ${collectionId}`,
+        `Failed to sync objects for collection ${workbenchCollection.stix.id}`,
         e.stack
       );
       throw e;
@@ -437,12 +487,16 @@ export class HydrateService implements OnModuleInit {
    * This is the main entry point for the collection and object synchronization
    * process. It:
    * 1. Retrieves current collections from Workbench
-   * 2. Removes any orphaned TAXII collections
+   * 2. Handles orphaned TAXII collections
    * 3. Processes each Workbench collection, handling collisions
    * 4. Synchronizes objects for updated collections
    * 
    * The job runs every 30 minutes to ensure the TAXII server stays current
    * with Workbench content.
+   * 
+   * @remarks
+   * Uses active/inactive state management rather than updates/deletes to maintain
+   * version history and avoid document conflicts.
    */
   @Cron(CronExpression.EVERY_30_MINUTES, {
     name: GET_TAXII_RESOURCES_JOB_TOKEN,
@@ -451,27 +505,19 @@ export class HydrateService implements OnModuleInit {
     this.logger.debug('Starting database collection and object hydration');
 
     try {
-      // Get collections from Workbench
       const workbenchCollections = await this.stixRepo.getCollections();
       this.logger.debug(
         `Successfully retrieved ${workbenchCollections.length} collections from Workbench`
       );
 
-      // Handle orphaned collections first
       await this.handleOrphanedCollections(workbenchCollections);
 
-      // Process each collection
       for (const workbenchCollection of workbenchCollections) {
         try {
-          // Handle collision and sync collection
-          const shouldSyncObjects = await this.handleCollisionAndSync(workbenchCollection);
+          const shouldSync = await this.handleCollisionAndSync(workbenchCollection);
 
-          // Sync objects if collection was created/updated
-          if (shouldSyncObjects) {
-            await this.syncCollectionObjects(
-              workbenchCollection.stix.id,
-              true // replace existing objects when collection is updated
-            );
+          if (shouldSync) {
+            await this.syncCollectionObjects(workbenchCollection);
           }
 
           this.logger.debug(

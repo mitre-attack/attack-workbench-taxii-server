@@ -11,11 +11,6 @@ import { isNull } from "lodash";
 
 @Injectable()
 export class CollectionRepository {
-  /**
-   * Instantiates an instance of the CollectionRepository service class
-   * @param logger
-   * @param collectionModel
-   */
   constructor(
     private readonly logger: Logger,
     @InjectModel(TaxiiCollectionEntity.name)
@@ -25,17 +20,23 @@ export class CollectionRepository {
   }
 
   /**
-   * Get a summary of one STIX collection-_dto
-   * @param id The unique identifier of a STIX collection-_dto
+   * Get a specific active TAXII collection by ID.
+   * 
+   * @param id TAXII/STIX ID of the collection
+   * @returns Promise resolving to TaxiiCollectionDto
+   * @throws If collection is not found
    */
   async findOne(id: string): Promise<TaxiiCollectionDto> {
+    // Uses taxii_collection_lookup index
     const response: TaxiiCollectionEntity = await this.collectionModel
-      .findOne({ id: id })
+      .findOne({
+        id: id,
+        '_meta.active': true
+      })
       .exec();
 
     return new Promise((resolve, reject) => {
       if (!isNull(response)) {
-        // Transform the response object to a TAXII-compliant DTO and return
         resolve(new TaxiiCollectionDto({ ...response["_doc"] }));
       }
       reject(`Collection ID '${id}' not available in database`);
@@ -43,19 +44,19 @@ export class CollectionRepository {
   }
 
   /**
-   * Get a summary of all STIX collections
+   * Get all active TAXII collections.
+   * 
+   * @returns Promise resolving to TaxiiCollectionsDto containing all active collections
    */
   async findAll(): Promise<TaxiiCollectionsDto> {
-    // Initialize the parent resource
-    const taxiiCollectionsResource: TaxiiCollectionsDto =
-      new TaxiiCollectionsDto();
+    const taxiiCollectionsResource = new TaxiiCollectionsDto();
 
-    // Retrieve the list of TAXII collection resources from the database
-    const response: TaxiiCollectionDto[] = await this.collectionModel
-      .find({})
+    // Only return active collections
+    const response: TaxiiCollectionEntity[] = await this.collectionModel
+      .find({ '_meta.active': true })
       .exec();
 
-    // Transform each collection resource to a TAXII-compliant DTO and push it onto the parent DTO resource
+    // Transform to TAXII-compliant DTOs
     for (const element of response) {
       taxiiCollectionsResource.collections.push(
         new TaxiiCollectionDto({

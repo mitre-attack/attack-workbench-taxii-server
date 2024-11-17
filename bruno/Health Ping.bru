@@ -1,0 +1,17 @@
+meta {
+  name: Health Ping
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{host}}/health/ping
+  body: none
+  auth: none
+}
+
+tests {
+  test("Verify response status code", function() {
+    expect(res.getStatus()).to.equal(204);
+  });
+}

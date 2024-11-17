@@ -1,34 +1,33 @@
-import { SupportedMediaVersion } from "./supported-media-types";
-import { TaxiiBadRequestException } from "../../exceptions";
+import { TaxiiBadRequestException } from "src/common/exceptions";
+import { SupportedMediaTypes, SupportedMediaSubTypes, SupportedMediaVersion } from "./supported-media-types";
 
 export interface ParsedMediaTypeFields {
-  type;
-  subType;
-  version;
+  type: SupportedMediaTypes;
+  subType: SupportedMediaSubTypes;
+  version: string;
 }
 
 export class MediaTypeObject {
-  _type: string;
-  _subType: string;
-  _version: string;
+  private _type: SupportedMediaTypes;
+  private _subType: SupportedMediaSubTypes;
+  private _version: string;
 
   /**
    * Converts a string-formatted media type to an instance of MediaTypeObject
    * @param mediaType A string-formatted RFC-6838 Media Type
    */
   constructor(acceptHeader: string) {
-    const parsed: ParsedMediaTypeFields =
-      MediaTypeObject.parseAcceptHeader(acceptHeader);
+    const parsed: ParsedMediaTypeFields = MediaTypeObject.parseAcceptHeader(acceptHeader);
     this._type = parsed.type;
     this._subType = parsed.subType;
     this._version = parsed.version;
   }
 
-  get type(): string {
+  get type(): SupportedMediaTypes {
     return this._type;
   }
 
-  get subType(): string {
+  get subType(): SupportedMediaSubTypes {
     return this._subType;
   }
 
@@ -51,29 +50,36 @@ export class MediaTypeObject {
     };
   }
 
-  private static parseAcceptHeader(
-    acceptHeader: string
-  ): ParsedMediaTypeFields {
-    // parsed object will be returned
+  private static parseAcceptHeader(acceptHeader: string): ParsedMediaTypeFields {
     const parsed = {} as ParsedMediaTypeFields;
 
-    // EXAMPLE:
-    // String "application/providers+json;version=2.1" is converted to
-    // array ["application", "providers+json;version=2.1"]
     const typeAndSubType: string[] = acceptHeader.split("/");
-    parsed.type = typeAndSubType[0];
+
+    // Validate and convert type to enum
+    if (!Object.values(SupportedMediaTypes).includes(typeAndSubType[0] as SupportedMediaTypes)) {
+      throw new TaxiiBadRequestException({
+        title: "Unsupported Media Type",
+        description: `${typeAndSubType[0]} is not a supported media type`,
+      });
+    }
+    parsed.type = typeAndSubType[0] as SupportedMediaTypes;
 
     if (typeAndSubType[1]) {
-      // EXAMPLE: String "providers+json;version=2.1" is converted to array ["providers+json", "version=2.1"]
       const subTypeAndVersion: string[] = typeAndSubType[1].split(";");
-      parsed.subType = subTypeAndVersion[0];
+
+      // Validate and convert subType to enum
+      if (!Object.values(SupportedMediaSubTypes).includes(subTypeAndVersion[0] as SupportedMediaSubTypes)) {
+        throw new TaxiiBadRequestException({
+          title: "Unsupported Media SubType",
+          description: `${subTypeAndVersion[0]} is not a supported media subtype`,
+        });
+      }
+      parsed.subType = subTypeAndVersion[0] as SupportedMediaSubTypes;
 
       if (subTypeAndVersion[1]) {
-        // "version=2.1" => ["version", "2.1"]
         const parsedVersion: string[] = subTypeAndVersion[1].split("=");
 
         if (parsedVersion[0] === "version") {
-          // set version
           switch (parsedVersion[1]) {
             case "2.1":
               parsed.version = SupportedMediaVersion.V21;
@@ -86,8 +92,6 @@ export class MediaTypeObject {
           }
         }
       } else {
-        // This else block will execute if user did not specify a version, i.e., "application/taxii+json"
-        // In this case, we set the requested media type to the latest version
         parsed.version = SupportedMediaVersion.LATEST;
       }
     }

@@ -6,22 +6,20 @@ import {
 } from "../../exceptions";
 import { RequestContext, RequestContextModel } from "../request-context";
 import { MediaTypeObject } from "./media-type-object";
-import {
-  SupportedMediaTypes,
-  SupportedMediaSubTypes,
-} from "./supported-media-types";
 import { MEDIA_TYPE_TOKEN } from "./constants";
 
 @Injectable()
 export class ContentNegotiationMiddleware implements NestMiddleware {
   private logger = new Logger(ContentNegotiationMiddleware.name);
+  private readonly HEALTH_CHECK_PATH = "/health/ping";
 
   use(req: Request, res: Response, next: NextFunction) {
-    // Get a hook into the request context so we can do logging
     const ctx: RequestContext = RequestContextModel.get();
 
-    // Do not enforce TAXII headers on health check endpoint
-    if (req.path == "/health/ping") {
+    if (req.originalUrl.endsWith(this.HEALTH_CHECK_PATH)) {
+      this.logger.debug(
+        `[${ctx["x-request-id"]}] Skipping content negotiation check on health check endpoint`
+      );
       return next();
     }
 
@@ -39,21 +37,25 @@ export class ContentNegotiationMiddleware implements NestMiddleware {
       });
     }
 
-    // If it exists, initialize a MediaTypeObject and store it on the request for later. Then check that the
-    // 'Accept' header value is valid.
+    // If it exists, validate the media type
     if (mediaType) {
-      // Instantiate the MediaTypeObject and write it to the Request object. Note that we use the MediaTypeObject to
-      // facilitate string parsing on the 'Accept' value and to gain access to some helper methods.
-      req[MEDIA_TYPE_TOKEN] = new MediaTypeObject(mediaType);
+      try {
+        // Instantiate the MediaTypeObject and write it to the Request object
+        req[MEDIA_TYPE_TOKEN] = new MediaTypeObject(mediaType);
 
-      // Validate the 'Accept' header
-      this.validate(req);
+        // Validate the 'Accept' header
+        this.validate(req);
 
-      // If we make it this far, then 'Accept' header is valid and we can proceed with processing request
-      return next();
+        // If validation passes, proceed with the request
+        return next();
+      } catch (error) {
+        this.logger.error(
+          `[${ctx["x-request-id"]}] Error processing media type: ${error.message}`
+        );
+        throw error;
+      }
     }
 
-    // If the 'Accept' header is not found on the request, the TAXII server will throw a 'Bad Request' response
     throw new TaxiiBadRequestException({
       title: "Invalid media type",
       description:
@@ -64,57 +66,25 @@ export class ContentNegotiationMiddleware implements NestMiddleware {
     });
   }
 
-  /**
-   * TODO write JSDoc description
-   * @param req
-   * @private
-   */
   private validate(req: Request) {
-    // Get a hook into the request context so we can do logging
     const ctx: RequestContext = RequestContextModel.get();
-
-    //const acceptHeader: string = req.headers["accept"];
     const mediaType: MediaTypeObject = req[MEDIA_TYPE_TOKEN];
 
-    const isValid: boolean = this.isValidMediaType(mediaType);
-
-    if (!isValid) {
+    // The validation is now handled in the MediaTypeObject constructor
+    // We just need to check if we got a valid MediaTypeObject
+    if (!mediaType || !(mediaType instanceof MediaTypeObject)) {
       this.logger.error(
-        `[${
-          ctx["x-request-id"]
-        }] The Request's Accept header (${mediaType.toString()}) is either missing the appropriate TAXII media type or the media type is invalid.`
+        `[${ctx["x-request-id"]}] Invalid media type object`
       );
 
       throw new TaxiiNotAcceptableException({
         title: "Invalid Accept header",
-        description: `The media type specified in the Accept header (${mediaType.toString()}) is invalid`,
+        description: `The media type specified in the Accept header is invalid`,
       });
     }
 
     this.logger.debug(
-      `[${
-        ctx["x-request-id"]
-      }] The media type specified in the Accept header (${mediaType.toString()}) is valid`
+      `[${ctx["x-request-id"]}] The media type specified in the Accept header (${mediaType.toString()}) is valid`
     );
-  }
-
-  /**
-   * Determines whether a given MediaTypeObject appropriately conforms to the required Accept header media type as
-   * defined by the TAXII 2.1 specification (section 1.6.8 Content Negotiation)
-   * @param mediaType This is the MediaTypeObject whose type, subType, and option attributes will be validated
-   * @private
-   */
-  private isValidMediaType(mediaType: MediaTypeObject): boolean {
-    if (!(<any>Object).values(SupportedMediaTypes).includes(mediaType.type)) {
-      return false;
-    }
-
-    if (
-      !(<any>Object).values(SupportedMediaSubTypes).includes(mediaType.subType)
-    ) {
-      return false;
-    }
-
-    return true;
   }
 }

@@ -7,7 +7,7 @@ import {
   TaxiiCollectionDocument,
 } from "src/hydrate/schema";
 import { Model } from "mongoose";
-import { isNull } from "lodash";
+import { TaxiiNotFoundException } from "src/common/exceptions";
 
 @Injectable()
 export class CollectionRepository {
@@ -24,9 +24,11 @@ export class CollectionRepository {
    * 
    * @param id TAXII/STIX ID of the collection
    * @returns Promise resolving to TaxiiCollectionDto
-   * @throws If collection is not found
+   * @throws TaxiiNotFoundException if collection is not found
    */
   async findOne(id: string): Promise<TaxiiCollectionDto> {
+    this.logger.debug(`Searching for collection with ID: ${id}`);
+
     // Uses taxii_collection_lookup index
     const response: TaxiiCollectionEntity = await this.collectionModel
       .findOne({
@@ -35,12 +37,14 @@ export class CollectionRepository {
       })
       .exec();
 
-    return new Promise((resolve, reject) => {
-      if (!isNull(response)) {
-        resolve(new TaxiiCollectionDto({ ...response["_doc"] }));
-      }
-      reject(`Collection ID '${id}' not available in database`);
-    });
+    if (!response) {
+      throw new TaxiiNotFoundException({
+        title: "Collection Not Found",
+        description: `Collection ID '${id}' not available in database`,
+      });
+    }
+
+    return new TaxiiCollectionDto({ ...response["_doc"] });
   }
 
   /**

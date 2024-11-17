@@ -1,27 +1,36 @@
 import { DynamicModule, Global, Module } from "@nestjs/common";
 import { ScheduleModule } from "@nestjs/schedule";
 import { MongooseModule } from "@nestjs/mongoose";
-import { CollectorModule } from "./collector/collector.module";
-import { CollectorConnectOptions } from "./collector/interfaces/collector-connect.options";
+import { HydrateConnectOptions } from "./interfaces/hydrate-connect.options";
 import { HydrateService } from "./hydrate.service";
 import { StixModule } from "../stix/stix.module";
+import { AttackObjectEntity, AttackObjectSchema, TaxiiCollectionEntity, TaxiiCollectionSchema } from "./schema";
+import { HYDRATE_OPTIONS_TOKEN } from "./constants";
 
 @Global()
 @Module({})
 export class HydrateModule {
-  static register(options: CollectorConnectOptions): DynamicModule {
+  static register(options: HydrateConnectOptions): DynamicModule {
+    console.log(options);
     return {
       module: HydrateModule,
       imports: [
         ScheduleModule.forRoot(),
-
         MongooseModule.forRoot(options.databaseConnectOptions.mongoUri),
-
+        MongooseModule.forFeature([
+          { name: AttackObjectEntity.name, schema: AttackObjectSchema },
+          { name: TaxiiCollectionEntity.name, schema: TaxiiCollectionSchema },
+        ]),
         StixModule.register(options.stixConnectOptions),
-
-        CollectorModule,
       ],
-      providers: [HydrateService],
+      providers: [
+        {
+          provide: HYDRATE_OPTIONS_TOKEN,
+          useValue: options
+        },
+        HydrateService
+      ],
+      exports: [HydrateService],
     };
   }
 }

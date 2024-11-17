@@ -10,14 +10,23 @@ import {
   TaxiiNotFoundException,
   TaxiiServiceUnavailableException,
 } from "src/common/exceptions";
-import { WorkbenchCollectionDto } from "src/stix/dto/workbench-collection.dto";
-import { plainToClass, plainToInstance } from "class-transformer";
+import { WorkbenchCollectionDto, WorkbenchCollectionStixProperties } from "src/stix/dto/workbench-collection.dto";
+import { plainToInstance } from "class-transformer";
 import { WorkbenchCollectionBundleDto } from "src/stix/dto/workbench-collection-bundle.dto";
 import { AttackObjectDto } from "src/stix/dto/attack-object.dto";
 import { StixIdentityPrefix, WorkbenchRESTEndpoint } from "src/stix/constants";
 import { WorkbenchConnectOptionsInterface } from "src/stix/interfaces/workbench-connect-options.interface";
 import { WORKBENCH_OPTIONS } from "src/stix/constants";
 import { StixBundleDto } from "src/stix/dto/stix-bundle.dto";
+
+interface WorkbenchCollectionResponseDto {
+  _id: string;
+  workspace: any;
+  stix: WorkbenchCollectionStixProperties;
+  __t: string;
+  __v: number;
+  created_by_identity: any;
+}
 
 @Injectable()
 export class WorkbenchRepository {
@@ -115,11 +124,11 @@ export class WorkbenchRepository {
    ***************************************/
 
   /**
- * Retrieves a STIX bundle containing all STIX objects for a specified ATT&CK domain.
- * 
- * @param domain The ATT&CK domain to retrieve ("enterprise-attack", "mobile-attack", or "ics-attack").
- * @returns The STIX bundle for the specified domain.
- */
+   * Retrieves a STIX bundle containing all STIX objects for a specified ATT&CK domain.
+   * 
+   * @param domain The ATT&CK domain to retrieve ("enterprise-attack", "mobile-attack", or "ics-attack").
+   * @returns The STIX bundle for the specified domain.
+   */
   async getStixBundle(domain: string, version: '2.0' | '2.1'): Promise<StixBundleDto> {
 
     // Validate the domain parameter to ensure it matches one of the supported domains
@@ -204,9 +213,10 @@ export class WorkbenchRepository {
     }
 
     // Fetch the data from Workbench
-    const response: AttackObjectDto[] = await this.fetchHttp(url);
+    const response: WorkbenchCollectionResponseDto[] = await this.fetchHttp(url);
 
-    return response.map((collection) => ({ stix: collection.stix }) as WorkbenchCollectionDto);
+    // Extract only the STIX data we need
+    return response.map(({ stix }) => new WorkbenchCollectionDto(stix));
   }
 
   /**
@@ -219,18 +229,17 @@ export class WorkbenchRepository {
     const url = `${this.baseUrl}/api/collection-bundles?collectionId=${collectionId}`;
 
     // Fetch the data from Workbench
-    const response: WorkbenchCollectionBundleDto = await this.fetchHttp(url);
-
-    this.logger.debug(`Retrieved STIX data! Data will be deserialized.`);
-
+    return await this.fetchHttp(url);
+    
+    // TODO the serialization code is not working. it strips all the STIX properties and leaves an empty object. Let's revisit this after the ADM is integrated.
+    // this.logger.debug(`Retrieved STIX data! Data will be deserialized.`);
     // Deserialize the response body
-    const collectionBundle: WorkbenchCollectionBundleDto = plainToInstance(
-      WorkbenchCollectionBundleDto,
-      response,
-      { excludeExtraneousValues: true }
-    );
-
-    return collectionBundle;
+    // const collectionBundle: WorkbenchCollectionBundleDto = plainToInstance(
+      //   WorkbenchCollectionBundleDto,
+    //   response,
+    //   { excludeExtraneousValues: true }
+    // );
+    // return collectionBundle;
   }
 
 

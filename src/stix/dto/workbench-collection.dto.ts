@@ -1,21 +1,28 @@
 import { Expose, Type } from "class-transformer";
-import { StixObjectInterface } from "src/stix/interfaces/stix-object.interface";
 
-export class WorkbenchCollectionDto implements StixObjectInterface {
-  // The commented-out properties will also be returned from Workbench (GET /api/collection) requests, but will be
-  // dropped because they serve no practical purpose to the TAXII server. They are dropped by virtue of the
-  // excludeExtraneousValues option set to true in the plainToInstance method calls within WorkbenchRepository.
+export interface WorkbenchCollectionStixProperties {
+  modified: string;
+  name: string;
+  description?: string;
+  x_mitre_contents?: any[];
+  x_mitre_version: string;
+  x_mitre_attack_spec_version: string;
+  type: string;
+  spec_version: string;
+  id: string;
+  created: string;
+  created_by_ref: string;
+  object_marking_refs?: string[];
+  x_mitre_domains?: string[];
+  external_references?: any[];
+}
 
-  // _id: uuid  <--- WILL BE DROPPED
-  // workspace: { ... }  <--- WILL BE DROPPED
+export class WorkbenchCollectionDto {
   @Expose()
   @Type(() => Object)
-  stix: { [key: string]: any };
-  // __t: "Collection";  <--- WILL BE DROPPED
-  // __v: number;  <--- WILL BE DROPPED
-  // created_by_identity: { ... }  <--- WILL BE DROPPED
+  readonly stix: WorkbenchCollectionStixProperties;
 
-  constructor(partial: Partial<WorkbenchCollectionDto>) {
-    Object.assign(this, partial);
+  constructor(stix: WorkbenchCollectionStixProperties) {
+    this.stix = stix;
   }
 }

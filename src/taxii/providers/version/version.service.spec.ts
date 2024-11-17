@@ -9,7 +9,7 @@ import {
   rootMongooseTestModule,
   closeInMongodConnection,
 } from "src/../test/test.mongoose.module";
-import { AttackObjectEntity, AttackObjectSchema } from "src/hydrate/collector/schema";
+import { AttackObjectEntity, AttackObjectSchema } from "src/hydrate/schema";
 
 describe("VersionService", () => {
   let versionService: VersionService;

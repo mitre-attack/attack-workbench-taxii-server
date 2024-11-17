@@ -52,6 +52,10 @@ export async function bootstrap() {
         path: "/taxii2/",
         method: RequestMethod.GET,
       },
+      {
+        path: "/health/ping",
+        method: RequestMethod.GET
+      }
     ],
   });
 

@@ -16,9 +16,9 @@ import { MongooseModule } from "@nestjs/mongoose";
 import {
   AttackObjectEntity,
   AttackObjectSchema,
-  TaxiiCollection,
+  TaxiiCollectionEntity,
   TaxiiCollectionSchema,
-} from "src/hydrate/collector/schema";
+} from "src/hydrate/schema";
 
 describe("CollectionsController", () => {
   let controller: CollectionsController;
@@ -35,7 +35,7 @@ describe("CollectionsController", () => {
         rootMongooseTestModule(),
         MongooseModule.forFeature([
           { name: AttackObjectEntity.name, schema: AttackObjectSchema },
-          { name: TaxiiCollection.name, schema: TaxiiCollectionSchema },
+          { name: TaxiiCollectionEntity.name, schema: TaxiiCollectionSchema },
         ]),
       ],
       controllers: [CollectionsController],

@@ -10,7 +10,7 @@ import {
   rootMongooseTestModule,
 } from "src/../test/test.mongoose.module";
 import { MongooseModule } from "@nestjs/mongoose";
-import { AttackObjectEntity, AttackObjectSchema } from "src/hydrate/collector/schema";
+import { AttackObjectEntity, AttackObjectSchema } from "src/hydrate/schema";
 
 describe("ManifestService", () => {
   let manifestService: ManifestService;

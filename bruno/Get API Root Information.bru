@@ -29,9 +29,12 @@ tests {
     const data = res.getBody();
     expect(data).to.have.property('title').that.is.a('string').and.is.not.empty;
     expect(data).to.have.property('description').that.is.a('string').and.is.not.empty;
-    expect(data).to.have.property('version').that.is.a('string').and.startsWith('application/taxii+json');
-    expect(data).to.have.property('maxContentLength');
-    const maxContentLength = data.maxContentLength;
+    expect(data).to.have.property('versions').that.is.an('array');
+    data.versions.forEach(version => {
+        expect(version).startsWith('application/taxii+json');
+      });
+    expect(data).to.have.property('max_content_length');
+    const maxContentLength = data['max_content_length'];
     
     if (typeof maxContentLength === 'string') {
       expect(parseInt(maxContentLength)).to.be.a('number').and.not.NaN;

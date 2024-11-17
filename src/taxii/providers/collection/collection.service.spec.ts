@@ -9,9 +9,9 @@ import {
 } from "src/../test/test.mongoose.module";
 import { MongooseModule } from "@nestjs/mongoose";
 import {
-  TaxiiCollection,
+  TaxiiCollectionEntity,
   TaxiiCollectionSchema,
-} from "src/hydrate/collector/schema";
+} from "src/hydrate/schema";
 
 describe("CollectionService", () => {
   let collectionService: CollectionService;
@@ -23,7 +23,7 @@ describe("CollectionService", () => {
         TaxiiConfigModule,
         rootMongooseTestModule(),
         MongooseModule.forFeature([
-          { name: TaxiiCollection.name, schema: TaxiiCollectionSchema },
+          { name: TaxiiCollectionEntity.name, schema: TaxiiCollectionSchema },
         ]),
       ],
       providers: [CollectionService, CollectionRepository],

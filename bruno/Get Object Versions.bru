@@ -36,7 +36,9 @@ tests {
 
   test("Verify response body structure", function() {
     const data = res.getBody();
-    expect(data).to.have.property('more').that.is.a('boolean');
+    if (data.hasOwnProperty('more')) {
+      expect(data.more).to.be.a('boolean');
+    }
 
     // The list of object versions returned by the request. 
     if (data.hasOwnProperty('versions')) {

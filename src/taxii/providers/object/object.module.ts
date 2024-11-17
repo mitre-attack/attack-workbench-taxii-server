@@ -6,7 +6,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import {
   AttackObjectSchema,
   AttackObjectEntity,
-} from "src/hydrate/collector/schema/attack-object.schema";
+} from "src/hydrate/schema/attack-object.schema";
 
 @Module({
   imports: [

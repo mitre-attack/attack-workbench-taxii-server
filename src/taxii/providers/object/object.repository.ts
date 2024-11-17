@@ -1,20 +1,16 @@
+// object.repository.ts
 import { Injectable } from "@nestjs/common";
 import { TaxiiLoggerService as Logger } from "src/common/logger";
 import { InjectModel } from "@nestjs/mongoose";
 import {
   AttackObjectEntity,
   AttackObjectDocument,
-} from "src/hydrate/collector/schema/attack-object.schema";
+} from "src/hydrate/schema/attack-object.schema";
 import { Model } from "mongoose";
 import { TaxiiNotFoundException } from "src/common/exceptions";
 
 @Injectable()
 export class ObjectRepository {
-  /**
-   * Instantiates an instance of the ObjectRepository service class
-   * @param logger
-   * @param attackObjectsModel
-   */
   constructor(
     private readonly logger: Logger,
     @InjectModel(AttackObjectEntity.name)
@@ -24,16 +20,21 @@ export class ObjectRepository {
   }
 
   /**
-   * Get an iterable stream of STIX objects from the database
-   * @param collectionId Specifies the collection of objects that should be returned
+   * Get an iterable stream of active STIX objects from a specific collection.
+   * Objects are returned in ascending order by creation date per TAXII spec.
+   * 
+   * @param collectionId TAXII/STIX ID of the collection
+   * @returns AsyncIterableIterator of AttackObjectEntity
    */
   async *findByCollectionId(
     collectionId: string
   ): AsyncIterableIterator<AttackObjectEntity> {
     const cursor = this.attackObjectsModel
       .find({
-        collection_id: collectionId,
+        '_meta.collectionRef.id': collectionId,
+        '_meta.active': true
       })
+      .sort({ '_meta.createdAt': 1 }) // Uses taxii_object_sorting index
       .cursor();
 
     for (
@@ -50,32 +51,31 @@ export class ObjectRepository {
   }
 
   /**
-   * Get the latest version of a STIX object
-   * @param collectionId Collection identifier of the requested STIX object
-   * @param objectId Identifier of the requested object
-   // * @param versions
+   * Get the latest version of a STIX object from a specific collection.
+   * 
+   * @param collectionId TAXII/STIX ID of the collection
+   * @param objectId STIX ID of the requested object
+   * @returns Promise resolving to array of matching objects (for version history support)
+   * @throws TaxiiNotFoundException if no matching objects are found
    */
   async findOne(
     collectionId: string,
     objectId: string
-    // versions = false
   ): Promise<AttackObjectEntity[]> {
-    // Begin by retrieving all documents that match the specified object parameters
-
+    // Uses taxii_object_lookup index
     const attackObjects: AttackObjectEntity[] = await this.attackObjectsModel
       .find({
-        collection_id: collectionId,
-        "stix.id": { $eq: objectId },
+        '_meta.collectionRef.id': collectionId,
+        'stix.id': objectId,
+        '_meta.active': true
       })
+      .sort({ '_meta.createdAt': 1 })
       .exec();
-
-    // Raise an exception if an empty array was received. We need at least one object to process anything. Something is
-    // probably broken if an empty array is getting passed around.
 
     if (attackObjects.length === 0) {
       throw new TaxiiNotFoundException({
         title: "No Objects Found",
-        description: "No objects matching the specified filters were found.",
+        description: `No objects found with ID '${objectId}' in collection '${collectionId}'`,
       });
     }
 

@@ -1,7 +1,7 @@
 # TAXII 2.1 API User Guide
 
 > [!WARNING]
-> The TAXII server hosted at `https://attack-taxii.mitre.org` is rate limited to only accept 10 requests per 10 minute period.
+> The TAXII server hosted at `https://attack-taxii.mitre.org` is rate limited to only accept 10 requests per 10 minute period per source IP address.
 > If you find yourself needing to query ATT&CK's content more frequently, please consider downloading the STIX/JSON bundles
 > and parsing them directly. More information on this process can be found [here](https://github.com/mitre-attack/attack-stix-data/blob/master/USAGE.md)
 

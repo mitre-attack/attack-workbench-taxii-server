@@ -67,10 +67,9 @@ the TAXII server. The ATT&CK Workbench consists of the following software compon
 
 - [ATT&CK Workbench Frontend](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend): The front-end user interface for the ATT&CK Workbench tool, and the primary interface through which the knowledge base is accessed.
 - [ATT&CK Workbench REST API](https://github.com/center-for-threat-informed-defense/attack-workbench-rest-api): REST API service for storing, querying and editing ATT&CK objects.
-- [ATT&CK Workbench Collection Manager](https://github.com/center-for-threat-informed-defense/attack-workbench-collection-manager): REST API service for managing collections, collection indexes, and collection subscriptions. The collection manager is **not** required to be installed to use the ATT&CK Workbench, but is **highly recommended**.
 
 Each of the aforementioned repositories contains their own respective deployment instructions. However, the easiest way
-to deploy the entire ATT&CK Workbench is via the [Docker Compose](https://github.com/center-for-threat-informed-defense/attack-workbench-frontend/blob/master/docs/docker-compose.md) contained in the front-end repository.
+to deploy the entire ATT&CK Workbench is via the [Docker Compose](https://github.com/mitre-attack/attack-workbench-deployment) contained in the deployment repository.
 
 ### Docker
 

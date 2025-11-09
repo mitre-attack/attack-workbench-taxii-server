@@ -1,6 +1,7 @@
 export const DEFAULT_ENV = "dev";
 export const DEFAULT_APP_ADDRESS = "0.0.0.0";
-export const DEFAULT_APP_PORT = 5002;
+export const DEFAULT_APP_PORT = 8000;
+export const DEFAULT_APP_PORT_HTTPS = 8443;
 export const DEFAULT_MAX_CONTENT_LENGTH = 1000;
 export const DEFAULT_API_ROOT_PATH = "/api/v21";
 export const DEFAULT_API_ROOT_TITLE = "MITRE ATT&CK TAXII 2.1";
@@ -13,6 +14,6 @@ export const DEFAULT_WORKBENCH_AUTH_HEADER =
   "dGF4aWktc2VydmVyOnNlY3JldC1zcXVpcnJlbA=="; // taxii-server:secret-squirrel
 export const DEFAULT_LOG_LEVEL = "info";
 export const DEFAULT_LOG_TO_FILE = false;
-export const DEFAULT_HTTPS_ENABLED = true;
+export const DEFAULT_HTTPS_ENABLED = false;
 export const DEFAULT_MONGO_URI = `mongodb://localhost/taxii`;
 export const DEFAULT_HYDRATE_ON_BOOT = false;

@@ -52,6 +52,10 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
     return this.configService.get<number>("app.port");
   }
 
+  get APP_PORT_HTTPS(): number {
+    return this.configService.get<number>("app.portHttps");
+  }
+
   get MAX_CONTENT_LENGTH(): number {
     return this.configService.get<number>("app.maxContentLength");
   }

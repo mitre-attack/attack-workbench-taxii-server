@@ -15,5 +15,5 @@ export const DEFAULT_WORKBENCH_AUTH_HEADER =
 export const DEFAULT_LOG_LEVEL = "info";
 export const DEFAULT_LOG_TO_FILE = false;
 export const DEFAULT_HTTPS_ENABLED = false;
-export const DEFAULT_MONGO_URI = `mongodb://localhost/taxii`;
+export const DEFAULT_MONGO_URI = `mongodb://localhost:27017/taxii`;
 export const DEFAULT_HYDRATE_ON_BOOT = false;

@@ -50,7 +50,7 @@ dockerRunOnMacOrWindows () {
   if [[ "${TAXII_HTTPS}" == "true" ]]; then
       echo "HTTPS will be enabled..."
       docker run \
-          -p $TAXII_APP_PORT:8000 \
+          -p $TAXII_APP_PORT_HTTPS:8443 \
           --name taxii \
           attack-workbench-taxii-server
   else

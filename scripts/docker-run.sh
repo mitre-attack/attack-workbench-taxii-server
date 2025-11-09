@@ -22,9 +22,9 @@ cd ..
 # Start the container
 docker run \
   -d \
-  -p 5001:5001 \
+  -p 8000:8000 \
   -e "TAXII_ENV=${TAXII_ENV}" \
   --network="attack-workbench-deployment_default" \
   -v "${PWD}"/config:/app/config \
-  --name attack-workbench-taxii-server \
+  --name taxii \
   attack-workbench-taxii-server

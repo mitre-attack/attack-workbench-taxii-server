@@ -15,7 +15,7 @@ export class RequestContextMiddleware<T extends RequestContextModel>
 {
   constructor(
     @Inject(REQUEST_CONTEXT_MODULE_OPTIONS)
-    private readonly options: RequestContextModuleOptions<T>
+    private readonly options: RequestContextModuleOptions<T>,
   ) {}
 
   use(req: Request, res: Response, next: NextFunction): void {
@@ -28,7 +28,7 @@ export class RequestContextMiddleware<T extends RequestContextModel>
 }
 
 export function requestContextMiddleware<T extends RequestContextModel>(
-  contextClass: new () => T
+  contextClass: new () => T,
 ): (req: Request, res: Response, next: NextFunction) => void {
   return (req: Request, res: Response, next: NextFunction): void => {
     middleware(contextClass, req, res, next);
@@ -39,7 +39,7 @@ function middleware<T extends RequestContextModel>(
   contextClass: new () => T,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void {
   RequestContextModel.start(contextClass);
   next();

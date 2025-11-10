@@ -19,7 +19,7 @@ export interface RequestContextModuleOptions<T extends RequestContextModel> {
 })
 export class RequestContextModule implements NestModule {
   static forRoot<T extends RequestContextModel>(
-    options: RequestContextModuleOptions<T>
+    options: RequestContextModuleOptions<T>,
   ): DynamicModule {
     return {
       global: options.isGlobal,

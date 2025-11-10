@@ -11,7 +11,7 @@ export class ManifestService {
   constructor(
     private readonly logger: Logger,
     private readonly objectService: ObjectService,
-    private readonly paginationService: PaginationService
+    private readonly paginationService: PaginationService,
   ) {
     logger.setContext(ManifestService.name);
   }
@@ -21,7 +21,7 @@ export class ManifestService {
     addedAfter?: string,
     limit?: number,
     next?: number,
-    matches?: MatchDto[]
+    matches?: MatchDto[],
   ): Promise<ManifestDto> {
     const searchFilters = new ObjectFiltersDto({
       collectionId,
@@ -48,7 +48,7 @@ export class ManifestService {
     return await this.paginationService.getManifest(
       manifestRecords,
       limit,
-      next
+      next,
     );
   }
 }

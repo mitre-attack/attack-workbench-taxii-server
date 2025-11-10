@@ -22,7 +22,7 @@ export class SetResponseMediaType implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map(data => {
+      map((data) => {
         const req = context.switchToHttp().getRequest<Request>();
         const res = context.switchToHttp().getResponse<Response>();
 
@@ -40,7 +40,7 @@ export class SetResponseMediaType implements NestInterceptor {
         }
 
         return data;
-      })
+      }),
     );
   }
 }

@@ -18,7 +18,7 @@ export class ContentNegotiationMiddleware implements NestMiddleware {
 
     if (req.originalUrl.endsWith(this.HEALTH_CHECK_PATH)) {
       this.logger.debug(
-        `[${ctx["x-request-id"]}] Skipping content negotiation check on health check endpoint`
+        `[${ctx["x-request-id"]}] Skipping content negotiation check on health check endpoint`,
       );
       return next();
     }
@@ -28,7 +28,7 @@ export class ContentNegotiationMiddleware implements NestMiddleware {
 
     if (typeof mediaType === "undefined") {
       this.logger.error(
-        `[${ctx["x-request-id"]}] Request is missing Accept header.`
+        `[${ctx["x-request-id"]}] Request is missing Accept header.`,
       );
 
       throw new TaxiiNotAcceptableException({
@@ -50,7 +50,7 @@ export class ContentNegotiationMiddleware implements NestMiddleware {
         return next();
       } catch (error) {
         this.logger.error(
-          `[${ctx["x-request-id"]}] Error processing media type: ${error.message}`
+          `[${ctx["x-request-id"]}] Error processing media type: ${error.message}`,
         );
         throw error;
       }
@@ -73,9 +73,7 @@ export class ContentNegotiationMiddleware implements NestMiddleware {
     // The validation is now handled in the MediaTypeObject constructor
     // We just need to check if we got a valid MediaTypeObject
     if (!mediaType || !(mediaType instanceof MediaTypeObject)) {
-      this.logger.error(
-        `[${ctx["x-request-id"]}] Invalid media type object`
-      );
+      this.logger.error(`[${ctx["x-request-id"]}] Invalid media type object`);
 
       throw new TaxiiNotAcceptableException({
         title: "Invalid Accept header",
@@ -84,7 +82,7 @@ export class ContentNegotiationMiddleware implements NestMiddleware {
     }
 
     this.logger.debug(
-      `[${ctx["x-request-id"]}] The media type specified in the Accept header (${mediaType.toString()}) is valid`
+      `[${ctx["x-request-id"]}] The media type specified in the Accept header (${mediaType.toString()}) is valid`,
     );
   }
 }

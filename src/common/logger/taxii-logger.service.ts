@@ -57,7 +57,7 @@ export class TaxiiLoggerService extends ConsoleLogger {
         !!this.appConfigService.LOG_TO_FILE,
         !!this.appConfigService.LOG_TO_HTTP_HOST,
         !!this.appConfigService.LOG_TO_SLACK_URL,
-        !!this.appConfigService.LOG_TO_SENTRY_DSN
+        !!this.appConfigService.LOG_TO_SENTRY_DSN,
       );
     }
   }
@@ -139,7 +139,7 @@ export class TaxiiLoggerService extends ConsoleLogger {
     file = false,
     http = false,
     slack = false,
-    sentry = false
+    sentry = false,
   ): LoggerService {
     // Initialize Winston transports
     const transports = [];
@@ -152,11 +152,11 @@ export class TaxiiLoggerService extends ConsoleLogger {
           format: winston.format.combine(
             winston.format.timestamp(),
             winston.format.ms(),
-            winston.format.json()
+            winston.format.json(),
           ),
           filename: `taxii_server_${timestamp}.log`, // looks like taxii_server_2022-02-17.log
           level: logLevel,
-        })
+        }),
       );
     }
 
@@ -167,7 +167,7 @@ export class TaxiiLoggerService extends ConsoleLogger {
           host: this.appConfigService.LOG_TO_HTTP_HOST,
           port: this.appConfigService.LOG_TO_HTTP_PORT,
           path: this.appConfigService.LOG_TO_HTTP_PATH,
-        })
+        }),
       );
     }
 
@@ -177,7 +177,7 @@ export class TaxiiLoggerService extends ConsoleLogger {
       transports.push(
         new SlackHook({
           webhookUrl: this.appConfigService.LOG_TO_SLACK_URL, // e.g., 'https://hooks.slack.com/services/xxx/xxx/xxx/'
-        })
+        }),
       );
     }
 
@@ -190,7 +190,7 @@ export class TaxiiLoggerService extends ConsoleLogger {
             dsn: this.appConfigService.LOG_TO_SENTRY_DSN, // e.g., 'https://******@sentry.io/12345'
           },
           level: logLevel,
-        })
+        }),
       );
     }
 

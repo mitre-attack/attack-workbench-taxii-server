@@ -4,7 +4,12 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { HydrateConnectOptions } from "./interfaces/hydrate-connect.options";
 import { HydrateService } from "./hydrate.service";
 import { StixModule } from "../stix/stix.module";
-import { AttackObjectEntity, AttackObjectSchema, TaxiiCollectionEntity, TaxiiCollectionSchema } from "./schema";
+import {
+  AttackObjectEntity,
+  AttackObjectSchema,
+  TaxiiCollectionEntity,
+  TaxiiCollectionSchema,
+} from "./schema";
 import { HYDRATE_OPTIONS_TOKEN } from "./constants";
 
 @Global()
@@ -26,9 +31,9 @@ export class HydrateModule {
       providers: [
         {
           provide: HYDRATE_OPTIONS_TOKEN,
-          useValue: options
+          useValue: options,
         },
-        HydrateService
+        HydrateService,
       ],
       exports: [HydrateService],
     };

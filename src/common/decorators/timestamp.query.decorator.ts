@@ -26,5 +26,5 @@ export const TimestampQuery = createParamDecorator(
     // }
 
     return queryParam;
-  }
+  },
 );

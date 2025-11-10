@@ -1,5 +1,12 @@
 import { Expose } from "class-transformer";
-import { IsArray, IsBoolean, IsDate, IsNumber, IsString, IsUUID } from "class-validator";
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsNumber,
+  IsString,
+  IsUUID,
+} from "class-validator";
 import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
 import { StixGranularMarkingDto } from "./stix-granular-marking.dto";
 import { StixExternalReferencesDto } from "src/stix/dto/stix-external-references.dto";

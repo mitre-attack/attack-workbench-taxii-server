@@ -12,7 +12,7 @@ type BasicStixObject = {
   version: string;
   created: string;
   modified: string;
-}
+};
 
 @Injectable()
 export class FilterService {
@@ -22,7 +22,7 @@ export class FilterService {
 
   private isMatch(
     stixObject: BasicStixObject,
-    filters: ObjectFiltersDto
+    filters: ObjectFiltersDto,
   ): boolean {
     const { addedAfter, matches } = filters;
 
@@ -32,34 +32,52 @@ export class FilterService {
         const { id, type, version, spec_version } = match;
 
         /**
-         * For each property, we use the Array.some() method to check if any of the target 
-         * values match the corresponding property of the stixObject. 
-         * 
-         * If none of the target values match, the method returns false, indicating that 
+         * For each property, we use the Array.some() method to check if any of the target
+         * values match the corresponding property of the stixObject.
+         *
+         * If none of the target values match, the method returns false, indicating that
          * the object does not match the current match instance.
-         * 
-         * Multiple match instances are treated as an AND condition, while multiple 
-         * values within each match instance are treated as an OR condition, as per the 
+         *
+         * Multiple match instances are treated as an AND condition, while multiple
+         * values within each match instance are treated as an OR condition, as per the
          * TAXII 2.1 specification.
          */
 
         // check match[id]
-        if (id && !id.some((targetId) => this.hasMatchingId(stixObject, targetId))) {
+        if (
+          id &&
+          !id.some((targetId) => this.hasMatchingId(stixObject, targetId))
+        ) {
           return false;
         }
 
         // check match[type]
-        if (type && !type.some((targetType) => this.hasMatchingType(stixObject, targetType))) {
+        if (
+          type &&
+          !type.some((targetType) =>
+            this.hasMatchingType(stixObject, targetType),
+          )
+        ) {
           return false;
         }
 
         // check match[version]
-        if (version && !version.some((targetVersion) => this.hasMatchingVersion(stixObject, targetVersion))) {
+        if (
+          version &&
+          !version.some((targetVersion) =>
+            this.hasMatchingVersion(stixObject, targetVersion),
+          )
+        ) {
           return false;
         }
 
         // check match[spec_version]
-        if (spec_version && !spec_version.some((targetSpecVersion) => this.hasMatchingSpecVersion(stixObject, targetSpecVersion))) {
+        if (
+          spec_version &&
+          !spec_version.some((targetSpecVersion) =>
+            this.hasMatchingSpecVersion(stixObject, targetSpecVersion),
+          )
+        ) {
           return false;
         }
       }
@@ -75,7 +93,7 @@ export class FilterService {
 
   private hasMatchingId(
     stixObject: BasicStixObject,
-    targetId: string
+    targetId: string,
   ): boolean {
     // check match[id]
     if (targetId) {
@@ -88,7 +106,7 @@ export class FilterService {
 
   private hasMatchingType(
     stixObject: BasicStixObject,
-    targetType: string
+    targetType: string,
   ): boolean {
     if (targetType) {
       if (stixObject.type !== targetType) {
@@ -100,7 +118,7 @@ export class FilterService {
 
   private hasMatchingVersion(
     stixObject: BasicStixObject,
-    targetVersion: string
+    targetVersion: string,
   ): boolean {
     if (targetVersion) {
       if (stixObject.modified) {
@@ -126,7 +144,7 @@ export class FilterService {
    */
   private isCompliantWithSpecVersion(
     referenceObject: BasicStixObject,
-    targetSpecVersion: string
+    targetSpecVersion: string,
   ): boolean {
     if (targetSpecVersion === SPEC_VERSION.V20) {
       if (
@@ -165,7 +183,7 @@ export class FilterService {
    */
   private hasMatchingSpecVersion(
     stixObject: BasicStixObject,
-    targetSpecVersion: string
+    targetSpecVersion: string,
   ): boolean {
     if (isDefined(targetSpecVersion)) {
       switch (targetSpecVersion) {
@@ -225,7 +243,7 @@ export class FilterService {
     if (
       !this.isCompliantWithSpecVersion(
         stixObject,
-        SPEC_VERSION.DEFAULT_UNSPECIFIED
+        SPEC_VERSION.DEFAULT_UNSPECIFIED,
       )
     ) {
       return false;
@@ -242,11 +260,11 @@ export class FilterService {
    */
   filterObjects(
     stixObjects: BasicStixObject[],
-    filters?: ObjectFiltersDto
+    filters?: ObjectFiltersDto,
   ): Object[] {
     this.logger.debug(
       `Executing sortAscending with filters ${JSON.stringify(filters)}`,
-      this.constructor.name
+      this.constructor.name,
     );
 
     // Now that the list is sorted, filter (keep) objects that match any supplied filter arguments. Filter arguments
@@ -282,14 +300,14 @@ export class FilterService {
    */
   async filterObject(
     stixObject: BasicStixObject,
-    filters?: ObjectFiltersDto
+    filters?: ObjectFiltersDto,
   ): Promise<Object> {
     return new Promise((resolve, reject) => {
       if (filters) {
         // All checks passed! Store the object to return!
         if (!this.isMatch(stixObject, filters)) {
           return reject(
-            `STIX object with ID ${stixObject.id} did not meet one or more search filters`
+            `STIX object with ID ${stixObject.id} did not meet one or more search filters`,
           );
         }
 

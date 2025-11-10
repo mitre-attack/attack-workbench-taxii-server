@@ -29,5 +29,5 @@ export const NumberQuery = createParamDecorator(
     }
 
     return parsedNumber;
-  }
+  },
 );

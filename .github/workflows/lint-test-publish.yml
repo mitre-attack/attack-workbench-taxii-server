@@ -54,7 +54,7 @@ jobs:
         run: npm run lint
 
   # Job 3: Tests
-  regression-tests:
+  tests:
     runs-on: ubuntu-latest
     needs: [static-checks]
     steps:
@@ -75,6 +75,7 @@ jobs:
 
   # Job 4: Semantic Release and Docker Build
   publish:
+    needs: [tests]
     # Only run on pushes (not PRs) - semantic-release will determine whether to release
     if: github.event_name == 'push'
     runs-on: ubuntu-latest

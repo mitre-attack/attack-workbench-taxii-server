@@ -3,35 +3,116 @@ name: Build and Publish Docker Image
 on:
   push:
     branches:
-      - develop
-  release:
-    types: [published]
+      - main
+      - next
+      - next-major
+      - beta
+      - alpha
+      - '*.x'     # Matches branches like '1.x', '2.x'
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
 
 jobs:
+  # Job 1: Commit Linting
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history to check commit differences
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate all commits
+        run: npx commitlint --from ${{ github.event.pull_request.base.sha || github.event.before }} --to ${{ github.event.pull_request.head.sha || github.sha }} --verbose
+
+  # Job 2: Static Checks (Linting, Security Scanning)
+  static-checks:
+    needs: [commitlint]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+  # Job 3: Tests
+  regression-tests:
+    runs-on: ubuntu-latest
+    needs: [static-checks]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with code coverage
+        run: npm run test:cov
+
+  # Job 4: Semantic Release and Docker Build
   publish:
+    # Only run on pushes (not PRs) - semantic-release will determine whether to release
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     name: Publish Docker image to container registry
+    permissions:
+      contents: write         # To publish a GitHub release
+      packages: write         # To publish to GitHub Package registry
+      issues: write           # To comment on released issues
+      pull-requests: write    # To comment on released pull requests
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Extract tag name
-        if: github.event_name == 'release'
-        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
 
-      - name: Validate tag
-        if: github.event_name == 'release'
-        run: |
-          if ! [[ "${{ env.TAG }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]]; then
-            echo "Invalid tag format. The tag must follow the semantic versioning format: X.Y.Z or X.Y.Z-prerelease"
-            exit 1
-          fi
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true # Sets up docker build command as an alias to docker buildx
+          driver-opts: image=moby/buildkit:latest
+          platforms: linux/amd64,linux/arm64
 
-      - name: Build and publish Docker image
-        run: |
-          echo $GITHUB_TOKEN | docker login ghcr.io -u mitre-attack --password-stdin
-          docker build --no-cache --tag ghcr.io/mitre-attack/attack-workbench-taxii-server:${TAG:-latest} .
-          docker push ghcr.io/mitre-attack/attack-workbench-taxii-server:${TAG:-latest}
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Semantic Release
+        id: semantic
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ env.TAG }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # needed to authenticate with @codedependant/semantic-release-docker
+          DOCKER_REGISTRY_USER: ${{ github.repository_owner }}
+          DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          # Temporarily disables all Git hooks
+          HUSKY: 0
+        run: npx semantic-release

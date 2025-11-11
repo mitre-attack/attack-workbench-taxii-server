@@ -85,7 +85,7 @@ export async function bootstrap() {
         cert: tempConfigService.SSL_PUBLIC_KEY,
       };
       console.log(
-        `Starting the TAXII server at https://${tempConfigService.APP_ADDRESS}:${tempConfigService.APP_PORT_HTTPS}...`
+        `Starting the TAXII server at https://${tempConfigService.APP_ADDRESS}:${tempConfigService.APP_PORT_HTTPS}...`,
       );
       https
         .createServer(httpsOptions, server)

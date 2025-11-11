@@ -28,14 +28,15 @@ jobs:
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1
-        if: success() || failure()          # run this step even if previous step failed
+        if: ${{ success() || failure() }}   # run this step even if previous step failed
         with:
           name: Bruno API Tests             # Name of the check run which will be created
           path: bruno/report.xml            # Path to test results
           reporter: java-junit              # Format of test results
 
       - name: Notify Slack on failure
-        if: failure()
+        # if: ${{ failure() }}
+        if: ${{ success() }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |

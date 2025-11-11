@@ -5,6 +5,7 @@ export interface TaxiiConfigServiceInterface {
   createStixConnectOptions();
   get APP_ADDRESS();
   get APP_PORT();
+  get APP_PORT_HTTPS();
   get MAX_CONTENT_LENGTH();
   get API_ROOT_PATH();
   get API_ROOT_TITLE();

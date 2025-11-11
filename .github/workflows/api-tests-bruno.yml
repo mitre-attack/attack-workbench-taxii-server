@@ -48,7 +48,7 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": "*Bruno API Tests failed* in `${{ github.repository }}` on branch `${{ github.ref_name }}` by `${{ github.actor }}`"
+                  "text": "*Bruno API Tests failed* in `${{ github.repository }}` on branch `${{ github.ref_name }}` by `${{ github.actor }}`\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View run>"
                 }
               },
               {
@@ -57,16 +57,6 @@ jobs:
                   { "type": "mrkdwn", "text": "*Workflow:*\n${{ github.workflow }}" },
                   { "type": "mrkdwn", "text": "*Run ID:*\n${{ github.run_id }}" },
                   { "type": "mrkdwn", "text": "*Commit:*\n${{ github.sha }}" }
-                ]
-              },
-              {
-                "type": "actions",
-                "elements": [
-                  {
-                    "type": "button",
-                    "text": { "type": "plain_text", "text": "View run" },
-                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                  }
                 ]
               }
             ]

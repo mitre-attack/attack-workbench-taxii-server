@@ -35,8 +35,7 @@ jobs:
           reporter: java-junit              # Format of test results
 
       - name: Notify Slack on failure
-        # if: ${{ failure() }}
-        if: ${{ success() }}
+        if: ${{ failure() }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |

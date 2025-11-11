@@ -18,7 +18,7 @@ export class ManifestDto extends GenericPageDto {
   constructor(data?: ManifestDtoConstructor) {
     super({
       more: data?.more,
-      next: data?.next
+      next: data?.next,
     });
 
     this.objects = data.objects;

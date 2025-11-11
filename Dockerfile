@@ -29,8 +29,32 @@ RUN npm run build
 # keeping all the unnecessary bloat in the development image.
 FROM node:current-alpine3.14 AS production
 
+# Define build arguments
+ARG VERSION=dev
+ARG BUILDTIME=unknown
+ARG REVISION=unknown
+
+# Set version as environment variable for runtime access
+ENV APP_VERSION=$VERSION \
+    GIT_COMMIT=$REVISION \
+    BUILD_DATE=$BUILDTIME
+
 ARG TAXII_ENV=dev.local
 ENV TAXII_ENV=${TAXII_ENV}
+
+# Set Docker labels
+LABEL org.opencontainers.image.title="ATT&CK Workbench TAXII Server" \
+    org.opencontainers.image.description="This Docker image contains the TAXII 2.1 integration of the ATT&CK Workbench, an application for exploring, creating, annotating, and sharing extensions of the MITRE ATT&CK® knowledge base." \
+    org.opencontainers.image.source="https://github.com/mitre-attack/attack-workbench-taxii-server" \
+    org.opencontainers.image.documentation="https://github.com/mitre-attack/attack-workbench-taxii-server/README.md" \
+    org.opencontainers.image.url="https://ghcr.io/mitre-attack/attack-workbench-taxii-server" \
+    org.opencontainers.image.vendor="The MITRE Corporation" \
+    org.opencontainers.image.licenses="Apache-2.0" \
+    org.opencontainers.image.authors="MITRE ATT&CK<attack@mitre.org>" \
+    org.opencontainers.image.version="${VERSION}" \
+    org.opencontainers.image.created="${BUILDTIME}" \
+    org.opencontainers.image.revision="${REVISION}" \
+    maintainer="MITRE ATT&CK<attack@mitre.org>"
 
 WORKDIR /app
 

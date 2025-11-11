@@ -3,17 +3,23 @@
 name: API Tests - Bruno
 
 on:
+  schedule:
+    # every hour at minute 0 (UTC)
+    - cron: "0 * * * *"
   workflow_dispatch:
+
 permissions:
   contents: read
   actions: read
   checks: write
+
 jobs:
   run_bruno_api_test:
     name: API Tests by Bruno
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Install dependencies and run tests
         run: |
           cd bruno
@@ -25,5 +31,45 @@ jobs:
         if: success() || failure()          # run this step even if previous step failed
         with:
           name: Bruno API Tests             # Name of the check run which will be created
-          path: bruno/report.xml                  # Path to test results
+          path: bruno/report.xml            # Path to test results
           reporter: java-junit              # Format of test results
+
+      - name: Notify Slack on failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          payload=$(cat << 'EOF'
+          {
+            "text": "Bruno API Tests failed",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*Bruno API Tests failed* in `${{ github.repository }}` on branch `${{ github.ref_name }}` by `${{ github.actor }}`"
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  { "type": "mrkdwn", "text": "*Workflow:*\n${{ github.workflow }}" },
+                  { "type": "mrkdwn", "text": "*Run ID:*\n${{ github.run_id }}" },
+                  { "type": "mrkdwn", "text": "*Commit:*\n${{ github.sha }}" }
+                ]
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": { "type": "plain_text", "text": "View run" },
+                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+          )
+          curl -X POST -H 'Content-type: application/json' --data "$payload" "$SLACK_WEBHOOK_URL"

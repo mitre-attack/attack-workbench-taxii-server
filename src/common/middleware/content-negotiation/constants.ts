@@ -4,7 +4,7 @@ import { MediaTypeObject } from "./media-type-object";
  * DEFAULT_MEDIA_TYPE is reported by the 'Get API Root Information endpoint'
  */
 const DEFAULT_MEDIA_TYPE = new MediaTypeObject(
-  "application/taxii+json;version=2.1"
+  "application/taxii+json;version=2.1",
 );
 Object.freeze(DEFAULT_MEDIA_TYPE);
 

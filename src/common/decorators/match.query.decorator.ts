@@ -11,5 +11,5 @@ export const MatchQuery = createParamDecorator(
       return new MatchDto(request.query[data]);
     }
     return undefined;
-  }
+  },
 );

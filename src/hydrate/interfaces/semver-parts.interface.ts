@@ -6,7 +6,7 @@
  * @property {number} patch - The patch version number
  */
 export interface SemverParts {
-    major: number;
-    minor: number;
-    patch: number;
+  major: number;
+  minor: number;
+  patch: number;
 }

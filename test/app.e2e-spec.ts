@@ -25,7 +25,7 @@ function formatError(err: Error, res: Response) {
   return `${err.message}\n\nResponse Headers: ${JSON.stringify(
     res.headers,
     null,
-    2
+    2,
   )}\n\nResponse Body: ${JSON.stringify(res.body, null, 2)}`;
 }
 
@@ -52,7 +52,7 @@ describe("TAXII 2.1 REST API", () => {
         AppModule.register(
           tempConfigService
             .get<TaxiiConfigService>(TaxiiConfigService)
-            .createAppConnectOptions()
+            .createAppConnectOptions(),
         ),
       ],
     }).compile();
@@ -115,7 +115,7 @@ describe("TAXII 2.1 REST API", () => {
           try {
             expect(res.statusCode).toEqual(200);
             expect(res.body).toEqual(
-              app.get(DiscoveryService).findApiRootInformation()
+              app.get(DiscoveryService).findApiRootInformation(),
             );
           } catch (err) {
             err.message = formatError(err, res);
@@ -139,7 +139,7 @@ describe("TAXII 2.1 REST API", () => {
             expect(res.statusCode).toEqual(200);
             expect(res.headers["content-type"]).toBeDefined();
             expect(res.headers["content-type"]).toEqual(
-              "application/taxii+json; charset=utf-8; version=2.1"
+              "application/taxii+json; charset=utf-8; version=2.1",
             );
           } catch (err) {
             err.message = formatError(err, res);
@@ -161,7 +161,7 @@ describe("TAXII 2.1 REST API", () => {
             expect(res.statusCode).toEqual(200);
             expect(res.headers["content-type"]).toBeDefined();
             expect(res.headers["content-type"]).toEqual(
-              "application/taxii+json; charset=utf-8; version=2.1"
+              "application/taxii+json; charset=utf-8; version=2.1",
             );
           } catch (err) {
             err.message = formatError(err, res);
@@ -183,7 +183,7 @@ describe("TAXII 2.1 REST API", () => {
             expect(res.statusCode).toEqual(200);
             expect(res.headers["content-type"]).toBeDefined();
             expect(res.headers["content-type"]).toEqual(
-              "application/taxii+json; charset=utf-8; version=2.1"
+              "application/taxii+json; charset=utf-8; version=2.1",
             );
             expect(res.headers["x-taxii-date-added-first"]).toBeDefined();
             expect(res.headers["x-taxii-date-added-last"]).toBeDefined();
@@ -207,7 +207,7 @@ describe("TAXII 2.1 REST API", () => {
             expect(res.statusCode).toEqual(200);
             expect(res.headers["content-type"]).toBeDefined();
             expect(res.headers["content-type"]).toEqual(
-              "application/taxii+json; charset=utf-8; version=2.1"
+              "application/taxii+json; charset=utf-8; version=2.1",
             );
             expect(res.headers["x-taxii-date-added-first"]).toBeDefined();
             expect(res.headers["x-taxii-date-added-last"]).toBeDefined();
@@ -225,7 +225,7 @@ describe("TAXII 2.1 REST API", () => {
     it("Get an Object :: GET {api-root}/collections/{collection-id}/objects/{object-id}/", (done) => {
       request(app.getHttpServer())
         .get(
-          `/collections/${ENTERPRISE_ATTACK_COLLECTION_ID}/objects/${OBJECT_ID}/`
+          `/collections/${ENTERPRISE_ATTACK_COLLECTION_ID}/objects/${OBJECT_ID}/`,
         )
         .set(commonHeaders)
         .end((err, res) => {
@@ -233,7 +233,7 @@ describe("TAXII 2.1 REST API", () => {
             expect(res.statusCode).toEqual(200);
             expect(res.headers["content-type"]).toBeDefined();
             expect(res.headers["content-type"]).toEqual(
-              "application/taxii+json; charset=utf-8; version=2.1"
+              "application/taxii+json; charset=utf-8; version=2.1",
             );
             expect(res.headers["x-taxii-date-added-first"]).toBeDefined();
             expect(res.headers["x-taxii-date-added-last"]).toBeDefined();
@@ -269,7 +269,7 @@ describe("TAXII 2.1 REST API", () => {
     it("Delete an Object :: DELETE {api-root}/collections/{collection-id}/objects/{object-id}/", (done) => {
       request(app.getHttpServer())
         .delete(
-          `/collections/${ENTERPRISE_ATTACK_COLLECTION_ID}/objects/${OBJECT_ID}/`
+          `/collections/${ENTERPRISE_ATTACK_COLLECTION_ID}/objects/${OBJECT_ID}/`,
         )
         .set(commonHeaders)
         .end((err, res) => {
@@ -289,7 +289,7 @@ describe("TAXII 2.1 REST API", () => {
     it("Get Object Versions :: GET {api-root}/collections/{collection-id}/objects/{object-id}/versions/", (done) => {
       request(app.getHttpServer())
         .get(
-          `/collections/${ENTERPRISE_ATTACK_COLLECTION_ID}/objects/${OBJECT_ID}/versions/`
+          `/collections/${ENTERPRISE_ATTACK_COLLECTION_ID}/objects/${OBJECT_ID}/versions/`,
         )
         .set(commonHeaders)
         .end((err, res) => {
@@ -297,7 +297,7 @@ describe("TAXII 2.1 REST API", () => {
             expect(res.statusCode).toEqual(200);
             expect(res.headers["content-type"]).toBeDefined();
             expect(res.headers["content-type"]).toEqual(
-              "application/taxii+json; charset=utf-8; version=2.1"
+              "application/taxii+json; charset=utf-8; version=2.1",
             );
             expect(res.headers["x-taxii-date-added-first"]).toBeDefined();
             expect(res.headers["x-taxii-date-added-last"]).toBeDefined();
@@ -322,7 +322,7 @@ describe("TAXII 2.1 REST API", () => {
             expect(res.statusCode).toEqual(200);
             expect(res.headers["content-type"]).toBeDefined();
             expect(res.headers["content-type"]).toEqual(
-              "application/taxii+json; charset=utf-8; version=2.1"
+              "application/taxii+json; charset=utf-8; version=2.1",
             );
             expect(res.headers["x-taxii-date-added-first"]).toBeDefined();
             expect(res.headers["x-taxii-date-added-last"]).toBeDefined();

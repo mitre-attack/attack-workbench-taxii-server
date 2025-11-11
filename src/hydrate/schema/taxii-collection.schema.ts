@@ -11,7 +11,9 @@ export class WorkbenchCollectionEntity {
   modified: Date;
 }
 
-export const WorkbenchCollectionSchema = SchemaFactory.createForClass(WorkbenchCollectionEntity);
+export const WorkbenchCollectionSchema = SchemaFactory.createForClass(
+  WorkbenchCollectionEntity,
+);
 
 @Schema()
 export class CollectionMetaDataEntity {
@@ -25,7 +27,9 @@ export class CollectionMetaDataEntity {
   active: boolean;
 }
 
-export const CollectionMetaDataSchema = SchemaFactory.createForClass(CollectionMetaDataEntity);
+export const CollectionMetaDataSchema = SchemaFactory.createForClass(
+  CollectionMetaDataEntity,
+);
 
 @Schema({
   collection: "collection-resources",
@@ -62,22 +66,24 @@ export class TaxiiCollectionEntity {
 
 export type TaxiiCollectionDocument = TaxiiCollectionEntity & Document;
 
-export const TaxiiCollectionSchema = SchemaFactory.createForClass(TaxiiCollectionEntity);
+export const TaxiiCollectionSchema = SchemaFactory.createForClass(
+  TaxiiCollectionEntity,
+);
 
 // Required for "Get A Collection" endpoint
 TaxiiCollectionSchema.index(
-  { id: 1, '_meta.active': 1 },
+  { "id": 1, "_meta.active": 1 },
   {
     background: true,
-    name: 'taxii_collection_lookup'
-  }
+    name: "taxii_collection_lookup",
+  },
 );
 
 // Required for collision detection in hydration
 TaxiiCollectionSchema.index(
-  { title: 1, '_meta.active': 1 },
+  { "title": 1, "_meta.active": 1 },
   {
     background: true,
-    name: 'collection_title_lookup'
-  }
+    name: "collection_title_lookup",
+  },
 );

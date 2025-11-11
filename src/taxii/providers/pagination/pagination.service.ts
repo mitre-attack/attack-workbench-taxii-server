@@ -17,7 +17,7 @@ export class PaginationService {
    * Handles pagination of STIX object, manifest-record, and version string arrays. This is where all pagination logic
    * lives. The other class methods (which are public) call this method to process pages. They themselves just
    * transform the generic response object to their respective resource types.
-   * 
+   *
    * Example pagination:
    * all_objects = [a,b,c,d,e,f,g], length=7
    * limit=2, next=2
@@ -32,7 +32,7 @@ export class PaginationService {
    * - (limit) + (limit*next) < objects.length
    * - (2) + (2*2) < 7
    * - 6 < 7
-   * 
+   *
    * @param items Array of items to paginate
    * @param limit The number of items that should be included on the page
    * @param next Specifies which page is being requested
@@ -41,7 +41,7 @@ export class PaginationService {
   private async getPage<T>(
     items: T[],
     limit?: number,
-    next?: number
+    next?: number,
   ): Promise<{ more?: boolean; next?: string; items: T[] }> {
     // Pagination can only occur if `limit` is defined and valid
     if (isNumber(limit)) {
@@ -52,7 +52,7 @@ export class PaginationService {
           return {
             more: isMore,
             next: isMore ? String(next + 1) : undefined,
-            items: items.slice(limit * next, limit + limit * next)
+            items: items.slice(limit * next, limit + limit * next),
           };
         }
         // The values for `next` and `limit` are invalid for the selected items array.
@@ -67,12 +67,12 @@ export class PaginationService {
       return {
         more: isMore,
         next: isMore ? "1" : undefined,
-        items: items.slice(0, limit)
+        items: items.slice(0, limit),
       };
     }
     // Return all items if no pagination parameters specified
     return {
-      items
+      items,
     };
   }
 
@@ -85,13 +85,13 @@ export class PaginationService {
   async getEnvelope(
     objects: Object[],
     limit?: number,
-    next?: number
+    next?: number,
   ): Promise<EnvelopeDto> {
     const page = await this.getPage(objects, limit, next);
     return new EnvelopeDto({
       more: page.more,
       next: page.next,
-      objects: page.items
+      objects: page.items,
     });
   }
 
@@ -104,13 +104,13 @@ export class PaginationService {
   async getManifest(
     objects: ManifestRecordDto[],
     limit?: number,
-    next?: number
+    next?: number,
   ): Promise<ManifestDto> {
     const page = await this.getPage(objects, limit, next);
     return new ManifestDto({
       more: page.more,
       next: page.next,
-      objects: page.items
+      objects: page.items,
     });
   }
 
@@ -123,13 +123,13 @@ export class PaginationService {
   async getVersion(
     versions: string[],
     limit?: number,
-    next?: number
+    next?: number,
   ): Promise<VersionsDto> {
     const page = await this.getPage(versions, limit, next);
     return new VersionsDto({
       more: page.more,
       next: page.next,
-      versions: page.items
+      versions: page.items,
     });
   }
 }

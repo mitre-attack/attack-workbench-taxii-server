@@ -1,6 +1,9 @@
 # User sensitive environment variables
 /config/
 
+# bruno generated test report
+/bruno/report.xml
+
 # Created by https://www.toptal.com/developers/gitignore/api/node,jetbrains,macos,windows,web,webstorm,certificates
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,jetbrains,macos,windows,web,webstorm,certificates
 

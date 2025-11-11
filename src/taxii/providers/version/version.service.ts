@@ -12,7 +12,7 @@ export class VersionService {
   constructor(
     private readonly logger: Logger,
     private readonly objectService: ObjectService,
-    private readonly paginationService: PaginationService
+    private readonly paginationService: PaginationService,
   ) {
     logger.setContext(VersionService.name);
   }
@@ -23,7 +23,7 @@ export class VersionService {
     addedAfter?: string,
     limit?: number,
     next?: number,
-    matches?: MatchDto[]
+    matches?: MatchDto[],
   ) {
     const filters = new ObjectFiltersDto({
       collectionId,
@@ -38,8 +38,11 @@ export class VersionService {
 
     // Retrieve the STIX object from the connected STIX repository.
     // TODO cast `objects` this to correct type when attack-data-model is integrated
-    const objects: { [key: string]: any }[] =
-      await this.objectService.findOne(collectionId, objectId, filters);
+    const objects: { [key: string]: any }[] = await this.objectService.findOne(
+      collectionId,
+      objectId,
+      filters,
+    );
 
     /**
      * Extract the version string of the object(s) that are being requested.
@@ -57,7 +60,7 @@ export class VersionService {
     const objectVersions: string[] = objects.map((object) =>
       object.modified
         ? new Date(object.modified).toISOString()
-        : new Date(object.created).toISOString()
+        : new Date(object.created).toISOString(),
     );
 
     if (!objectVersions) {

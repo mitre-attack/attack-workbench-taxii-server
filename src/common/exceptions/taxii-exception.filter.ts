@@ -1,4 +1,4 @@
-import { ArgumentsHost, ExceptionFilter, Logger } from "@nestjs/common";
+import { ArgumentsHost, ExceptionFilter, HttpException, Logger } from "@nestjs/common";
 import { Response } from "express";
 import { DEFAULT_MEDIA_TYPE } from "../middleware/content-negotiation/constants";
 import {
@@ -53,6 +53,32 @@ export class TaxiiExceptionFilter implements ExceptionFilter {
       const body = JSON.stringify(exception);
       response.removeHeader('Content-Type');
       response.status(exception.httpStatus);
+      response.setHeader('Content-Type', DEFAULT_MEDIA_TYPE.toString());
+      response.setHeader('Content-Length', Buffer.byteLength(body));
+      response.end(body);
+      return;
+    }
+
+    // Handle NestJS HttpExceptions (like NotFoundException, BadRequestException, etc.)
+    if (exception instanceof HttpException) {
+      const status = exception.getStatus();
+      const exceptionResponse = exception.getResponse();
+
+      // Format the response in TAXII error format
+      const taxiiError = {
+        title: typeof exceptionResponse === 'object' && 'error' in exceptionResponse
+          ? (exceptionResponse as any).error
+          : exception.name,
+        description: typeof exceptionResponse === 'object' && 'message' in exceptionResponse
+          ? (exceptionResponse as any).message
+          : exception.message,
+        error_id: requestId.toString(),
+        http_status: status.toString(),
+      };
+
+      const body = JSON.stringify(taxiiError);
+      response.removeHeader('Content-Type');
+      response.status(status);
       response.setHeader('Content-Type', DEFAULT_MEDIA_TYPE.toString());
       response.setHeader('Content-Length', Buffer.byteLength(body));
       response.end(body);

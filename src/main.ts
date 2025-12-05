@@ -59,7 +59,7 @@ export async function bootstrap() {
   });
 
   // ** Disable Express default headers ** //
-  server.disable('x-powered-by');
+  server.disable("x-powered-by");
 
   // ** Specify maximum request body size ** //
   app.use(express.json({ limit: tempConfigService.MAX_CONTENT_LENGTH }));

@@ -72,7 +72,7 @@ export const TaxiiCollectionSchema = SchemaFactory.createForClass(
 
 // Required for "Get A Collection" endpoint
 TaxiiCollectionSchema.index(
-  { "id": 1, "_meta.active": 1 },
+  { id: 1, "_meta.active": 1 },
   {
     background: true,
     name: "taxii_collection_lookup",
@@ -81,7 +81,7 @@ TaxiiCollectionSchema.index(
 
 // Required for collision detection in hydration
 TaxiiCollectionSchema.index(
-  { "title": 1, "_meta.active": 1 },
+  { title: 1, "_meta.active": 1 },
   {
     background: true,
     name: "collection_title_lookup",

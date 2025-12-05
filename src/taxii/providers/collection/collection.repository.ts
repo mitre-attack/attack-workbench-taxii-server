@@ -32,7 +32,7 @@ export class CollectionRepository {
     // Uses taxii_collection_lookup index
     const response: TaxiiCollectionEntity = await this.collectionModel
       .findOne({
-        "id": id,
+        id: id,
         "_meta.active": true,
       })
       .exec();

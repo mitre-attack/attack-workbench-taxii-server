@@ -10,13 +10,19 @@ get {
   auth: none
 }
 
+query {
+  ~limit: 1
+  ~next: 1
+  ~match[spec_version]: 2.1
+}
+
 headers {
   Accept: application/taxii+json;version=2.1
 }
 
 vars:pre-request {
-  collectionId: x-mitre-collection--dac0d2d7-8653-445c-9bff-82f934c1e858
-  objectId: identity--c78cb6e5-0c4b-4611-8297-d1b8b55e40b5
+  collectionId: x-mitre-collection--1f5f1533-f617-4ca8-9ab4-6a02367fa019
+  objectId: attack-pattern--00f90846-cbd1-4fc5-9233-df5c2bf2a662
 }
 
 tests {

@@ -5,17 +5,18 @@ meta {
 }
 
 get {
-  url: {{host}}/api/v21/collections/{{collectionId}}/objects?limit=100
+  url: {{host}}/api/v21/collections/{{collectionId}}/objects
   body: none
   auth: none
 }
 
 query {
-  limit: 100
+  ~limit: 100
+  ~match[type]: x-mitre-matrix
+  ~match[spec_version]: 2.1
+  ~next: 2
   ~added_after: 2024-01-01
-  ~match[type]: tool
   ~match[type]: intrusion-set,tool
-  ~next: 1
   ~match[type]: intrusion-set
 }
 
@@ -24,8 +25,8 @@ headers {
 }
 
 vars:pre-request {
-  collectionId: x-mitre-collection--dac0d2d7-8653-445c-9bff-82f934c1e858
-  ~collectionId: x-mitre-collection--1f5f1533-f617-4ca8-9ab4-6a02367fa019
+  collectionId: x-mitre-collection--1f5f1533-f617-4ca8-9ab4-6a02367fa019
+  ~collectionId: x-mitre-collection--90c00720-636b-4485-b342-8751d232bf09
 }
 
 tests {
@@ -34,13 +35,13 @@ tests {
   test("Verify response status code", function() {
     expect(res.getStatus()).to.equal(200);
   });
-
+  
   test("Verify response content type", function() {
     const contentType = res.getHeader('content-type');
     expect(contentType).to.include('application/taxii+json');
     expect(contentType).to.include('version=2.1');
   });
-
+  
   test("Verify response body structure", function() {
     const data = res.getBody();
     expect(data).to.have.property('more').that.is.a('boolean');
@@ -50,11 +51,11 @@ tests {
       expect(data).to.have.property('next').that.is.a('string');
     }
   });
-
+  
   test("Verify objects properties", function() {
     const data = res.getBody();
     const failedObjects = [];
-
+  
     data.objects.forEach((obj, index) => {
       try {
         validateObject(obj);
@@ -66,13 +67,13 @@ tests {
         });
       }
     });
-
+  
     if (failedObjects.length > 0) {
       const failureMessage = `${failedObjects.length} object(s) failed validation:\n\n` +
         failedObjects.map(failedObj => {
           return `Index: ${failedObj.index}\nObject: ${JSON.stringify(failedObj.object)}\nError: ${failedObj.error}\n`;
         }).join('\n');
-
+  
       throw new Error(failureMessage);
     }
   });

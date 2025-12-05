@@ -1,5 +1,9 @@
 import { TaxiiBadRequestException } from "src/common/exceptions";
-import { SupportedMediaTypes, SupportedMediaSubTypes, SupportedMediaVersion } from "./supported-media-types";
+import {
+  SupportedMediaTypes,
+  SupportedMediaSubTypes,
+  SupportedMediaVersion,
+} from "./supported-media-types";
 
 export interface ParsedMediaTypeFields {
   type: SupportedMediaTypes;
@@ -17,7 +21,8 @@ export class MediaTypeObject {
    * @param mediaType A string-formatted RFC-6838 Media Type
    */
   constructor(acceptHeader: string) {
-    const parsed: ParsedMediaTypeFields = MediaTypeObject.parseAcceptHeader(acceptHeader);
+    const parsed: ParsedMediaTypeFields =
+      MediaTypeObject.parseAcceptHeader(acceptHeader);
     this._type = parsed.type;
     this._subType = parsed.subType;
     this._version = parsed.version;
@@ -50,13 +55,19 @@ export class MediaTypeObject {
     };
   }
 
-  private static parseAcceptHeader(acceptHeader: string): ParsedMediaTypeFields {
+  private static parseAcceptHeader(
+    acceptHeader: string,
+  ): ParsedMediaTypeFields {
     const parsed = {} as ParsedMediaTypeFields;
 
     const typeAndSubType: string[] = acceptHeader.split("/");
 
     // Validate and convert type to enum
-    if (!Object.values(SupportedMediaTypes).includes(typeAndSubType[0] as SupportedMediaTypes)) {
+    if (
+      !Object.values(SupportedMediaTypes).includes(
+        typeAndSubType[0] as SupportedMediaTypes,
+      )
+    ) {
       throw new TaxiiBadRequestException({
         title: "Unsupported Media Type",
         description: `${typeAndSubType[0]} is not a supported media type`,
@@ -68,7 +79,11 @@ export class MediaTypeObject {
       const subTypeAndVersion: string[] = typeAndSubType[1].split(";");
 
       // Validate and convert subType to enum
-      if (!Object.values(SupportedMediaSubTypes).includes(subTypeAndVersion[0] as SupportedMediaSubTypes)) {
+      if (
+        !Object.values(SupportedMediaSubTypes).includes(
+          subTypeAndVersion[0] as SupportedMediaSubTypes,
+        )
+      ) {
         throw new TaxiiBadRequestException({
           title: "Unsupported Media SubType",
           description: `${subTypeAndVersion[0]} is not a supported media subtype`,

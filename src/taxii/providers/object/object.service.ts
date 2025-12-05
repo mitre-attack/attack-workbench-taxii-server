@@ -14,13 +14,13 @@ export class ObjectService {
   constructor(
     private readonly logger: Logger,
     private readonly filterService: FilterService,
-    private readonly stixObjectRepo: ObjectRepository
+    private readonly stixObjectRepo: ObjectRepository,
   ) {
     logger.setContext(ObjectService.name);
   }
 
   async *findAsyncIterableByCollectionId(
-    filters: ObjectFiltersDto
+    filters: ObjectFiltersDto,
   ): AsyncIterableIterator<Object> {
     // A collection ID is required at a minimum
 
@@ -48,7 +48,10 @@ export class ObjectService {
       // The filterService will reject the promise if the DTO fails any of the filter checks, thus the object will not
       // appended to the array if any filter check fails.
       try {
-        const object = await this.filterService.filterObject(stixObject, filters);
+        const object = await this.filterService.filterObject(
+          stixObject,
+          filters,
+        );
         yield object;
       } catch (e) {
         // Object does not match one or more filters - skip it
@@ -60,9 +63,7 @@ export class ObjectService {
    *
    * @param filters
    */
-  async findByCollectionId(
-    filters: ObjectFiltersDto
-  ): Promise<Object[]> {
+  async findByCollectionId(filters: ObjectFiltersDto): Promise<Object[]> {
     // A collection ID is required at a minimum
 
     if (!filters.collectionId) {
@@ -83,14 +84,16 @@ export class ObjectService {
 
     // For each attackObject document returned from the database...
     for await (const attackObject of attackObjects) {
-
       const stixObject = { ...attackObject["_doc"].stix["_doc"] };
 
       // Run the DTO instance through the filterService, then append it onto the return array
       // The filterService will reject the promise if the DTO fails any of the filter checks, thus the object will not
       // appended to the array if any filter check fails.
       try {
-        const object = await this.filterService.filterObject(stixObject, filters);
+        const object = await this.filterService.filterObject(
+          stixObject,
+          filters,
+        );
         stixObjects.push(object);
       } catch (e) {
         // Object does not match one or more filters - skip it
@@ -99,7 +102,7 @@ export class ObjectService {
 
     this.logger.debug(
       `Successfully retrieved ${stixObjects.length} STIX objects`,
-      this.constructor.name
+      this.constructor.name,
     );
 
     // Sort & filter then return
@@ -115,14 +118,12 @@ export class ObjectService {
   async findOne(
     collectionId: string,
     objectId: string,
-    filters?: ObjectFiltersDto
+    filters?: ObjectFiltersDto,
   ): Promise<Object[]> {
     // Retrieve the STIX object from the database
 
-    const attackObjects: MongooseAttackObject[] = await this.stixObjectRepo.findOne(
-      collectionId,
-      objectId
-    );
+    const attackObjects: MongooseAttackObject[] =
+      await this.stixObjectRepo.findOne(collectionId, objectId);
 
     // Stop processing if no objects/docs were retrieved - raise an error and let the interceptor handle the response
 

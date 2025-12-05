@@ -14,7 +14,7 @@ export class EnvelopeService {
   constructor(
     private readonly logger: Logger,
     private readonly objectsService: ObjectService,
-    private readonly paginationService: PaginationService
+    private readonly paginationService: PaginationService,
   ) {
     logger.setContext(EnvelopeService.name);
   }
@@ -31,7 +31,7 @@ export class EnvelopeService {
     addedAfter?: string,
     limit?: number,
     next?: number,
-    matches?: MatchDto[]
+    matches?: MatchDto[],
   ): Promise<EnvelopeDto> {
     const filters = new ObjectFiltersDto({
       collectionId,
@@ -64,7 +64,7 @@ export class EnvelopeService {
     addedAfter?: string,
     limit?: number,
     next?: number,
-    matches?: MatchDto[]
+    matches?: MatchDto[],
   ): Promise<EnvelopeDto> {
     const filters = new ObjectFiltersDto({
       collectionId,

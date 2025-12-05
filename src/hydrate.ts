@@ -7,14 +7,13 @@ import { HydrateService } from "./hydrate/hydrate.service";
  * Starts the Nest.js application
  */
 export async function bootstrap() {
-  const tempConfigApp: NestApplication = await NestFactory.create(
-    TaxiiConfigModule
-  );
+  const tempConfigApp: NestApplication =
+    await NestFactory.create(TaxiiConfigModule);
   const tempConfigService: TaxiiConfigService =
     tempConfigApp.get(TaxiiConfigService);
 
   const app: NestApplication = await NestFactory.create(
-    HydrateModule.register(tempConfigService.createHydrateConnectOptions())
+    HydrateModule.register(tempConfigService.createHydrateConnectOptions()),
   );
 
   // ** Initialize the Nest application ** //

@@ -16,7 +16,7 @@ export class TaxiiErrorException
 
   constructor(
     properties: Partial<TaxiiErrorException>,
-    httpStatus: TaxiiHttpErrorStatus
+    httpStatus: TaxiiHttpErrorStatus,
   ) {
     super(properties, httpStatus);
     this.httpStatus = httpStatus;

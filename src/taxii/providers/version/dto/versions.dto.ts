@@ -9,7 +9,6 @@ interface VersionsDtoConstructor {
 }
 
 export class VersionsDto extends GenericPageDto {
-
   @Expose()
   @IsArray()
   versions: string[];

@@ -14,14 +14,14 @@ export class CollectionRepository {
   constructor(
     private readonly logger: Logger,
     @InjectModel(TaxiiCollectionEntity.name)
-    private collectionModel: Model<TaxiiCollectionDocument>
+    private collectionModel: Model<TaxiiCollectionDocument>,
   ) {
     this.logger.setContext(CollectionRepository.name);
   }
 
   /**
    * Get a specific active TAXII collection by ID.
-   * 
+   *
    * @param id TAXII/STIX ID of the collection
    * @returns Promise resolving to TaxiiCollectionDto
    * @throws TaxiiNotFoundException if collection is not found
@@ -33,7 +33,7 @@ export class CollectionRepository {
     const response: TaxiiCollectionEntity = await this.collectionModel
       .findOne({
         id: id,
-        '_meta.active': true
+        "_meta.active": true,
       })
       .exec();
 
@@ -49,7 +49,7 @@ export class CollectionRepository {
 
   /**
    * Get all active TAXII collections.
-   * 
+   *
    * @returns Promise resolving to TaxiiCollectionsDto containing all active collections
    */
   async findAll(): Promise<TaxiiCollectionsDto> {
@@ -57,7 +57,7 @@ export class CollectionRepository {
 
     // Only return active collections
     const response: TaxiiCollectionEntity[] = await this.collectionModel
-      .find({ '_meta.active': true })
+      .find({ "_meta.active": true })
       .exec();
 
     // Transform to TAXII-compliant DTOs
@@ -70,7 +70,7 @@ export class CollectionRepository {
           description: element.description,
           mediaTypes: element.mediaTypes,
           title: element.title,
-        })
+        }),
       );
     }
     return taxiiCollectionsResource;

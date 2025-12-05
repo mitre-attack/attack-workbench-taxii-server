@@ -1,8 +1,4 @@
-import {
-  ConsoleLogger,
-  Inject,
-  Injectable,
-} from "@nestjs/common";
+import { ConsoleLogger, Inject, Injectable } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { lastValueFrom, map } from "rxjs";
 import {
@@ -10,7 +6,10 @@ import {
   TaxiiNotFoundException,
   TaxiiServiceUnavailableException,
 } from "src/common/exceptions";
-import { WorkbenchCollectionDto, WorkbenchCollectionStixProperties } from "src/stix/dto/workbench-collection.dto";
+import {
+  WorkbenchCollectionDto,
+  WorkbenchCollectionStixProperties,
+} from "src/stix/dto/workbench-collection.dto";
 import { plainToInstance } from "class-transformer";
 import { WorkbenchCollectionBundleDto } from "src/stix/dto/workbench-collection-bundle.dto";
 import { AttackObjectDto } from "src/stix/dto/attack-object.dto";
@@ -35,7 +34,8 @@ export class WorkbenchRepository {
   constructor(
     private readonly httpService: HttpService,
     private readonly logger: ConsoleLogger,
-    @Inject(WORKBENCH_OPTIONS) private readonly options: WorkbenchConnectOptionsInterface,
+    @Inject(WORKBENCH_OPTIONS)
+    private readonly options: WorkbenchConnectOptionsInterface,
   ) {
     this.baseUrl = options.baseUrl;
   }
@@ -48,7 +48,7 @@ export class WorkbenchRepository {
   private async fetchHttp(url: string): Promise<any> {
     this.logger.debug(
       `Sending HTTP GET request to ${url}`,
-      this.constructor.name
+      this.constructor.name,
     );
 
     let data;
@@ -57,8 +57,8 @@ export class WorkbenchRepository {
       await lastValueFrom(
         this.httpService.get(url).pipe(
           map((resp) => resp.data),
-          map((resp) => (data = resp))
-        )
+          map((resp) => (data = resp)),
+        ),
       );
 
       this.logger.debug(`Response received from ${url}`, this.constructor.name);
@@ -71,7 +71,7 @@ export class WorkbenchRepository {
         // that falls out of the range of 2xx
         this.logger.error(
           `A request was made to ${url} but the server responded with status code ${err.response.status}`,
-          this.constructor.name
+          this.constructor.name,
         );
 
         if (err.response.status >= 400 && err.response.status <= 499) {
@@ -92,7 +92,7 @@ export class WorkbenchRepository {
       } else if (err.request) {
         this.logger.error(
           `A request was made to ${url} but no response was received`,
-          this.constructor.name
+          this.constructor.name,
         );
         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
         // http.ClientRequest in node.js
@@ -107,7 +107,7 @@ export class WorkbenchRepository {
         // Something happened in setting up the request that triggered an Error
         this.logger.error(
           `Something happened in setting up the request to ${url} that triggered Error: ${err.message}`,
-          this.constructor.name
+          this.constructor.name,
         );
 
         throw new TaxiiNotFoundException({
@@ -125,17 +125,23 @@ export class WorkbenchRepository {
 
   /**
    * Retrieves a STIX bundle containing all STIX objects for a specified ATT&CK domain.
-   * 
+   *
    * @param domain The ATT&CK domain to retrieve ("enterprise-attack", "mobile-attack", or "ics-attack").
    * @returns The STIX bundle for the specified domain.
    */
-  async getStixBundle(domain: string, version: '2.0' | '2.1'): Promise<StixBundleDto> {
-
+  async getStixBundle(
+    domain: string,
+    version: "2.0" | "2.1",
+  ): Promise<StixBundleDto> {
     // Validate the domain parameter to ensure it matches one of the supported domains
-    const supportedDomains = ["enterprise-attack", "mobile-attack", "ics-attack"];
+    const supportedDomains = [
+      "enterprise-attack",
+      "mobile-attack",
+      "ics-attack",
+    ];
     if (!supportedDomains.includes(domain)) {
       throw new Error(
-        `Invalid domain specified: ${domain}. Supported domains are: ${supportedDomains.join(", ")}`
+        `Invalid domain specified: ${domain}. Supported domains are: ${supportedDomains.join(", ")}`,
       );
     }
 
@@ -170,7 +176,7 @@ export class WorkbenchRepository {
    * Retrieves a list of all available STIX objects
    */
   async getAllStixObjects(
-    excludeExtraneousValues = true
+    excludeExtraneousValues = true,
   ): Promise<AttackObjectDto[]> {
     const url = `${this.baseUrl}/api/attack-objects?versions=all`;
     // Get all STIX objects from Workbench. The expected response body contains an array of STIX objects.
@@ -194,7 +200,7 @@ export class WorkbenchRepository {
         //      (e.g., the stix.created property is converted from a string to an instance of TimestampDto.
         plainToInstance(AttackObjectDto, elem, {
           excludeExtraneousValues: excludeExtraneousValues,
-        })
+        }),
       );
     });
     return allStixObjects;
@@ -205,7 +211,7 @@ export class WorkbenchRepository {
    * @param collectionId Only return the target collection if specified
    */
   async getCollections(
-    collectionId?: string
+    collectionId?: string,
   ): Promise<WorkbenchCollectionDto[]> {
     let url = `${this.baseUrl}/api/collections/`;
     if (collectionId) {
@@ -213,7 +219,8 @@ export class WorkbenchRepository {
     }
 
     // Fetch the data from Workbench
-    const response: WorkbenchCollectionResponseDto[] = await this.fetchHttp(url);
+    const response: WorkbenchCollectionResponseDto[] =
+      await this.fetchHttp(url);
 
     // Extract only the STIX data we need
     return response.map(({ stix }) => new WorkbenchCollectionDto(stix));
@@ -224,24 +231,23 @@ export class WorkbenchRepository {
    * @param collectionId Identifier of the target collection
    */
   async getCollectionBundle(
-    collectionId: string
+    collectionId: string,
   ): Promise<WorkbenchCollectionBundleDto> {
     const url = `${this.baseUrl}/api/collection-bundles?collectionId=${collectionId}`;
 
     // Fetch the data from Workbench
     return await this.fetchHttp(url);
-    
+
     // TODO the serialization code is not working. it strips all the STIX properties and leaves an empty object. Let's revisit this after the ADM is integrated.
     // this.logger.debug(`Retrieved STIX data! Data will be deserialized.`);
     // Deserialize the response body
     // const collectionBundle: WorkbenchCollectionBundleDto = plainToInstance(
-      //   WorkbenchCollectionBundleDto,
+    //   WorkbenchCollectionBundleDto,
     //   response,
     //   { excludeExtraneousValues: true }
     // );
     // return collectionBundle;
   }
-
 
   /**
    * Retrieves a single STIX object. Optionally supports retrieving multiple versions of the STIX object.
@@ -253,7 +259,7 @@ export class WorkbenchRepository {
   async getAnObject(
     collectionId: string,
     stixId: string,
-    versions = false
+    versions = false,
   ): Promise<AttackObjectDto[]> {
     let url = `${this.baseUrl}`;
     const prefix = stixId.split("--")[0];

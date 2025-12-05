@@ -8,7 +8,7 @@ import { CollectionRepository } from "./collection.repository";
 export class CollectionService {
   constructor(
     private readonly logger: Logger,
-    private readonly stixCollectionsRepo: CollectionRepository
+    private readonly stixCollectionsRepo: CollectionRepository,
   ) {
     this.logger.setContext(CollectionService.name);
   }
@@ -31,7 +31,7 @@ export class CollectionService {
 
     this.logger.debug(
       `Retrieved ${taxiiCollections.length} TAXII collections from the repository`,
-      this.constructor.name
+      this.constructor.name,
     );
 
     return taxiiCollections;
@@ -46,7 +46,7 @@ export class CollectionService {
       await this.stixCollectionsRepo.findOne(id);
 
     this.logger.debug(
-      `Retrieved TAXII Collection: ${JSON.stringify(taxiiCollection, null, 4)}`
+      `Retrieved TAXII Collection: ${JSON.stringify(taxiiCollection, null, 4)}`,
     );
 
     if (!taxiiCollection) {
@@ -58,7 +58,7 @@ export class CollectionService {
 
     this.logger.debug(
       `Retrieved TAXII collection ${taxiiCollection.id} from the repository`,
-      this.constructor.name
+      this.constructor.name,
     );
 
     return taxiiCollection;

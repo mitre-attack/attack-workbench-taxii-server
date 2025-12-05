@@ -43,13 +43,13 @@ import {
    *  2. The response is properly serialized by the ClassSerializerInterceptor
    *  3. Then transformed to snake case
    *  4. Finally, has the media type set while preserving the response data
-   * 
+   *
    * NOTE: // Order matters! Serialize first, then transform
    */
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
     { provide: APP_INTERCEPTOR, useClass: SnakeCaseInterceptor },
-    { provide: APP_INTERCEPTOR, useClass: SetResponseMediaType }
+    { provide: APP_INTERCEPTOR, useClass: SetResponseMediaType },
   ],
 })
 export class TaxiiModule implements NestModule {

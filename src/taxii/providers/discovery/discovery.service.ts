@@ -15,7 +15,6 @@ export class DiscoveryService {
       default: this.config.API_ROOT_PATH,
       apiRoots: [this.config.API_ROOT_PATH],
     });
-
   }
 
   findApiRootInformation(): ApiRootDto {

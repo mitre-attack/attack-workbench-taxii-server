@@ -1,8 +1,4 @@
-import {
-  ArgumentsHost,
-  ExceptionFilter,
-  Logger,
-} from "@nestjs/common";
+import { ArgumentsHost, ExceptionFilter, Logger } from "@nestjs/common";
 import { Response } from "express";
 import { TaxiiInternalServerErrorException } from "./errors/taxii-internal-server-error.exception";
 import { TaxiiErrorException } from "./errors/interface/taxii-error.exception";
@@ -28,10 +24,10 @@ export class TaxiiExceptionFilter implements ExceptionFilter {
 
     // Log the exception type and details
     this.logger.error(
-      `[${requestId}] Exception occurred: ${exception?.constructor?.name || typeof exception}`
+      `[${requestId}] Exception occurred: ${exception?.constructor?.name || typeof exception}`,
     );
 
-    if (typeof exception === 'string') {
+    if (typeof exception === "string") {
       this.logger.error(`[${requestId}] String exception: ${exception}`);
     } else if (exception instanceof Error) {
       this.logger.error(`[${requestId}] Error details: ${exception.message}`);
@@ -41,11 +37,11 @@ export class TaxiiExceptionFilter implements ExceptionFilter {
     } else {
       try {
         this.logger.error(
-          `[${requestId}] Exception details: ${JSON.stringify(exception)}`
+          `[${requestId}] Exception details: ${JSON.stringify(exception)}`,
         );
       } catch (e) {
         this.logger.error(
-          `[${requestId}] Could not stringify exception: ${e.message}`
+          `[${requestId}] Could not stringify exception: ${e.message}`,
         );
       }
     }
@@ -59,7 +55,8 @@ export class TaxiiExceptionFilter implements ExceptionFilter {
     // For all other exceptions (including strings, non-HTTP errors, etc.)
     const internalServerError = new TaxiiInternalServerErrorException({
       title: "Internal Error",
-      description: "An unexpected error has occurred. Please contact the TAXII server administrator.",
+      description:
+        "An unexpected error has occurred. Please contact the TAXII server administrator.",
       errorId: requestId.toString(),
     });
 

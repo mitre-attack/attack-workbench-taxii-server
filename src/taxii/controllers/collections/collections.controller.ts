@@ -5,7 +5,6 @@ import {
   Param,
   Post,
   Query,
-  UseFilters,
   UseInterceptors,
 } from "@nestjs/common";
 // ** logger ** //
@@ -30,7 +29,6 @@ import { MatchDto } from "src/common/models/match/match.dto";
 import { VersionsDto } from "src/taxii/providers/version/dto/versions.dto";
 
 // ** middleware ** //
-import { TaxiiExceptionFilter } from "src/common/exceptions/taxii-exception.filter";
 import { TimestampQuery } from "src/common/decorators/timestamp.query.decorator";
 import { NumberQuery } from "src/common/decorators/number.query.decorator";
 import { TaxiiServiceUnavailableException } from "src/common/exceptions";
@@ -59,7 +57,6 @@ import { ManifestResource } from "../../providers/manifest/dto";
   description: SWAGGER.AcceptHeader.Description,
 })
 @Controller("/collections")
-@UseFilters(new TaxiiExceptionFilter())
 export class CollectionsController {
   constructor(
     private readonly logger: Logger,

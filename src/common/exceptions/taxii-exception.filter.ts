@@ -1,11 +1,12 @@
 import { ArgumentsHost, ExceptionFilter, Logger } from "@nestjs/common";
 import { Response } from "express";
-import { TaxiiInternalServerErrorException } from "./errors/taxii-internal-server-error.exception";
-import { TaxiiErrorException } from "./errors/interface/taxii-error.exception";
+import { DEFAULT_MEDIA_TYPE } from "../middleware/content-negotiation/constants";
 import {
   RequestContext,
   RequestContextModel,
 } from "../middleware/request-context";
+import { TaxiiErrorException } from "./errors/interface/taxii-error.exception";
+import { TaxiiInternalServerErrorException } from "./errors/taxii-internal-server-error.exception";
 
 export class TaxiiExceptionFilter implements ExceptionFilter {
   private readonly logger: Logger = new Logger(TaxiiExceptionFilter.name);
@@ -49,7 +50,13 @@ export class TaxiiExceptionFilter implements ExceptionFilter {
     // Handle TAXII exceptions
     if (exception instanceof TaxiiErrorException) {
       exception.errorId = requestId.toString();
-      return response.status(exception.httpStatus).json(exception);
+      const body = JSON.stringify(exception);
+      response.removeHeader('Content-Type');
+      response.status(exception.httpStatus);
+      response.setHeader('Content-Type', DEFAULT_MEDIA_TYPE.toString());
+      response.setHeader('Content-Length', Buffer.byteLength(body));
+      response.end(body);
+      return;
     }
 
     // For all other exceptions (including strings, non-HTTP errors, etc.)
@@ -60,8 +67,11 @@ export class TaxiiExceptionFilter implements ExceptionFilter {
       errorId: requestId.toString(),
     });
 
-    return response
-      .status(TaxiiInternalServerErrorException.httpStatus)
-      .json(internalServerError);
+    const body = JSON.stringify(internalServerError);
+    response.removeHeader('Content-Type');
+    response.status(TaxiiInternalServerErrorException.httpStatus);
+    response.setHeader('Content-Type', DEFAULT_MEDIA_TYPE.toString());
+    response.setHeader('Content-Length', Buffer.byteLength(body));
+    response.end(body);
   }
 }

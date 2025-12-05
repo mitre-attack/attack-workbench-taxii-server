@@ -1,12 +1,12 @@
+import { RequestMethod, ValidationPipe } from "@nestjs/common";
 import { NestApplication, NestFactory } from "@nestjs/core";
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ExpressAdapter } from "@nestjs/platform-express";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as express from "express";
+import * as http from "http";
+import * as https from "https";
 import { AppModule } from "./app.module";
 import { TaxiiConfigModule, TaxiiConfigService } from "./config";
-import * as https from "https";
-import { RequestMethod, ValidationPipe } from "@nestjs/common";
-import * as http from "http";
 
 /**
  * Starts the Nest.js application
@@ -57,6 +57,9 @@ export async function bootstrap() {
       },
     ],
   });
+
+  // ** Disable Express default headers ** //
+  server.disable('x-powered-by');
 
   // ** Specify maximum request body size ** //
   app.use(express.json({ limit: tempConfigService.MAX_CONTENT_LENGTH }));

@@ -12,7 +12,7 @@ export class ManifestRecordDto {
   @IsString()
   id: string;
 
-  @Expose({ name: 'date_added' })
+  @Expose({ name: "date_added" })
   @IsDate()
   dateAdded: Date;
 
@@ -20,7 +20,7 @@ export class ManifestRecordDto {
   @IsString()
   version: string;
 
-  @Expose({ name: 'media_type' })
+  @Expose({ name: "media_type" })
   @IsString()
   @IsOptional()
   mediaType?: string;

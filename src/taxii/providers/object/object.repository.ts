@@ -14,7 +14,7 @@ export class ObjectRepository {
   constructor(
     private readonly logger: Logger,
     @InjectModel(AttackObjectEntity.name)
-    private attackObjectsModel: Model<AttackObjectDocument>
+    private attackObjectsModel: Model<AttackObjectDocument>,
   ) {
     logger.setContext(ObjectRepository.name);
   }
@@ -22,19 +22,19 @@ export class ObjectRepository {
   /**
    * Get an iterable stream of active STIX objects from a specific collection.
    * Objects are returned in ascending order by creation date per TAXII spec.
-   * 
+   *
    * @param collectionId TAXII/STIX ID of the collection
    * @returns AsyncIterableIterator of AttackObjectEntity
    */
   async *findByCollectionId(
-    collectionId: string
+    collectionId: string,
   ): AsyncIterableIterator<AttackObjectEntity> {
     const cursor = this.attackObjectsModel
       .find({
-        '_meta.collectionRef.id': collectionId,
-        '_meta.active': true
+        "_meta.collectionRef.id": collectionId,
+        "_meta.active": true,
       })
-      .sort({ '_meta.createdAt': 1 }) // Uses taxii_object_sorting index
+      .sort({ "_meta.createdAt": 1 }) // Uses taxii_object_sorting index
       .cursor();
 
     for (
@@ -46,13 +46,13 @@ export class ObjectRepository {
     }
 
     this.logger.debug(
-      `Finished streaming collection ${collectionId} from database`
+      `Finished streaming collection ${collectionId} from database`,
     );
   }
 
   /**
    * Get the latest version of a STIX object from a specific collection.
-   * 
+   *
    * @param collectionId TAXII/STIX ID of the collection
    * @param objectId STIX ID of the requested object
    * @returns Promise resolving to array of matching objects (for version history support)
@@ -60,16 +60,16 @@ export class ObjectRepository {
    */
   async findOne(
     collectionId: string,
-    objectId: string
+    objectId: string,
   ): Promise<AttackObjectEntity[]> {
     // Uses taxii_object_lookup index
     const attackObjects: AttackObjectEntity[] = await this.attackObjectsModel
       .find({
-        '_meta.collectionRef.id': collectionId,
-        'stix.id': objectId,
-        '_meta.active': true
+        "_meta.collectionRef.id": collectionId,
+        "stix.id": objectId,
+        "_meta.active": true,
       })
-      .sort({ '_meta.createdAt': 1 })
+      .sort({ "_meta.createdAt": 1 })
       .exec();
 
     if (attackObjects.length === 0) {

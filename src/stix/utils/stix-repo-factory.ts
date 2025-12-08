@@ -24,7 +24,7 @@ export class StixRepoFactory {
  * can use the options parameter to influence the configuration of Workbench at runtime.
  */
 const useWorkbenchRepository = (
-  options: WorkbenchConnectOptionsInterface
+  options: WorkbenchConnectOptionsInterface,
 ): DynamicModule => {
   return {
     module: StixModule,

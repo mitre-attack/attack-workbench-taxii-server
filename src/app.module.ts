@@ -30,7 +30,6 @@ export class AppModule {
           isGlobal: true,
         }),
 
-
         MongooseModule.forRoot(connectOptions.databaseConnectOptions.mongoUri),
 
         /** This is where all user-configurable parameters are defined **/

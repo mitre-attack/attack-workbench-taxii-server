@@ -26,7 +26,7 @@ export class SetRequestIdMiddleware implements NestMiddleware {
     const reqId: string = setUniqueIdentifier(req);
 
     this.logger.log(
-      `New request: [${reqId}] ${method} ${originalUrl} - ${accept} ${contentType} ${userAgent} ${ip}`
+      `New request: [${reqId}] ${method} ${originalUrl} - ${accept} ${contentType} ${userAgent} ${ip}`,
     );
 
     // All done!

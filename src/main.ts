@@ -1,12 +1,12 @@
+import { RequestMethod, ValidationPipe } from "@nestjs/common";
 import { NestApplication, NestFactory } from "@nestjs/core";
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ExpressAdapter } from "@nestjs/platform-express";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as express from "express";
+import * as http from "http";
+import * as https from "https";
 import { AppModule } from "./app.module";
 import { TaxiiConfigModule, TaxiiConfigService } from "./config";
-import * as https from "https";
-import { RequestMethod, ValidationPipe } from "@nestjs/common";
-import * as http from "http";
 
 /**
  * Starts the Nest.js application
@@ -24,9 +24,8 @@ export async function bootstrap() {
   // * inherent circular dependency. This is a slight design flaw that can be resolved by converting AppModule to a
   // * *fully* dynamic module. Details on building completely dynamic modules can be read about here:
   // * https://dev.to/nestjs/advanced-nestjs-how-to-build-completely-dynamic-nestjs-modules-1370
-  const tempConfigApp: NestApplication = await NestFactory.create(
-    TaxiiConfigModule
-  );
+  const tempConfigApp: NestApplication =
+    await NestFactory.create(TaxiiConfigModule);
   const tempConfigService: TaxiiConfigService =
     tempConfigApp.get(TaxiiConfigService);
   // ** Initialize the core TAXII application ** //
@@ -40,7 +39,7 @@ export async function bootstrap() {
     //                                                              to be fully dynamic such that we can load the
     //                                                              app like this (w/o instantiating a temporary
     //                                                              config)
-    new ExpressAdapter(server)
+    new ExpressAdapter(server),
   );
 
   // ** Set the API ROOT ** //
@@ -54,10 +53,13 @@ export async function bootstrap() {
       },
       {
         path: "/health/ping",
-        method: RequestMethod.GET
-      }
+        method: RequestMethod.GET,
+      },
     ],
   });
+
+  // ** Disable Express default headers ** //
+  server.disable("x-powered-by");
 
   // ** Specify maximum request body size ** //
   app.use(express.json({ limit: tempConfigService.MAX_CONTENT_LENGTH }));
@@ -86,15 +88,15 @@ export async function bootstrap() {
         cert: tempConfigService.SSL_PUBLIC_KEY,
       };
       console.log(
-        `Starting the TAXII server at https://${tempConfigService.APP_ADDRESS}:${tempConfigService.APP_PORT}...`
+        `Starting the TAXII server at https://${tempConfigService.APP_ADDRESS}:${tempConfigService.APP_PORT_HTTPS}...`,
       );
       https
         .createServer(httpsOptions, server)
-        .listen(tempConfigService.APP_PORT);
+        .listen(tempConfigService.APP_PORT_HTTPS);
     } else {
       // HTTP (insecure)
       console.log(
-        `Starting the TAXII server at http://${tempConfigService.APP_ADDRESS}:${tempConfigService.APP_PORT}...`
+        `Starting the TAXII server at http://${tempConfigService.APP_ADDRESS}:${tempConfigService.APP_PORT}...`,
       );
       http.createServer(server).listen(tempConfigService.APP_PORT);
     }
@@ -102,7 +104,7 @@ export async function bootstrap() {
     // Fall back to HTTP (insecure) in case SSL keys cannot be loaded
     console.log("SSL keys not found. Falling back to HTTP (insecure)");
     console.log(
-      `Starting the TAXII server at http://${tempConfigService.APP_ADDRESS}:${tempConfigService.APP_PORT}...`
+      `Starting the TAXII server at http://${tempConfigService.APP_ADDRESS}:${tempConfigService.APP_PORT}...`,
     );
     http.createServer(server).listen(tempConfigService.APP_PORT);
   }

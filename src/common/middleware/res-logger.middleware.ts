@@ -16,7 +16,7 @@ export class ResLoggerMiddleware implements NestMiddleware {
       const contentLength = res.get("content-length");
 
       this.logger.log(
-        `Outgoing response: [${ctx["x-request-id"]}] ${statusCode} ${method} ${originalUrl} ${contentLength} - ${userAgent} ${ip}`
+        `Outgoing response: [${ctx["x-request-id"]}] ${statusCode} ${method} ${originalUrl} ${contentLength} - ${userAgent} ${ip}`,
       );
     });
 

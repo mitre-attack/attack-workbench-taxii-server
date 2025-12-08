@@ -2,8 +2,8 @@
 # shellcheck source=./run.sh
 
 dockerClean() {
-  docker stop attack-workbench-taxii-server || true
-  docker rm attack-workbench-taxii-server || true
+  docker stop taxii || true
+  docker rm taxii || true
 }
 
 loadVars() {
@@ -28,12 +28,18 @@ dockerRunOnLinux () {
 
   if [[ "${TAXII_HTTPS}" == "true" ]]; then
       echo "HTTPS will be enabled..."
+      docker run \
+          -p $TAXII_APP_PORT_HTTPS:8443 \
+          --network="host" \
+          --name taxii \
+          attack-workbench-taxii-server
+  else
+      docker run \
+          -p $TAXII_APP_PORT:8000 \
+          --network="host" \
+          --name taxii \
+          attack-workbench-taxii-server
   fi
-  docker run \
-      -p $TAXII_APP_PORT:$TAXII_APP_PORT \
-      --network="host" \
-      --name attack-workbench-taxii-server \
-      attack-workbench-taxii-server
 }
 
 dockerRunOnMacOrWindows () {
@@ -43,11 +49,16 @@ dockerRunOnMacOrWindows () {
 
   if [[ "${TAXII_HTTPS}" == "true" ]]; then
       echo "HTTPS will be enabled..."
+      docker run \
+          -p $TAXII_APP_PORT_HTTPS:8443 \
+          --name taxii \
+          attack-workbench-taxii-server
+  else
+      docker run \
+          -p $TAXII_APP_PORT:8000 \
+          --name taxii \
+          attack-workbench-taxii-server
   fi
-  docker run \
-      -p $TAXII_APP_PORT:$TAXII_APP_PORT \
-      --name attack-workbench-taxii-server \
-      attack-workbench-taxii-server
 }
 
 dockerRun() {

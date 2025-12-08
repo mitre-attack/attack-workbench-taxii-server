@@ -12,7 +12,7 @@ import { ApiRootResource } from "../../providers/discovery/dto";
 export class RootController {
   constructor(
     private readonly discoveryService: DiscoveryService,
-    private readonly logger: Logger
+    private readonly logger: Logger,
   ) {
     logger.setContext(RootController.name);
   }
@@ -20,7 +20,7 @@ export class RootController {
   @Get("/health/ping")
   @HttpCode(HttpStatus.NO_CONTENT)
   healthPing(): void {
-    this.logger.debug('Health ping.');
+    this.logger.debug("Health ping.");
   }
 
   @ApiOkResponse({
@@ -41,7 +41,7 @@ export class RootController {
   getApiRootInformation(): ApiRootDto {
     this.logger.debug(
       `Received a request for API root information`,
-      this.constructor.name
+      this.constructor.name,
     );
     return this.discoveryService.findApiRootInformation();
   }
@@ -50,7 +50,7 @@ export class RootController {
   getStatus(@Param("statusId") statusId: string): Promise<any> {
     this.logger.warn(
       `${this.getStatus.name} is not implemented`,
-      this.constructor.name
+      this.constructor.name,
     );
     throw new TaxiiServiceUnavailableException({
       title: "Not Implemented",

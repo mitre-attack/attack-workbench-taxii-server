@@ -97,7 +97,7 @@ The script requires two environment variables:
 
 ```shell
 export TAXII_ENV=prod | dev | local
-export TAXII_APP_PORT=443
+export TAXII_APP_PORT=8000
 ./run.sh
 ```
 

@@ -6,6 +6,7 @@ export const configuration = registerAs("app", () => ({
   env:                        process.env.TAXII_ENV                   || DEFAULTS.DEFAULT_ENV,
   address:                    process.env.TAXII_APP_ADDRESS           || DEFAULTS.DEFAULT_APP_ADDRESS,
   port:                       process.env.TAXII_APP_PORT              || DEFAULTS.DEFAULT_APP_PORT,
+  portHttps:                  process.env.TAXII_APP_PORT_HTTPS        || DEFAULTS.DEFAULT_APP_PORT_HTTPS,
   maxContentLength:           process.env.TAXII_MAX_CONTENT_LENGTH    || DEFAULTS.DEFAULT_MAX_CONTENT_LENGTH,
   apiRootPath:                process.env.TAXII_API_ROOT_PATH         || DEFAULTS.DEFAULT_API_ROOT_PATH,
   apiRootTitle:               process.env.TAXII_API_ROOT_TITLE        || DEFAULTS.DEFAULT_API_ROOT_TITLE,
@@ -42,6 +43,10 @@ export const validationSchema = Joi.object({
   APP_PORT: Joi
       .number()
       .default(DEFAULTS.DEFAULT_APP_PORT),
+
+  APP_PORT_HTTPS: Joi
+      .number()
+      .default(DEFAULTS.DEFAULT_APP_PORT_HTTPS),
 
   MAX_CONTENT_LENGTH: Joi
       .number()

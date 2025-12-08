@@ -4,7 +4,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch NestJS Debug",
+            "name": "npm run start:debug",
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run",
@@ -17,6 +17,26 @@
             "env": {
                 "NODE_ENV": "development",
                 "TAXII_ENV": "dev",
+                "TS_NODE_PROJECT": "${workspaceFolder}/tsconfig.json"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "npm run hydrate",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "hydrate"
+            ],
+            "console": "integratedTerminal",
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "internalConsoleOptions": "neverOpen",
+            "env": {
+                "NODE_ENV": "development",
+                "TAXII_ENV": "dev",
+                "TAXII_HYDRATE_ON_BOOT": "true",
                 "TS_NODE_PROJECT": "${workspaceFolder}/tsconfig.json"
             }
         }

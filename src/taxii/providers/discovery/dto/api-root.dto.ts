@@ -50,7 +50,7 @@ export class ApiRootDto {
    * @type        Number (integer)
    * @required    true
    */
-  @Expose({ name: 'max_content_length' })
+  @Expose({ name: "max_content_length" })
   @IsNumber()
   maxContentLength: 1000; // TODO revisit this. 1000 is just a placeholder and has no bearing on server functionality. it is also a static unchangable value.
 

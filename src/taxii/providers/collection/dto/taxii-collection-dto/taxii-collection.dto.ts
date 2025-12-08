@@ -12,16 +12,14 @@ import { WorkbenchCollectionDto } from "src/stix/dto/workbench-collection.dto";
 
 @Exclude()
 export class TaxiiCollectionDto {
-
   constructor(partial: Partial<TaxiiCollectionDto> | WorkbenchCollectionDto) {
-
     // If we're passed a WorkbenchCollectionDto, extract the STIX data
     if (partial instanceof WorkbenchCollectionDto) {
       partial = partial.stix;
     }
 
     // Handle case where partial is the STIX object directly
-    if (partial && 'stix' in partial) {
+    if (partial && "stix" in partial) {
       partial = partial.stix;
     }
 

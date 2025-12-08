@@ -39,7 +39,7 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
     return {
       workbench: {
         baseUrl: this.WORKBENCH_REST_API_URL,
-        authorization: this.WORKBENCH_AUTH_HEADER
+        authorization: this.WORKBENCH_AUTH_HEADER,
       },
     };
   }
@@ -50,6 +50,10 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
 
   get APP_PORT(): number {
     return this.configService.get<number>("app.port");
+  }
+
+  get APP_PORT_HTTPS(): number {
+    return this.configService.get<number>("app.portHttps");
   }
 
   get MAX_CONTENT_LENGTH(): number {

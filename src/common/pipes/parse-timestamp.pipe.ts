@@ -1,5 +1,5 @@
-import { PipeTransform, Injectable, ArgumentMetadata } from "@nestjs/common";
-import { TaxiiBadRequestException } from "../exceptions";
+import { PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common';
+import { TaxiiBadRequestException } from '../exceptions';
 
 @Injectable()
 export class ParseTimestampPipe implements PipeTransform {

@@ -1,18 +1,15 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
-import { ObjectModule } from "../object";
-import { FilterModule } from "../filter/filter.module";
-import { TaxiiConfigModule } from "src/config";
-import { ManifestService } from "./manifest.service";
-import { PaginationService } from "../pagination";
-import {
-  closeInMongodConnection,
-  rootMongooseTestModule,
-} from "src/../test/test.mongoose.module";
-import { MongooseModule } from "@nestjs/mongoose";
-import { AttackObjectEntity, AttackObjectSchema } from "src/hydrate/schema";
+import { Test, TestingModule } from '@nestjs/testing';
+import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
+import { ObjectModule } from '../object';
+import { FilterModule } from '../filter/filter.module';
+import { TaxiiConfigModule } from 'src/config';
+import { ManifestService } from './manifest.service';
+import { PaginationService } from '../pagination';
+import { closeInMongodConnection, rootMongooseTestModule } from 'src/../test/test.mongoose.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { AttackObjectEntity, AttackObjectSchema } from 'src/hydrate/schema';
 
-describe("ManifestService", () => {
+describe('ManifestService', () => {
   let manifestService: ManifestService;
 
   beforeEach(async () => {
@@ -23,9 +20,7 @@ describe("ManifestService", () => {
         ObjectModule,
         FilterModule,
         rootMongooseTestModule(),
-        MongooseModule.forFeature([
-          { name: AttackObjectEntity.name, schema: AttackObjectSchema },
-        ]),
+        MongooseModule.forFeature([{ name: AttackObjectEntity.name, schema: AttackObjectSchema }]),
       ],
       providers: [ManifestService, PaginationService],
     }).compile();
@@ -33,7 +28,7 @@ describe("ManifestService", () => {
     manifestService = module.get<ManifestService>(ManifestService);
   });
 
-  it("should be defined", async () => {
+  it('should be defined', async () => {
     expect(manifestService).toBeDefined();
   });
 

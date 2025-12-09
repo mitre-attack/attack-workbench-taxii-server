@@ -1,4 +1,4 @@
-import { IdentifierDto } from "src/common/models/identifier";
+import { IdentifierDto } from 'src/common/models/identifier';
 
 export class StixGranularMarkingDto {
   lang?: string;

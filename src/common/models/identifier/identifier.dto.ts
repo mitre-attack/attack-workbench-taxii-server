@@ -1,5 +1,5 @@
-import { IsString } from "class-validator";
-import { v4 as uuid } from "uuid";
+import { IsString } from 'class-validator';
+import { v4 as uuid } from 'uuid';
 
 export class IdentifierDto {
   @IsString()

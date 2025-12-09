@@ -1,11 +1,8 @@
-import { HttpException } from "@nestjs/common";
-import { TaxiiErrorExceptionInterface } from "./taxii-error.exception.interface";
-import { DEFAULT_EXT_DETAILS, TaxiiHttpErrorStatus } from "../helper";
+import { HttpException } from '@nestjs/common';
+import { TaxiiErrorExceptionInterface } from './taxii-error.exception.interface';
+import { DEFAULT_EXT_DETAILS, TaxiiHttpErrorStatus } from '../helper';
 
-export class TaxiiErrorException
-  extends HttpException
-  implements TaxiiErrorExceptionInterface
-{
+export class TaxiiErrorException extends HttpException implements TaxiiErrorExceptionInterface {
   errorId?: string; // errorId is set by the exception filter
   readonly httpStatus: number; // httpStatus is set by each subclass's identically named static variable, i.e., httpStatus
   readonly title: string; // title is the only required field
@@ -14,10 +11,7 @@ export class TaxiiErrorException
   readonly errorCode?: string; // This implementation does not currently use the errorCode field, but it can be set if desired.
   readonly externalDetails?: string = DEFAULT_EXT_DETAILS; // Defaults to the public URL of the TAXII 2.1 specification document
 
-  constructor(
-    properties: Partial<TaxiiErrorException>,
-    httpStatus: TaxiiHttpErrorStatus,
-  ) {
+  constructor(properties: Partial<TaxiiErrorException>, httpStatus: TaxiiHttpErrorStatus) {
     super(properties, httpStatus);
     this.httpStatus = httpStatus;
     Object.assign(this, properties);

@@ -1,10 +1,10 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { RootController } from "./root.controller";
-import { DiscoveryModule } from "src/taxii/providers";
-import { TaxiiConfigModule } from "src/config";
-import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
+import { Test, TestingModule } from '@nestjs/testing';
+import { RootController } from './root.controller';
+import { DiscoveryModule } from 'src/taxii/providers';
+import { TaxiiConfigModule } from 'src/config';
+import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
 
-describe("RootController", () => {
+describe('RootController', () => {
   let controller: RootController;
 
   beforeEach(async () => {
@@ -16,7 +16,7 @@ describe("RootController", () => {
     controller = module.get<RootController>(RootController);
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 });

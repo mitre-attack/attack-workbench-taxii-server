@@ -1,9 +1,9 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { TaxiiConfigModule } from "src/config";
-import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
-import { DiscoveryService } from "./discovery.service";
+import { Test, TestingModule } from '@nestjs/testing';
+import { TaxiiConfigModule } from 'src/config';
+import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
+import { DiscoveryService } from './discovery.service';
 
-describe("DiscoveryService", () => {
+describe('DiscoveryService', () => {
   let discoveryService: DiscoveryService;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -14,7 +14,7 @@ describe("DiscoveryService", () => {
     discoveryService = module.get<DiscoveryService>(DiscoveryService);
   });
 
-  it("should be defined", async () => {
+  it('should be defined', async () => {
     expect(discoveryService).toBeDefined();
   });
 });

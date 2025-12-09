@@ -1,1 +1,1 @@
-export * from "./taxii-logger.service";
+export * from './taxii-logger.service';

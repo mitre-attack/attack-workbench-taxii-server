@@ -1,10 +1,10 @@
-import { StixModule } from "../stix.module";
-import { STIX_REPO_TOKEN, WORKBENCH_OPTIONS } from "../constants";
-import { WorkbenchRepository } from "../providers/workbench/workbench.repository";
-import { ConsoleLogger, DynamicModule } from "@nestjs/common";
-import { HttpModule } from "@nestjs/axios";
-import { StixConnectOptions } from "../interfaces";
-import { WorkbenchConnectOptionsInterface } from "../interfaces/workbench-connect-options.interface";
+import { StixModule } from '../stix.module';
+import { STIX_REPO_TOKEN, WORKBENCH_OPTIONS } from '../constants';
+import { WorkbenchRepository } from '../providers/workbench/workbench.repository';
+import { ConsoleLogger, DynamicModule } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
+import { StixConnectOptions } from '../interfaces';
+import { WorkbenchConnectOptionsInterface } from '../interfaces/workbench-connect-options.interface';
 
 /**
  * The StixRepoFactory is responsible for instantiating the StixModule. `options.useType` is matriculated from main.ts
@@ -23,9 +23,7 @@ export class StixRepoFactory {
  * @param options  Configuration parameters. Users looking to modify or extend the functionality of WorkbenchRepository
  * can use the options parameter to influence the configuration of Workbench at runtime.
  */
-const useWorkbenchRepository = (
-  options: WorkbenchConnectOptionsInterface,
-): DynamicModule => {
+const useWorkbenchRepository = (options: WorkbenchConnectOptionsInterface): DynamicModule => {
   return {
     module: StixModule,
     imports: [

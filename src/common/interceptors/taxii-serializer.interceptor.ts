@@ -1,12 +1,7 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-} from "@nestjs/common";
-import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
-import { instanceToPlain } from "class-transformer";
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class TaxiiSerializerInterceptor implements NestInterceptor {
@@ -35,7 +30,7 @@ export class TaxiiSerializerInterceptor implements NestInterceptor {
   }
 
   private toSnakeCase(data: any): any {
-    if (!data || typeof data !== "object") {
+    if (!data || typeof data !== 'object') {
       return data;
     }
 
@@ -45,17 +40,14 @@ export class TaxiiSerializerInterceptor implements NestInterceptor {
 
     const result = {};
     for (const [key, value] of Object.entries(data)) {
-      const snakeKey = key.replace(
-        /[A-Z]/g,
-        (letter) => `_${letter.toLowerCase()}`,
-      );
+      const snakeKey = key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
       result[snakeKey] = this.toSnakeCase(value);
     }
     return result;
   }
 
   private removeEmptyProperties(obj: any): any {
-    if (!obj || typeof obj !== "object") {
+    if (!obj || typeof obj !== 'object') {
       return obj;
     }
 

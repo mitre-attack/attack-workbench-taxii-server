@@ -1,12 +1,7 @@
-import {
-  DynamicModule,
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-} from "@nestjs/common";
-import { RequestContextMiddleware } from "./request-context.middleware";
-import { RequestContextModel } from "./request-context.model";
-import { REQUEST_CONTEXT_MODULE_OPTIONS } from "./constants";
+import { DynamicModule, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { RequestContextMiddleware } from './request-context.middleware';
+import { RequestContextModel } from './request-context.model';
+import { REQUEST_CONTEXT_MODULE_OPTIONS } from './constants';
 
 export interface RequestContextModuleOptions<T extends RequestContextModel> {
   contextClass: new () => T;
@@ -34,6 +29,6 @@ export class RequestContextModule implements NestModule {
   }
 
   configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(RequestContextMiddleware).forRoutes("*");
+    consumer.apply(RequestContextMiddleware).forRoutes('*');
   }
 }

@@ -1,7 +1,7 @@
-import { IsOptional, IsString } from "class-validator";
-import { Exclude, Expose, Type } from "class-transformer";
-import { ApiProperty } from "@nestjs/swagger";
-import { SwaggerDocumentation as SWAGGER } from "./match.dto.swagger.json";
+import { IsOptional, IsString } from 'class-validator';
+import { Exclude, Expose, Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+import { SwaggerDocumentation as SWAGGER } from './match.dto.swagger.json';
 
 @Exclude()
 export class MatchDto {

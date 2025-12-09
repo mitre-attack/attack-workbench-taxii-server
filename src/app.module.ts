@@ -1,14 +1,11 @@
-import { DynamicModule, Global, Module } from "@nestjs/common";
-import { TaxiiConfigModule } from "./config";
-import {
-  RequestContext,
-  RequestContextModule,
-} from "./common/middleware/request-context";
-import { TaxiiModule } from "./taxii/taxii.module";
-import { StixModule } from "./stix/stix.module";
-import { AppConnectOptions } from "./interfaces";
-import { MongooseModule } from "@nestjs/mongoose";
-import { TaxiiLoggerModule } from "./common/logger/taxii-logger.module";
+import { DynamicModule, Global, Module } from '@nestjs/common';
+import { TaxiiConfigModule } from './config';
+import { RequestContext, RequestContextModule } from './common/middleware/request-context';
+import { TaxiiModule } from './taxii/taxii.module';
+import { StixModule } from './stix/stix.module';
+import { AppConnectOptions } from './interfaces';
+import { MongooseModule } from '@nestjs/mongoose';
+import { TaxiiLoggerModule } from './common/logger/taxii-logger.module';
 
 @Global()
 @Module({})

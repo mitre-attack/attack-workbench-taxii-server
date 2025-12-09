@@ -1,7 +1,7 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
-import * as mongoose from "mongoose";
-import { StixProperties, StixPropertiesSchema } from "./stix-properties.schema";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+import * as mongoose from 'mongoose';
+import { StixProperties, StixPropertiesSchema } from './stix-properties.schema';
 
 @Schema()
 export class CollectionRefEntity {
@@ -18,8 +18,7 @@ export class CollectionRefEntity {
   modified: Date;
 }
 
-export const CollectionRefSchema =
-  SchemaFactory.createForClass(CollectionRefEntity);
+export const CollectionRefSchema = SchemaFactory.createForClass(CollectionRefEntity);
 
 @Schema()
 export class ObjectMetaDataEntity {
@@ -36,11 +35,10 @@ export class ObjectMetaDataEntity {
   active: boolean;
 }
 
-export const ObjectMetaDataSchema =
-  SchemaFactory.createForClass(ObjectMetaDataEntity);
+export const ObjectMetaDataSchema = SchemaFactory.createForClass(ObjectMetaDataEntity);
 
 @Schema({
-  collection: "object-resources",
+  collection: 'object-resources',
   versionKey: false,
   /**
    * NOTE Until we integrate the attack-data-model to handle data parsing/validation,
@@ -60,42 +58,41 @@ export class AttackObjectEntity {
 
 export type AttackObjectDocument = AttackObjectEntity & Document;
 
-export const AttackObjectSchema =
-  SchemaFactory.createForClass(AttackObjectEntity);
+export const AttackObjectSchema = SchemaFactory.createForClass(AttackObjectEntity);
 
 // Index for TAXII-compliant sorting
-AttackObjectSchema.index({ "_meta.createdAt": 1 }, { background: true });
+AttackObjectSchema.index({ '_meta.createdAt': 1 }, { background: true });
 
 // Required for TAXII-compliant object sorting
 AttackObjectSchema.index(
-  { "_meta.createdAt": 1 },
+  { '_meta.createdAt': 1 },
   {
     background: true,
-    name: "taxii_object_sorting",
+    name: 'taxii_object_sorting',
   },
 );
 
 // Required for "Get Objects" endpoint
 AttackObjectSchema.index(
   {
-    "_meta.collectionRef.id": 1,
-    "_meta.active": 1,
+    '_meta.collectionRef.id': 1,
+    '_meta.active': 1,
   },
   {
     background: true,
-    name: "taxii_objects_by_collection",
+    name: 'taxii_objects_by_collection',
   },
 );
 
 // Required for "Get An Object" endpoint
 AttackObjectSchema.index(
   {
-    "_meta.collectionRef.id": 1,
-    "stix.id": 1,
-    "_meta.active": 1,
+    '_meta.collectionRef.id': 1,
+    'stix.id': 1,
+    '_meta.active': 1,
   },
   {
     background: true,
-    name: "taxii_object_lookup",
+    name: 'taxii_object_lookup',
   },
 );

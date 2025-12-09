@@ -1,8 +1,8 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { FilterService } from "./filter.service";
-import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
+import { Test, TestingModule } from '@nestjs/testing';
+import { FilterService } from './filter.service';
+import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
 
-describe("FilterService", () => {
+describe('FilterService', () => {
   let filterService: FilterService;
 
   beforeEach(async () => {
@@ -14,7 +14,7 @@ describe("FilterService", () => {
     filterService = module.get<FilterService>(FilterService);
   });
 
-  it("should be defined", async () => {
+  it('should be defined', async () => {
     expect(filterService).toBeDefined();
   });
 });

@@ -1,9 +1,9 @@
-import { Injectable, NestMiddleware, Logger } from "@nestjs/common";
-import { NextFunction, Request, Response } from "express";
-import { v5 as uuidv5 } from "uuid";
-import * as stringify from "json-stringify-safe";
-import { RequestContextModel, RequestContext } from "./request-context";
-import { randomUUID } from "crypto";
+import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
+import { NextFunction, Request, Response } from 'express';
+import { v5 as uuidv5 } from 'uuid';
+import * as stringify from 'json-stringify-safe';
+import { RequestContextModel, RequestContext } from './request-context';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class SetRequestIdMiddleware implements NestMiddleware {
@@ -18,9 +18,9 @@ export class SetRequestIdMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     // Extract information from the request (for logging purposes)
     const { ip, method, originalUrl } = req;
-    const userAgent = req.headers["user-agent"] || "";
-    const accept = req.headers.accept || "";
-    const contentType = req.headers["content-type"] || "";
+    const userAgent = req.headers['user-agent'] || '';
+    const accept = req.headers.accept || '';
+    const contentType = req.headers['content-type'] || '';
 
     //* GENERATE UUID FOR EACH REQUEST *//
     const reqId: string = setUniqueIdentifier(req);
@@ -45,7 +45,7 @@ const setUniqueIdentifier = (req: Request): string => {
   const uniqueID = uuidv5(stringify(req), randomUUID());
 
   const ctx: RequestContext = RequestContextModel.get();
-  ctx["x-request-id"] = uniqueID;
+  ctx['x-request-id'] = uniqueID;
   ctx.req = req;
 
   return uniqueID;

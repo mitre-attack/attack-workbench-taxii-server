@@ -1,17 +1,14 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { PaginationService } from "../pagination";
-import { ObjectModule } from "../object";
-import { VersionService } from "./version.service";
-import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
-import { TaxiiConfigModule } from "src/config";
-import { MongooseModule } from "@nestjs/mongoose";
-import {
-  rootMongooseTestModule,
-  closeInMongodConnection,
-} from "src/../test/test.mongoose.module";
-import { AttackObjectEntity, AttackObjectSchema } from "src/hydrate/schema";
+import { Test, TestingModule } from '@nestjs/testing';
+import { PaginationService } from '../pagination';
+import { ObjectModule } from '../object';
+import { VersionService } from './version.service';
+import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
+import { TaxiiConfigModule } from 'src/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { rootMongooseTestModule, closeInMongodConnection } from 'src/../test/test.mongoose.module';
+import { AttackObjectEntity, AttackObjectSchema } from 'src/hydrate/schema';
 
-describe("VersionService", () => {
+describe('VersionService', () => {
   let versionService: VersionService;
 
   beforeEach(async () => {
@@ -21,9 +18,7 @@ describe("VersionService", () => {
         TaxiiConfigModule,
         ObjectModule,
         rootMongooseTestModule(),
-        MongooseModule.forFeature([
-          { name: AttackObjectEntity.name, schema: AttackObjectSchema },
-        ]),
+        MongooseModule.forFeature([{ name: AttackObjectEntity.name, schema: AttackObjectSchema }]),
       ],
       providers: [VersionService, PaginationService],
     }).compile();
@@ -31,7 +26,7 @@ describe("VersionService", () => {
     versionService = module.get<VersionService>(VersionService);
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(versionService).toBeDefined();
   });
 

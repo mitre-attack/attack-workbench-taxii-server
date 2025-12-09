@@ -1,10 +1,10 @@
-import { Injectable } from "@nestjs/common";
-import { TaxiiLoggerService as Logger } from "src/common/logger";
-import { TaxiiNotFoundException } from "src/common/exceptions";
-import { EnvelopeDto } from "../envelope";
-import { isNumber } from "@nestjs/common/utils/shared.utils";
-import { ManifestDto, ManifestRecordDto } from "../manifest/dto";
-import { VersionsDto } from "../version/dto/versions.dto";
+import { Injectable } from '@nestjs/common';
+import { TaxiiLoggerService as Logger } from 'src/common/logger';
+import { TaxiiNotFoundException } from 'src/common/exceptions';
+import { EnvelopeDto } from '../envelope';
+import { isNumber } from '@nestjs/common/utils/shared.utils';
+import { ManifestDto, ManifestRecordDto } from '../manifest/dto';
+import { VersionsDto } from '../version/dto/versions.dto';
 // import { StixObjectDto } from "src/stix/dto/stix-object.dto";
 
 @Injectable()
@@ -58,7 +58,7 @@ export class PaginationService {
         // The values for `next` and `limit` are invalid for the selected items array.
         // This happens when requesting a page that doesn't exist.
         throw new TaxiiNotFoundException({
-          title: "Invalid URL Query Parameters",
+          title: 'Invalid URL Query Parameters',
           description: `The server was unable to process a page where 'next' equals ${next} and 'limit' equals ${limit}`,
         });
       }
@@ -66,7 +66,7 @@ export class PaginationService {
       const isMore: boolean = limit < items.length;
       return {
         more: isMore,
-        next: isMore ? "1" : undefined,
+        next: isMore ? '1' : undefined,
         items: items.slice(0, limit),
       };
     }
@@ -82,11 +82,7 @@ export class PaginationService {
    * @param limit The number of objects that should be included on the page
    * @param next Specifies which page is being requested
    */
-  async getEnvelope(
-    objects: Object[],
-    limit?: number,
-    next?: number,
-  ): Promise<EnvelopeDto> {
+  async getEnvelope(objects: object[], limit?: number, next?: number): Promise<EnvelopeDto> {
     const page = await this.getPage(objects, limit, next);
     return new EnvelopeDto({
       more: page.more,
@@ -120,11 +116,7 @@ export class PaginationService {
    * @param limit The number of versions that should be included on the page
    * @param next Specifies which page is being requested
    */
-  async getVersion(
-    versions: string[],
-    limit?: number,
-    next?: number,
-  ): Promise<VersionsDto> {
+  async getVersion(versions: string[], limit?: number, next?: number): Promise<VersionsDto> {
     const page = await this.getPage(versions, limit, next);
     return new VersionsDto({
       more: page.more,

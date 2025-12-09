@@ -1,13 +1,13 @@
-import { Injectable } from "@nestjs/common";
-import { ObjectService } from "../object";
-import { MatchDto } from "src/common/models/match/match.dto";
-import { TaxiiLoggerService as Logger } from "src/common/logger";
-import { ObjectFiltersDto } from "../filter/dto";
-import "object-hash";
-import { TaxiiNotFoundException } from "src/common/exceptions";
-import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
-import { EnvelopeDto } from "./dto";
-import { PaginationService } from "../pagination";
+import { Injectable } from '@nestjs/common';
+import { ObjectService } from '../object';
+import { MatchDto } from 'src/common/models/match/match.dto';
+import { TaxiiLoggerService as Logger } from 'src/common/logger';
+import { ObjectFiltersDto } from '../filter/dto';
+import 'object-hash';
+import { TaxiiNotFoundException } from 'src/common/exceptions';
+import { StixObjectPropertiesInterface } from 'src/stix/interfaces/stix-object-properties.interface';
+import { EnvelopeDto } from './dto';
+import { PaginationService } from '../pagination';
 
 @Injectable()
 export class EnvelopeService {
@@ -74,12 +74,15 @@ export class EnvelopeService {
     });
 
     // TODO cast `objects` this to correct type when attack-data-model is integrated
-    const stixObjects: { [key: string]: any }[] =
-      await this.objectsService.findOne(collectionId, objectId, filters);
+    const stixObjects: { [key: string]: any }[] = await this.objectsService.findOne(
+      collectionId,
+      objectId,
+      filters,
+    );
 
     if (!stixObjects) {
       throw new TaxiiNotFoundException({
-        title: "Envelope Not Found",
+        title: 'Envelope Not Found',
         description: `Could not locate object in collection ${collectionId} with id: ${objectId}`,
       });
     }

@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
-import { TaxiiConfigService } from "src/config";
-import { DiscoveryDto, ApiRootDto } from "./dto";
-import { DEFAULT_CONTENT_TYPE } from "src/common/middleware/content-negotiation/supported-media-types";
+import { Injectable } from '@nestjs/common';
+import { TaxiiConfigService } from 'src/config';
+import { DiscoveryDto, ApiRootDto } from './dto';
+import { DEFAULT_CONTENT_TYPE } from 'src/common/middleware/content-negotiation/supported-media-types';
 
 @Injectable()
 export class DiscoveryService {

@@ -1,20 +1,14 @@
-import {
-  CallHandler,
-  ExecutionContext,
-  Injectable,
-  Logger,
-  NestInterceptor,
-} from "@nestjs/common";
-import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
-import { Response } from "express";
-import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
-import { ManifestRecordDto } from "src/taxii/providers/manifest/dto";
+import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Response } from 'express';
+import { StixObjectPropertiesInterface } from 'src/stix/interfaces/stix-object-properties.interface';
+import { ManifestRecordDto } from 'src/taxii/providers/manifest/dto';
 
 export enum TaxiiDateFrom {
-  ENVELOPE = "envelope",
-  MANIFEST = "manifest",
-  VERSIONS = "versions",
+  ENVELOPE = 'envelope',
+  MANIFEST = 'manifest',
+  VERSIONS = 'versions',
 }
 
 export interface SetTaxiiDateHeadersOptions {
@@ -27,9 +21,7 @@ export interface SetTaxiiDateHeadersOptions {
 @Injectable()
 export class SetTaxiiDateHeadersInterceptor implements NestInterceptor {
   private readonly type: string;
-  private readonly logger: Logger = new Logger(
-    SetTaxiiDateHeadersInterceptor.name,
-  );
+  private readonly logger: Logger = new Logger(SetTaxiiDateHeadersInterceptor.name);
 
   constructor(options: SetTaxiiDateHeadersOptions) {
     this.type = options.useType;
@@ -72,8 +64,8 @@ export class SetTaxiiDateHeadersInterceptor implements NestInterceptor {
         }
 
         if (addedFirst && addedLast) {
-          res.setHeader("X-TAXII-Date-Added-First", addedFirst);
-          res.setHeader("X-TAXII-Date-Added-Last", addedLast);
+          res.setHeader('X-TAXII-Date-Added-First', addedFirst);
+          res.setHeader('X-TAXII-Date-Added-Last', addedLast);
           this.logger.debug(
             `Set TAXII date headers: first=${addedFirst}, last=${addedLast}`,
             this.constructor.name,

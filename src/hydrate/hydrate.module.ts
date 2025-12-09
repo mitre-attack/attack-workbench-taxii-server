@@ -1,16 +1,16 @@
-import { DynamicModule, Global, Module } from "@nestjs/common";
-import { ScheduleModule } from "@nestjs/schedule";
-import { MongooseModule } from "@nestjs/mongoose";
-import { HydrateConnectOptions } from "./interfaces/hydrate-connect.options";
-import { HydrateService } from "./hydrate.service";
-import { StixModule } from "../stix/stix.module";
+import { DynamicModule, Global, Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
+import { MongooseModule } from '@nestjs/mongoose';
+import { HydrateConnectOptions } from './interfaces/hydrate-connect.options';
+import { HydrateService } from './hydrate.service';
+import { StixModule } from '../stix/stix.module';
 import {
   AttackObjectEntity,
   AttackObjectSchema,
   TaxiiCollectionEntity,
   TaxiiCollectionSchema,
-} from "./schema";
-import { HYDRATE_OPTIONS_TOKEN } from "./constants";
+} from './schema';
+import { HYDRATE_OPTIONS_TOKEN } from './constants';
 
 @Global()
 @Module({})

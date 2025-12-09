@@ -1,6 +1,6 @@
-import { Expose } from "class-transformer";
-import { IsArray } from "class-validator";
-import { GenericPageDto } from "../../pagination/dto/generic-page.dto";
+import { Expose } from 'class-transformer';
+import { IsArray } from 'class-validator';
+import { GenericPageDto } from '../../pagination/dto/generic-page.dto';
 
 interface VersionsDtoConstructor {
   more?: boolean;

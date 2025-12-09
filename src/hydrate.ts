@@ -1,16 +1,14 @@
-import { NestApplication, NestFactory } from "@nestjs/core";
-import { TaxiiConfigModule, TaxiiConfigService } from "./config";
-import { HydrateModule } from "./hydrate/hydrate.module";
-import { HydrateService } from "./hydrate/hydrate.service";
+import { NestApplication, NestFactory } from '@nestjs/core';
+import { TaxiiConfigModule, TaxiiConfigService } from './config';
+import { HydrateModule } from './hydrate/hydrate.module';
+import { HydrateService } from './hydrate/hydrate.service';
 
 /**
  * Starts the Nest.js application
  */
 export async function bootstrap() {
-  const tempConfigApp: NestApplication =
-    await NestFactory.create(TaxiiConfigModule);
-  const tempConfigService: TaxiiConfigService =
-    tempConfigApp.get(TaxiiConfigService);
+  const tempConfigApp: NestApplication = await NestFactory.create(TaxiiConfigModule);
+  const tempConfigService: TaxiiConfigService = tempConfigApp.get(TaxiiConfigService);
 
   const app: NestApplication = await NestFactory.create(
     HydrateModule.register(tempConfigService.createHydrateConnectOptions()),

@@ -1,13 +1,10 @@
-import { Injectable } from "@nestjs/common";
-import { TaxiiLoggerService as Logger } from "src/common/logger";
-import { TaxiiCollectionDto, TaxiiCollectionsDto } from "./dto";
-import { InjectModel } from "@nestjs/mongoose";
-import {
-  TaxiiCollectionEntity,
-  TaxiiCollectionDocument,
-} from "src/hydrate/schema";
-import { Model } from "mongoose";
-import { TaxiiNotFoundException } from "src/common/exceptions";
+import { Injectable } from '@nestjs/common';
+import { TaxiiLoggerService as Logger } from 'src/common/logger';
+import { TaxiiCollectionDto, TaxiiCollectionsDto } from './dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { TaxiiCollectionEntity, TaxiiCollectionDocument } from 'src/hydrate/schema';
+import { Model } from 'mongoose';
+import { TaxiiNotFoundException } from 'src/common/exceptions';
 
 @Injectable()
 export class CollectionRepository {
@@ -32,19 +29,19 @@ export class CollectionRepository {
     // Uses taxii_collection_lookup index
     const response: TaxiiCollectionEntity = await this.collectionModel
       .findOne({
-        "id": id,
-        "_meta.active": true,
+        id: id,
+        '_meta.active': true,
       })
       .exec();
 
     if (!response) {
       throw new TaxiiNotFoundException({
-        title: "Collection Not Found",
+        title: 'Collection Not Found',
         description: `Collection ID '${id}' not available in database`,
       });
     }
 
-    return new TaxiiCollectionDto({ ...response["_doc"] });
+    return new TaxiiCollectionDto({ ...response['_doc'] });
   }
 
   /**
@@ -57,7 +54,7 @@ export class CollectionRepository {
 
     // Only return active collections
     const response: TaxiiCollectionEntity[] = await this.collectionModel
-      .find({ "_meta.active": true })
+      .find({ '_meta.active': true })
       .exec();
 
     // Transform to TAXII-compliant DTOs

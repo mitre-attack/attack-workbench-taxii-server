@@ -1,1 +1,1 @@
-export * from "./stix-module-options.interface";
+export * from './stix-module-options.interface';

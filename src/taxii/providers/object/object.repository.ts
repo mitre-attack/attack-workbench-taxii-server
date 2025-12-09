@@ -1,13 +1,10 @@
 // object.repository.ts
-import { Injectable } from "@nestjs/common";
-import { TaxiiLoggerService as Logger } from "src/common/logger";
-import { InjectModel } from "@nestjs/mongoose";
-import {
-  AttackObjectEntity,
-  AttackObjectDocument,
-} from "src/hydrate/schema/attack-object.schema";
-import { Model } from "mongoose";
-import { TaxiiNotFoundException } from "src/common/exceptions";
+import { Injectable } from '@nestjs/common';
+import { TaxiiLoggerService as Logger } from 'src/common/logger';
+import { InjectModel } from '@nestjs/mongoose';
+import { AttackObjectEntity, AttackObjectDocument } from 'src/hydrate/schema/attack-object.schema';
+import { Model } from 'mongoose';
+import { TaxiiNotFoundException } from 'src/common/exceptions';
 
 @Injectable()
 export class ObjectRepository {
@@ -26,28 +23,20 @@ export class ObjectRepository {
    * @param collectionId TAXII/STIX ID of the collection
    * @returns AsyncIterableIterator of AttackObjectEntity
    */
-  async *findByCollectionId(
-    collectionId: string,
-  ): AsyncIterableIterator<AttackObjectEntity> {
+  async *findByCollectionId(collectionId: string): AsyncIterableIterator<AttackObjectEntity> {
     const cursor = this.attackObjectsModel
       .find({
-        "_meta.collectionRef.id": collectionId,
-        "_meta.active": true,
+        '_meta.collectionRef.id': collectionId,
+        '_meta.active': true,
       })
-      .sort({ "_meta.createdAt": 1 }) // Uses taxii_object_sorting index
+      .sort({ '_meta.createdAt': 1 }) // Uses taxii_object_sorting index
       .cursor();
 
-    for (
-      let doc = await cursor.next();
-      doc != null;
-      doc = await cursor.next()
-    ) {
+    for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
       yield doc;
     }
 
-    this.logger.debug(
-      `Finished streaming collection ${collectionId} from database`,
-    );
+    this.logger.debug(`Finished streaming collection ${collectionId} from database`);
   }
 
   /**
@@ -58,23 +47,20 @@ export class ObjectRepository {
    * @returns Promise resolving to array of matching objects (for version history support)
    * @throws TaxiiNotFoundException if no matching objects are found
    */
-  async findOne(
-    collectionId: string,
-    objectId: string,
-  ): Promise<AttackObjectEntity[]> {
+  async findOne(collectionId: string, objectId: string): Promise<AttackObjectEntity[]> {
     // Uses taxii_object_lookup index
     const attackObjects: AttackObjectEntity[] = await this.attackObjectsModel
       .find({
-        "_meta.collectionRef.id": collectionId,
-        "stix.id": objectId,
-        "_meta.active": true,
+        '_meta.collectionRef.id': collectionId,
+        'stix.id': objectId,
+        '_meta.active': true,
       })
-      .sort({ "_meta.createdAt": 1 })
+      .sort({ '_meta.createdAt': 1 })
       .exec();
 
     if (attackObjects.length === 0) {
       throw new TaxiiNotFoundException({
-        title: "No Objects Found",
+        title: 'No Objects Found',
         description: `No objects found with ID '${objectId}' in collection '${collectionId}'`,
       });
     }

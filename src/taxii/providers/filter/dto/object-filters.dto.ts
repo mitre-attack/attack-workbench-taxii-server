@@ -1,5 +1,5 @@
-import { MatchDto } from "src/common/models/match/match.dto";
-import { Type } from "class-transformer";
+import { MatchDto } from 'src/common/models/match/match.dto';
+import { Type } from 'class-transformer';
 
 export interface ObjectFiltersOptions {
   collectionId?: string;

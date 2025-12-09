@@ -1,13 +1,8 @@
-import {
-  Inject,
-  Injectable,
-  NestMiddleware,
-  OnModuleInit,
-} from "@nestjs/common";
-import { NextFunction, Request, Response } from "express";
-import { RequestContextModel } from "./request-context.model";
-import { REQUEST_CONTEXT_MODULE_OPTIONS } from "./constants";
-import { RequestContextModuleOptions } from "./request-context.module";
+import { Inject, Injectable, NestMiddleware, OnModuleInit } from '@nestjs/common';
+import { NextFunction, Request, Response } from 'express';
+import { RequestContextModel } from './request-context.model';
+import { REQUEST_CONTEXT_MODULE_OPTIONS } from './constants';
+import { RequestContextModuleOptions } from './request-context.module';
 
 @Injectable()
 export class RequestContextMiddleware<T extends RequestContextModel>

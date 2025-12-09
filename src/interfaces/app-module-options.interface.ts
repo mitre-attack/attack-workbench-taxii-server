@@ -1,5 +1,5 @@
-import { StixConnectOptions } from "../stix/interfaces";
-import { DatabaseConnectOptions } from "./database-connect-options.interface";
+import { StixConnectOptions } from '../stix/interfaces';
+import { DatabaseConnectOptions } from './database-connect-options.interface';
 
 export interface AppConnectOptions {
   /**

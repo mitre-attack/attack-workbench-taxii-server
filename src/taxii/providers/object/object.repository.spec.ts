@@ -1,17 +1,14 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
-import { ObjectRepository } from "./object.repository";
-import { TaxiiConfigModule } from "src/config";
-import { FilterModule } from "../filter/filter.module";
-import { ObjectModule } from "./object.module";
-import {
-  closeInMongodConnection,
-  rootMongooseTestModule,
-} from "src/../test/test.mongoose.module";
-import { MongooseModule } from "@nestjs/mongoose";
-import { AttackObjectEntity, AttackObjectSchema } from "src/hydrate/schema";
+import { Test, TestingModule } from '@nestjs/testing';
+import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
+import { ObjectRepository } from './object.repository';
+import { TaxiiConfigModule } from 'src/config';
+import { FilterModule } from '../filter/filter.module';
+import { ObjectModule } from './object.module';
+import { closeInMongodConnection, rootMongooseTestModule } from 'src/../test/test.mongoose.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { AttackObjectEntity, AttackObjectSchema } from 'src/hydrate/schema';
 
-describe("ObjectRepository", () => {
+describe('ObjectRepository', () => {
   let objectRepository: ObjectRepository;
 
   beforeEach(async () => {
@@ -22,9 +19,7 @@ describe("ObjectRepository", () => {
         FilterModule,
         ObjectModule,
         rootMongooseTestModule(),
-        MongooseModule.forFeature([
-          { name: AttackObjectEntity.name, schema: AttackObjectSchema },
-        ]),
+        MongooseModule.forFeature([{ name: AttackObjectEntity.name, schema: AttackObjectSchema }]),
       ],
       providers: [ObjectRepository],
     }).compile();
@@ -32,7 +27,7 @@ describe("ObjectRepository", () => {
     objectRepository = module.get<ObjectRepository>(ObjectRepository);
   });
 
-  it("should be defined", async () => {
+  it('should be defined', async () => {
     expect(objectRepository).toBeDefined();
   });
 

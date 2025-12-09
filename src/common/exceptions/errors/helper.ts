@@ -1,5 +1,5 @@
 export const DEFAULT_EXT_DETAILS =
-  "https://docs.oasis-open.org/cti/taxii/v2.1/os/taxii-v2.1-os.html";
+  'https://docs.oasis-open.org/cti/taxii/v2.1/os/taxii-v2.1-os.html';
 
 export enum TaxiiHttpErrorStatus {
   BAD_REQUEST = 400,

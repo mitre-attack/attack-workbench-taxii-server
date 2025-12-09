@@ -1,5 +1,5 @@
-import { Exclude, Expose } from "class-transformer";
-import { IsEmail, IsOptional, IsString } from "class-validator";
+import { Exclude, Expose } from 'class-transformer';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 @Exclude()
 export class DiscoveryDto {
@@ -19,7 +19,7 @@ export class DiscoveryDto {
    * @required    false
    */
   @Expose()
-  @IsEmail({}, { message: "Invalid email address" })
+  @IsEmail({}, { message: 'Invalid email address' })
   @IsOptional()
   contact?: string;
 

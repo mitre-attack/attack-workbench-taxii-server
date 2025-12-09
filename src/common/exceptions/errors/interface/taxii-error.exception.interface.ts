@@ -1,5 +1,5 @@
-import { DEFAULT_EXT_DETAILS } from "../helper";
-import { HttpException } from "@nestjs/common";
+import { DEFAULT_EXT_DETAILS } from '../helper';
+import { HttpException } from '@nestjs/common';
 
 export interface TaxiiErrorExceptionInterface {
   /**
@@ -56,5 +56,5 @@ export interface TaxiiErrorExceptionInterface {
    * dictionary
    * The details property captures additional server-specific details about the error. The keys and values are determined by the TAXII Server and MAY be any valid JSON object structure.
    */
-  details?: Error | Object;
+  details?: Error | object;
 }

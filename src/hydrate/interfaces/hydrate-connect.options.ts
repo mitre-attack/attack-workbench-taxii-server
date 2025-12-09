@@ -1,5 +1,5 @@
-import { StixConnectOptions } from "src/stix/interfaces";
-import { DatabaseConnectOptions } from "src/interfaces/database-connect-options.interface";
+import { StixConnectOptions } from 'src/stix/interfaces';
+import { DatabaseConnectOptions } from 'src/interfaces/database-connect-options.interface';
 
 /**
  * Configuration options for the Hydrate module.

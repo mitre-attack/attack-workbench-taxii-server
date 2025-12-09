@@ -1,4 +1,4 @@
-import { WorkbenchConnectOptionsInterface } from "./workbench-connect-options.interface";
+import { WorkbenchConnectOptionsInterface } from './workbench-connect-options.interface';
 
 export interface StixConnectOptions {
   workbench?: WorkbenchConnectOptionsInterface;

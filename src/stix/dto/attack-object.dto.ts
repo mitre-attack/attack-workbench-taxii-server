@@ -1,5 +1,5 @@
-import { StixObjectInterface } from "src/stix/interfaces/stix-object.interface";
-import { Expose, Type } from "class-transformer";
+import { StixObjectInterface } from 'src/stix/interfaces/stix-object.interface';
+import { Expose, Type } from 'class-transformer';
 
 export class AttackObjectDto implements StixObjectInterface {
   @Expose()

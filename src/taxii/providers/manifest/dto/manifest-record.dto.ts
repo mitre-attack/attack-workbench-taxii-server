@@ -1,6 +1,6 @@
-import { Expose } from "class-transformer";
-import { IsDate, IsOptional, IsString } from "class-validator";
-import { DEFAULT_CONTENT_TYPE } from "src/common/middleware/content-negotiation/supported-media-types";
+import { Expose } from 'class-transformer';
+import { IsDate, IsOptional, IsString } from 'class-validator';
+import { DEFAULT_CONTENT_TYPE } from 'src/common/middleware/content-negotiation/supported-media-types';
 
 /**
  * The manifest-record type captures metadata about a single version of an object, indicated by the id property. The
@@ -12,7 +12,7 @@ export class ManifestRecordDto {
   @IsString()
   id: string;
 
-  @Expose({ name: "date_added" })
+  @Expose({ name: 'date_added' })
   @IsDate()
   dateAdded: Date;
 
@@ -20,7 +20,7 @@ export class ManifestRecordDto {
   @IsString()
   version: string;
 
-  @Expose({ name: "media_type" })
+  @Expose({ name: 'media_type' })
   @IsString()
   @IsOptional()
   mediaType?: string;

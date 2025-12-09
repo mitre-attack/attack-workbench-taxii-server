@@ -1,11 +1,11 @@
-import { Injectable } from "@nestjs/common";
-import { ObjectService } from "../object";
-import { PaginationService } from "../pagination";
-import { TaxiiLoggerService as Logger } from "src/common/logger";
-import { ObjectFiltersDto } from "../filter/dto";
-import { MatchDto } from "src/common/models/match/match.dto";
-import { TaxiiNotFoundException } from "src/common/exceptions";
-import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
+import { Injectable } from '@nestjs/common';
+import { ObjectService } from '../object';
+import { PaginationService } from '../pagination';
+import { TaxiiLoggerService as Logger } from 'src/common/logger';
+import { ObjectFiltersDto } from '../filter/dto';
+import { MatchDto } from 'src/common/models/match/match.dto';
+import { TaxiiNotFoundException } from 'src/common/exceptions';
+import { StixObjectPropertiesInterface } from 'src/stix/interfaces/stix-object-properties.interface';
 
 @Injectable()
 export class VersionService {
@@ -65,7 +65,7 @@ export class VersionService {
 
     if (!objectVersions) {
       throw new TaxiiNotFoundException({
-        title: "Requested STIX ID not found",
+        title: 'Requested STIX ID not found',
         description: `A STIX object with ${objectId} could not be found in collection ${collectionId}.`,
       });
     }

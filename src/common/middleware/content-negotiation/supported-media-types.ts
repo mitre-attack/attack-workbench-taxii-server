@@ -1,14 +1,14 @@
 export enum SupportedMediaTypes {
-  Application = "application",
+  Application = 'application',
 }
 
 export enum SupportedMediaSubTypes {
-  TaxiiJson = "taxii+json",
+  TaxiiJson = 'taxii+json',
 }
 
 export enum SupportedMediaVersion {
-  V21 = "2.1",
-  LATEST = "2.1",
+  V21 = '2.1',
+  LATEST = '2.1',
 }
 
 export const DEFAULT_CONTENT_TYPE =

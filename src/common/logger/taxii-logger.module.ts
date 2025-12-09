@@ -1,6 +1,6 @@
-import { Global, Module } from "@nestjs/common";
-import { TaxiiLoggerService } from "./taxii-logger.service";
-import { WinstonModule } from "nest-winston";
+import { Global, Module } from '@nestjs/common';
+import { TaxiiLoggerService } from './taxii-logger.service';
+import { WinstonModule } from 'nest-winston';
 
 @Global()
 @Module({

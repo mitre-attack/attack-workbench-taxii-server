@@ -1,22 +1,17 @@
-import {
-  ClassSerializerInterceptor,
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-} from "@nestjs/common";
-import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
+import { ClassSerializerInterceptor, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 
 // ** middleware ** //
-import { SetRequestIdMiddleware } from "src/common/middleware/set-request-id.middleware";
-import { ContentNegotiationMiddleware } from "src/common/middleware/content-negotiation";
-import { ResLoggerMiddleware } from "src/common/middleware/res-logger.middleware";
-import { SetResponseMediaType } from "src/common/interceptors/set-response-media-type.interceptor";
-import { SnakeCaseInterceptor } from "src/common/interceptors/snake-case.interceptor";
-import { TaxiiExceptionFilter } from "src/common/exceptions/taxii-exception.filter";
+import { SetRequestIdMiddleware } from 'src/common/middleware/set-request-id.middleware';
+import { ContentNegotiationMiddleware } from 'src/common/middleware/content-negotiation';
+import { ResLoggerMiddleware } from 'src/common/middleware/res-logger.middleware';
+import { SetResponseMediaType } from 'src/common/interceptors/set-response-media-type.interceptor';
+import { SnakeCaseInterceptor } from 'src/common/interceptors/snake-case.interceptor';
+import { TaxiiExceptionFilter } from 'src/common/exceptions/taxii-exception.filter';
 
 //** controllers **//
-import { CollectionsController } from "src/taxii/controllers/collections/collections.controller";
-import { RootController } from "src/taxii/controllers/root/root.controller";
+import { CollectionsController } from 'src/taxii/controllers/collections/collections.controller';
+import { RootController } from 'src/taxii/controllers/root/root.controller';
 
 // ** providers ** //
 import {
@@ -26,7 +21,7 @@ import {
   EnvelopeModule,
   ManifestModule,
   ObjectModule,
-} from "./providers";
+} from './providers';
 
 @Module({
   imports: [
@@ -57,8 +52,8 @@ import {
 })
 export class TaxiiModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(SetRequestIdMiddleware).forRoutes("*"); // Generate a unique ID for each request
-    consumer.apply(ContentNegotiationMiddleware).forRoutes("*"); // Inspect Accept header on all requests
-    consumer.apply(ResLoggerMiddleware).forRoutes("*"); // Log each request
+    consumer.apply(SetRequestIdMiddleware).forRoutes('*'); // Generate a unique ID for each request
+    consumer.apply(ContentNegotiationMiddleware).forRoutes('*'); // Inspect Accept header on all requests
+    consumer.apply(ResLoggerMiddleware).forRoutes('*'); // Log each request
   }
 }

@@ -1,18 +1,15 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { ObjectService } from "./object.service";
-import { ObjectRepository } from "./object.repository";
-import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
-import { TaxiiConfigModule } from "src/config";
-import { ObjectModule } from "./object.module";
-import {
-  closeInMongodConnection,
-  rootMongooseTestModule,
-} from "src/../test/test.mongoose.module";
-import { MongooseModule } from "@nestjs/mongoose";
-import { AttackObjectEntity, AttackObjectSchema } from "src/hydrate/schema";
-import { FilterModule } from "../filter/filter.module";
+import { Test, TestingModule } from '@nestjs/testing';
+import { ObjectService } from './object.service';
+import { ObjectRepository } from './object.repository';
+import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
+import { TaxiiConfigModule } from 'src/config';
+import { ObjectModule } from './object.module';
+import { closeInMongodConnection, rootMongooseTestModule } from 'src/../test/test.mongoose.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { AttackObjectEntity, AttackObjectSchema } from 'src/hydrate/schema';
+import { FilterModule } from '../filter/filter.module';
 
-describe("ObjectService", () => {
+describe('ObjectService', () => {
   let objectService: ObjectService;
 
   beforeEach(async () => {
@@ -23,9 +20,7 @@ describe("ObjectService", () => {
         FilterModule,
         ObjectModule,
         rootMongooseTestModule(),
-        MongooseModule.forFeature([
-          { name: AttackObjectEntity.name, schema: AttackObjectSchema },
-        ]),
+        MongooseModule.forFeature([{ name: AttackObjectEntity.name, schema: AttackObjectSchema }]),
       ],
       providers: [ObjectService, ObjectRepository],
     }).compile();
@@ -33,7 +28,7 @@ describe("ObjectService", () => {
     objectService = module.get(ObjectService);
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(objectService).toBeDefined();
   });
 

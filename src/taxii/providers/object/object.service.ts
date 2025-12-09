@@ -1,13 +1,10 @@
-import { Injectable } from "@nestjs/common";
-import { ObjectFiltersDto } from "../filter/dto";
-import {
-  TaxiiNotFoundException,
-  TaxiiServiceNotImplementedException,
-} from "src/common/exceptions";
-import { TaxiiLoggerService as Logger } from "src/common/logger";
-import { FilterService } from "../filter";
-import { ObjectRepository } from "./object.repository";
-import { AttackObjectEntity as MongooseAttackObject } from "src/hydrate/schema";
+import { Injectable } from '@nestjs/common';
+import { ObjectFiltersDto } from '../filter/dto';
+import { TaxiiNotFoundException, TaxiiServiceNotImplementedException } from 'src/common/exceptions';
+import { TaxiiLoggerService as Logger } from 'src/common/logger';
+import { FilterService } from '../filter';
+import { ObjectRepository } from './object.repository';
+import { AttackObjectEntity as MongooseAttackObject } from 'src/hydrate/schema';
 
 @Injectable()
 export class ObjectService {
@@ -19,14 +16,12 @@ export class ObjectService {
     logger.setContext(ObjectService.name);
   }
 
-  async *findAsyncIterableByCollectionId(
-    filters: ObjectFiltersDto,
-  ): AsyncIterableIterator<Object> {
+  async *findAsyncIterableByCollectionId(filters: ObjectFiltersDto): AsyncIterableIterator<object> {
     // A collection ID is required at a minimum
 
     if (!filters.collectionId) {
       throw new TaxiiNotFoundException({
-        name: "Collection ID Missing",
+        name: 'Collection ID Missing',
         description: `${this.constructor.name} requires a collectionId in order to retrieve STIX objects.`,
       });
     }
@@ -42,16 +37,13 @@ export class ObjectService {
       // const stixObject = new StixObjectDto({
       //   ...attackObject["_doc"].stix["_doc"],
       // });
-      const stixObject = { ...attackObject["_doc"].stix["_doc"] };
+      const stixObject = { ...attackObject['_doc'].stix['_doc'] };
 
       // Run the DTO instance through the filterService, then append it onto the return array
       // The filterService will reject the promise if the DTO fails any of the filter checks, thus the object will not
       // appended to the array if any filter check fails.
       try {
-        const object = await this.filterService.filterObject(
-          stixObject,
-          filters,
-        );
+        const object = await this.filterService.filterObject(stixObject, filters);
         yield object;
       } catch (e) {
         // Object does not match one or more filters - skip it
@@ -63,12 +55,12 @@ export class ObjectService {
    *
    * @param filters
    */
-  async findByCollectionId(filters: ObjectFiltersDto): Promise<Object[]> {
+  async findByCollectionId(filters: ObjectFiltersDto): Promise<object[]> {
     // A collection ID is required at a minimum
 
     if (!filters.collectionId) {
       throw new TaxiiNotFoundException({
-        name: "Collection ID Missing",
+        name: 'Collection ID Missing',
         description: `${this.constructor.name} requires a collectionId in order to retrieve STIX objects.`,
       });
     }
@@ -80,20 +72,17 @@ export class ObjectService {
 
     // Extract the STIX object from each document returned from the database
 
-    const stixObjects: Object[] = [];
+    const stixObjects: object[] = [];
 
     // For each attackObject document returned from the database...
     for await (const attackObject of attackObjects) {
-      const stixObject = { ...attackObject["_doc"].stix["_doc"] };
+      const stixObject = { ...attackObject['_doc'].stix['_doc'] };
 
       // Run the DTO instance through the filterService, then append it onto the return array
       // The filterService will reject the promise if the DTO fails any of the filter checks, thus the object will not
       // appended to the array if any filter check fails.
       try {
-        const object = await this.filterService.filterObject(
-          stixObject,
-          filters,
-        );
+        const object = await this.filterService.filterObject(stixObject, filters);
         stixObjects.push(object);
       } catch (e) {
         // Object does not match one or more filters - skip it
@@ -119,23 +108,25 @@ export class ObjectService {
     collectionId: string,
     objectId: string,
     filters?: ObjectFiltersDto,
-  ): Promise<Object[]> {
+  ): Promise<object[]> {
     // Retrieve the STIX object from the database
 
-    const attackObjects: MongooseAttackObject[] =
-      await this.stixObjectRepo.findOne(collectionId, objectId);
+    const attackObjects: MongooseAttackObject[] = await this.stixObjectRepo.findOne(
+      collectionId,
+      objectId,
+    );
 
     // Stop processing if no objects/docs were retrieved - raise an error and let the interceptor handle the response
 
     if (!attackObjects) {
       throw new TaxiiNotFoundException({
-        title: "Requested STIX ID not found",
+        title: 'Requested STIX ID not found',
         description: `A STIX object with ${objectId} could not be found in collection ${collectionId}.`,
       });
     }
 
     const allVersionsOfObject = attackObjects.map((attackObject) => {
-      return { ...attackObject["_doc"].stix["_doc"] };
+      return { ...attackObject['_doc'].stix['_doc'] };
     });
 
     return !filters
@@ -152,10 +143,10 @@ export class ObjectService {
     throw new TaxiiServiceNotImplementedException({
       title: "'Add Objects' is not implemented",
       description:
-        "This TAXII 2.1 implementation does not support the Add Objects (5.5) endpoint. If coupled with " +
-        "Workbench however, objects can be added via the ATT&CK Workbench Front End and/or REST API.",
+        'This TAXII 2.1 implementation does not support the Add Objects (5.5) endpoint. If coupled with ' +
+        'Workbench however, objects can be added via the ATT&CK Workbench Front End and/or REST API.',
       externalDetails:
-        "https://docs.oasis-open.org/cti/taxii/v2.1/csprd02/taxii-v2.1-csprd02.html#_Toc16526040",
+        'https://docs.oasis-open.org/cti/taxii/v2.1/csprd02/taxii-v2.1-csprd02.html#_Toc16526040',
     });
   }
 
@@ -169,9 +160,9 @@ export class ObjectService {
       title: "'Delete An Object' is not implemented",
       description:
         "This TAXII 2.1 implementation does not support the 'Delete An Object' (5.7) endpoint. If coupled with " +
-        "Workbench however, objects can be deleted via the ATT&CK Workbench Front End and/or REST API.",
+        'Workbench however, objects can be deleted via the ATT&CK Workbench Front End and/or REST API.',
       externalDetails:
-        "https://docs.oasis-open.org/cti/taxii/v2.1/csprd02/taxii-v2.1-csprd02.html#_Toc16526042",
+        'https://docs.oasis-open.org/cti/taxii/v2.1/csprd02/taxii-v2.1-csprd02.html#_Toc16526042',
     });
   }
 }

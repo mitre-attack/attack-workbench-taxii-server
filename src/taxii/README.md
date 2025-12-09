@@ -1,12 +1,12 @@
 # Summary
 
-The `TaxiiModule` is responsible for generating TAXII resources and exposing them through 
+The `TaxiiModule` is responsible for generating TAXII resources and exposing them through
 a REST API.
 
 The available TAXII endpoints are summarized below:
 
 | Method | Path                                                | Endpoint Name            | Class.function                           | Response Type       | Description                                                                                            |
-|--------|-----------------------------------------------------|--------------------------|------------------------------------------|---------------------|--------------------------------------------------------------------------------------------------------|
+| ------ | --------------------------------------------------- | ------------------------ | ---------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------ |
 | GET    | /taxii2/                                            | Server Discovery         | RootController.serverDiscovery           | DiscoveryDto        | This Endpoint provides general information about the TAXII Server, including the advertised API Roots. |
 | GET    | /{api-root}/                                        | Get API Root Information | RootController.getApiRootInformation     | ApiRootDto          | This Endpoint provides general information about an API Root.                                          |
 | GET    | /{api-root}/{status-id}/                            | Get Status               | NOT IMPLEMENTED                          | -                   | This Endpoint has not been implemented.                                                                |

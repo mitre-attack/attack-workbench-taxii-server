@@ -1,14 +1,7 @@
-import {
-  IsBoolean,
-  IsOptional,
-  IsString,
-  ValidateNested,
-  IsUUID,
-  IsArray,
-} from "class-validator";
-import { Exclude, Expose, Type } from "class-transformer";
-import { ALL_MEDIA_TYPES } from "src/common/middleware/content-negotiation";
-import { WorkbenchCollectionDto } from "src/stix/dto/workbench-collection.dto";
+import { IsBoolean, IsOptional, IsString, ValidateNested, IsUUID, IsArray } from 'class-validator';
+import { Exclude, Expose, Type } from 'class-transformer';
+import { ALL_MEDIA_TYPES } from 'src/common/middleware/content-negotiation';
+import { WorkbenchCollectionDto } from 'src/stix/dto/workbench-collection.dto';
 
 @Exclude()
 export class TaxiiCollectionDto {
@@ -19,7 +12,7 @@ export class TaxiiCollectionDto {
     }
 
     // Handle case where partial is the STIX object directly
-    if (partial && "stix" in partial) {
+    if (partial && 'stix' in partial) {
       partial = partial.stix;
     }
 

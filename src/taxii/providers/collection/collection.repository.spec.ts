@@ -1,19 +1,13 @@
-import { Test } from "@nestjs/testing";
-import { CollectionRepository } from "./collection.repository";
-import { TaxiiConfigModule } from "src/config";
-import { TaxiiLoggerModule } from "src/common/logger/taxii-logger.module";
-import {
-  closeInMongodConnection,
-  rootMongooseTestModule,
-} from "src/../test/test.mongoose.module";
-import { MongooseModule } from "@nestjs/mongoose";
-import {
-  TaxiiCollectionEntity,
-  TaxiiCollectionSchema,
-} from "src/hydrate/schema";
-import { CollectionService } from "./collection.service";
+import { Test } from '@nestjs/testing';
+import { CollectionRepository } from './collection.repository';
+import { TaxiiConfigModule } from 'src/config';
+import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
+import { closeInMongodConnection, rootMongooseTestModule } from 'src/../test/test.mongoose.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { TaxiiCollectionEntity, TaxiiCollectionSchema } from 'src/hydrate/schema';
+import { CollectionService } from './collection.service';
 
-describe("CollectionRepository", () => {
+describe('CollectionRepository', () => {
   let collectionRepo: CollectionRepository;
 
   beforeEach(async () => {
@@ -32,7 +26,7 @@ describe("CollectionRepository", () => {
     collectionRepo = module.get<CollectionRepository>(CollectionRepository);
   });
 
-  it("should be defined", async () => {
+  it('should be defined', async () => {
     expect(collectionRepo).toBeDefined();
   });
 

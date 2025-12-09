@@ -1,15 +1,8 @@
-import { Expose } from "class-transformer";
-import {
-  IsArray,
-  IsBoolean,
-  IsDate,
-  IsNumber,
-  IsString,
-  IsUUID,
-} from "class-validator";
-import { StixObjectPropertiesInterface } from "src/stix/interfaces/stix-object-properties.interface";
-import { StixGranularMarkingDto } from "./stix-granular-marking.dto";
-import { StixExternalReferencesDto } from "src/stix/dto/stix-external-references.dto";
+import { Expose } from 'class-transformer';
+import { IsArray, IsBoolean, IsDate, IsNumber, IsString, IsUUID } from 'class-validator';
+import { StixObjectPropertiesInterface } from 'src/stix/interfaces/stix-object-properties.interface';
+import { StixGranularMarkingDto } from './stix-granular-marking.dto';
+import { StixExternalReferencesDto } from 'src/stix/dto/stix-external-references.dto';
 
 export class StixObjectDto implements StixObjectPropertiesInterface {
   constructor(partial: Partial<Record<string, unknown>>) {

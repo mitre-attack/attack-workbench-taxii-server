@@ -1,6 +1,6 @@
-import { Type, Exclude, Expose } from "class-transformer";
-import { TaxiiCollectionDto } from "../taxii-collection-dto";
-import { IsArray } from "class-validator";
+import { Type, Exclude, Expose } from 'class-transformer';
+import { TaxiiCollectionDto } from '../taxii-collection-dto';
+import { IsArray } from 'class-validator';
 
 @Exclude()
 export class TaxiiCollectionsDto {

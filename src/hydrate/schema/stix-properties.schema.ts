@@ -1,6 +1,6 @@
-import * as mongoose from "mongoose";
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
+import * as mongoose from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
 @Schema({
   strict: false,
@@ -25,5 +25,4 @@ export class StixProperties {
 
 export type WorkbenchStixObjectDocument = StixProperties & Document;
 
-export const StixPropertiesSchema =
-  SchemaFactory.createForClass(StixProperties);
+export const StixPropertiesSchema = SchemaFactory.createForClass(StixProperties);

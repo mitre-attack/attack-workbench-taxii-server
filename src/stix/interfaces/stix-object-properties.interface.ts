@@ -1,5 +1,5 @@
-import { StixExternalReferencesDto } from "../dto/stix-external-references.dto";
-import { StixGranularMarkingDto } from "../dto/stix-granular-marking.dto";
+import { StixExternalReferencesDto } from '../dto/stix-external-references.dto';
+import { StixGranularMarkingDto } from '../dto/stix-granular-marking.dto';
 
 export interface StixObjectPropertiesInterface {
   // ** Common STIX properties ** //
@@ -20,7 +20,7 @@ export interface StixObjectPropertiesInterface {
   defanged?: boolean;
 
   // STIX 2.1 object extensions
-  extensions?: Object;
+  extensions?: object;
 
   // ** MITRE ATTACK non-standard properties ** //
   x_mitre_platforms?: Array<any>;

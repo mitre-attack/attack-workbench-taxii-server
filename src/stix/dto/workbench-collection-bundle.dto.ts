@@ -1,6 +1,6 @@
-import { Expose, Type } from "class-transformer";
-import { StixBundleInterface } from "src/stix/interfaces/stix-bundle.interface";
-import { IsString } from "class-validator";
+import { Expose, Type } from 'class-transformer';
+import { StixBundleInterface } from 'src/stix/interfaces/stix-bundle.interface';
+import { IsString } from 'class-validator';
 
 export class WorkbenchCollectionBundleDto implements StixBundleInterface {
   @Expose()

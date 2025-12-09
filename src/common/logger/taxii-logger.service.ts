@@ -1,18 +1,9 @@
-import {
-  ConsoleLogger,
-  Injectable,
-  LoggerService,
-  Scope,
-  LogLevel,
-} from "@nestjs/common";
-import {
-  RequestContext,
-  RequestContextModel,
-} from "../middleware/request-context";
-import { WinstonModule } from "nest-winston";
-import { TaxiiConfigService } from "src/config";
-import * as winston from "winston";
-import { isDefined } from "class-validator";
+import { ConsoleLogger, Injectable, LoggerService, Scope, LogLevel } from '@nestjs/common';
+import { RequestContext, RequestContextModel } from '../middleware/request-context';
+import { WinstonModule } from 'nest-winston';
+import { TaxiiConfigService } from 'src/config';
+import * as winston from 'winston';
+import { isDefined } from 'class-validator';
 
 /**
  * In order to give the Logger access to the request object, the service is REQUEST scoped, which means that a new
@@ -64,7 +55,7 @@ export class TaxiiLoggerService extends ConsoleLogger {
 
   private formatMessageToJSON(message: any): any {
     return {
-      reqId: this.ctx["x-request-id"],
+      reqId: this.ctx['x-request-id'],
       message: message,
     };
   }
@@ -72,9 +63,9 @@ export class TaxiiLoggerService extends ConsoleLogger {
   private formatMessageToString(message: any): any {
     let reqId: string;
     try {
-      reqId = this.ctx["x-request-id"];
+      reqId = this.ctx['x-request-id'];
     } catch (e) {
-      reqId = "NO REQUEST ID";
+      reqId = 'NO REQUEST ID';
     }
     return reqId ? `[${reqId}]  ${message}` : message;
   }
@@ -173,7 +164,7 @@ export class TaxiiLoggerService extends ConsoleLogger {
 
     if (slack) {
       // add slack transport method
-      const SlackHook = require("winston-slack-webhook-transport");
+      const SlackHook = require('winston-slack-webhook-transport');
       transports.push(
         new SlackHook({
           webhookUrl: this.appConfigService.LOG_TO_SLACK_URL, // e.g., 'https://hooks.slack.com/services/xxx/xxx/xxx/'
@@ -183,7 +174,7 @@ export class TaxiiLoggerService extends ConsoleLogger {
 
     if (sentry) {
       // add sentry transport method
-      const Sentry = require("winston-transport-sentry-node").default;
+      const Sentry = require('winston-transport-sentry-node').default;
       transports.push(
         new Sentry({
           sentry: {

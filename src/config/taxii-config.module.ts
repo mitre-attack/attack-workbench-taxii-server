@@ -1,7 +1,7 @@
-import { Global, Module } from "@nestjs/common";
-import { configuration, validationSchema } from "./configuration";
-import { TaxiiConfigService } from "./taxii-config.service";
-import { ConfigModule, ConfigService } from "@nestjs/config";
+import { Global, Module } from '@nestjs/common';
+import { configuration, validationSchema } from './configuration';
+import { TaxiiConfigService } from './taxii-config.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 /**
  * Import and provide app configuration related classes.

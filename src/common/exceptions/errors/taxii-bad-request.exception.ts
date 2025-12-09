@@ -1,5 +1,5 @@
-import { TaxiiHttpErrorStatus } from "./helper";
-import { TaxiiErrorException } from "./interface/taxii-error.exception";
+import { TaxiiHttpErrorStatus } from './helper';
+import { TaxiiErrorException } from './interface/taxii-error.exception';
 
 export class TaxiiBadRequestException extends TaxiiErrorException {
   static readonly httpStatus?: number = TaxiiHttpErrorStatus.BAD_REQUEST; // do not change

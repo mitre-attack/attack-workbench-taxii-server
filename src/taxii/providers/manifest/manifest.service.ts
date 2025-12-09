@@ -1,10 +1,10 @@
-import { Injectable } from "@nestjs/common";
-import { TaxiiLoggerService as Logger } from "src/common/logger";
-import { ObjectService } from "../object";
-import { ObjectFiltersDto } from "../filter/dto";
-import { MatchDto } from "src/common/models/match/match.dto";
-import { PaginationService } from "../pagination";
-import { ManifestDto, ManifestRecordDto } from "./dto";
+import { Injectable } from '@nestjs/common';
+import { TaxiiLoggerService as Logger } from 'src/common/logger';
+import { ObjectService } from '../object';
+import { ObjectFiltersDto } from '../filter/dto';
+import { MatchDto } from 'src/common/models/match/match.dto';
+import { PaginationService } from '../pagination';
+import { ManifestDto, ManifestRecordDto } from './dto';
 
 @Injectable()
 export class ManifestService {
@@ -32,7 +32,7 @@ export class ManifestService {
 
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.
 
-    const stixObjects: AsyncIterableIterator<Object> =
+    const stixObjects: AsyncIterableIterator<object> =
       await this.objectService.findAsyncIterableByCollectionId(searchFilters);
 
     // Convert STIX objects to manifest-records
@@ -45,10 +45,6 @@ export class ManifestService {
 
     // Paginate the manifest-records and return the appropriate page
 
-    return await this.paginationService.getManifest(
-      manifestRecords,
-      limit,
-      next,
-    );
+    return await this.paginationService.getManifest(manifestRecords, limit, next);
   }
 }

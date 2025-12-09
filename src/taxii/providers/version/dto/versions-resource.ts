@@ -1,14 +1,10 @@
-import { ApiProperty, OmitType } from "@nestjs/swagger";
-import { VersionsDto } from "src/taxii/providers/version/dto/versions.dto";
+import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { VersionsDto } from 'src/taxii/providers/version/dto/versions.dto';
 
-export class VersionsResource extends OmitType(VersionsDto, [
-  "versions",
-  "next",
-  "more",
-]) {
+export class VersionsResource extends OmitType(VersionsDto, ['versions', 'next', 'more']) {
   @ApiProperty({
     description:
-      "This property identifies if there is more content available based on the search criteria. The absence of this property means the value is false.",
+      'This property identifies if there is more content available based on the search criteria. The absence of this property means the value is false.',
     type: Boolean,
     required: false,
   })
@@ -16,7 +12,7 @@ export class VersionsResource extends OmitType(VersionsDto, [
 
   @ApiProperty({
     description:
-      "This property provides a reference to the next page if there is more content available based on the search criteria. The absence of this property means no additional pages exist based on the search criteria.",
+      'This property provides a reference to the next page if there is more content available based on the search criteria. The absence of this property means no additional pages exist based on the search criteria.',
     type: String,
     required: false,
   })
@@ -24,7 +20,7 @@ export class VersionsResource extends OmitType(VersionsDto, [
 
   @ApiProperty({
     description:
-      "The list of object versions returned by the request. If there are no versions returned, this key MUST be omitted, and the response is an empty object.",
+      'The list of object versions returned by the request. If there are no versions returned, this key MUST be omitted, and the response is an empty object.',
     type: [String],
     required: false,
   })

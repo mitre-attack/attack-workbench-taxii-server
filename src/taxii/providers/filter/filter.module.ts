@@ -1,5 +1,5 @@
-import { Module } from "@nestjs/common";
-import { FilterService } from "./filter.service";
+import { Module } from '@nestjs/common';
+import { FilterService } from './filter.service';
 
 @Module({
   imports: [],

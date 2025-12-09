@@ -1,5 +1,5 @@
-import { Expose, Type } from "class-transformer";
-import { IsArray, IsString, ValidateNested, IsUUID } from "class-validator";
+import { Expose, Type } from 'class-transformer';
+import { IsArray, IsString, ValidateNested, IsUUID } from 'class-validator';
 
 export class StixBundleDto {
   @Expose()

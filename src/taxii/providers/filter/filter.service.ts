@@ -1,8 +1,8 @@
-import { Injectable } from "@nestjs/common";
-import { ObjectFiltersDto } from "./dto";
-import { TaxiiLoggerService as Logger } from "src/common/logger";
-import { SPEC_VERSION } from "./constants";
-import { isDefined } from "class-validator";
+import { Injectable } from '@nestjs/common';
+import { ObjectFiltersDto } from './dto';
+import { TaxiiLoggerService as Logger } from 'src/common/logger';
+import { SPEC_VERSION } from './constants';
+import { isDefined } from 'class-validator';
 
 // TODO remove this after integrating attack-data-model
 type BasicStixObject = {
@@ -20,10 +20,7 @@ export class FilterService {
     logger.setContext(FilterService.name);
   }
 
-  private isMatch(
-    stixObject: BasicStixObject,
-    filters: ObjectFiltersDto,
-  ): boolean {
+  private isMatch(stixObject: BasicStixObject, filters: ObjectFiltersDto): boolean {
     const { addedAfter, matches } = filters;
 
     // Filter by match[id], match[type], match[version], and match[spec_version]
@@ -44,29 +41,19 @@ export class FilterService {
          */
 
         // check match[id]
-        if (
-          id &&
-          !id.some((targetId) => this.hasMatchingId(stixObject, targetId))
-        ) {
+        if (id && !id.some((targetId) => this.hasMatchingId(stixObject, targetId))) {
           return false;
         }
 
         // check match[type]
-        if (
-          type &&
-          !type.some((targetType) =>
-            this.hasMatchingType(stixObject, targetType),
-          )
-        ) {
+        if (type && !type.some((targetType) => this.hasMatchingType(stixObject, targetType))) {
           return false;
         }
 
         // check match[version]
         if (
           version &&
-          !version.some((targetVersion) =>
-            this.hasMatchingVersion(stixObject, targetVersion),
-          )
+          !version.some((targetVersion) => this.hasMatchingVersion(stixObject, targetVersion))
         ) {
           return false;
         }
@@ -91,10 +78,7 @@ export class FilterService {
     return true;
   }
 
-  private hasMatchingId(
-    stixObject: BasicStixObject,
-    targetId: string,
-  ): boolean {
+  private hasMatchingId(stixObject: BasicStixObject, targetId: string): boolean {
     // check match[id]
     if (targetId) {
       if (stixObject.id !== targetId) {
@@ -104,10 +88,7 @@ export class FilterService {
     return true;
   }
 
-  private hasMatchingType(
-    stixObject: BasicStixObject,
-    targetType: string,
-  ): boolean {
+  private hasMatchingType(stixObject: BasicStixObject, targetType: string): boolean {
     if (targetType) {
       if (stixObject.type !== targetType) {
         return false;
@@ -116,10 +97,7 @@ export class FilterService {
     return true;
   }
 
-  private hasMatchingVersion(
-    stixObject: BasicStixObject,
-    targetVersion: string,
-  ): boolean {
+  private hasMatchingVersion(stixObject: BasicStixObject, targetVersion: string): boolean {
     if (targetVersion) {
       if (stixObject.modified) {
         if (new Date(stixObject.modified).toISOString() !== targetVersion) {
@@ -147,17 +125,13 @@ export class FilterService {
     targetSpecVersion: string,
   ): boolean {
     if (targetSpecVersion === SPEC_VERSION.V20) {
-      if (
-        Object.prototype.hasOwnProperty.call(referenceObject, "spec_version")
-      ) {
+      if (Object.prototype.hasOwnProperty.call(referenceObject, 'spec_version')) {
         // STIX 2.0 objects cannot contain the spec_version prop. Therefore, if a STIX object is found to
         // have the spec_version property, the object cannot be considered version 2.0–compliant.
         return false;
       }
     } else if (targetSpecVersion === SPEC_VERSION.V21) {
-      if (
-        !Object.prototype.hasOwnProperty.call(referenceObject, "spec_version")
-      ) {
+      if (!Object.prototype.hasOwnProperty.call(referenceObject, 'spec_version')) {
         // STIX 2.1 objects must contain the spec_version property. Therefore, if a STIX object is found to NOT
         // have the spec_version property, then the object cannot be considered version 2.1–compliant.
         return false;
@@ -181,10 +155,7 @@ export class FilterService {
    * parameter.
    * @private
    */
-  private hasMatchingSpecVersion(
-    stixObject: BasicStixObject,
-    targetSpecVersion: string,
-  ): boolean {
+  private hasMatchingSpecVersion(stixObject: BasicStixObject, targetSpecVersion: string): boolean {
     if (isDefined(targetSpecVersion)) {
       switch (targetSpecVersion) {
         case SPEC_VERSION.V20: {
@@ -240,12 +211,7 @@ export class FilterService {
      * STIX 2.0 objects to be returned by default. This grace period is temporary and the default expected
      * TAXII 2.1 behavior will be restored on a later ATT&CK Workbench TAXII 2.1 version release.
      */
-    if (
-      !this.isCompliantWithSpecVersion(
-        stixObject,
-        SPEC_VERSION.DEFAULT_UNSPECIFIED,
-      )
-    ) {
+    if (!this.isCompliantWithSpecVersion(stixObject, SPEC_VERSION.DEFAULT_UNSPECIFIED)) {
       return false;
     }
     return true;
@@ -258,10 +224,7 @@ export class FilterService {
    * @param stixObjects The pre-filtered array of STIX objects to be processed.
    * @param filters The set of URL query parameters to filter the objects by.
    */
-  filterObjects(
-    stixObjects: BasicStixObject[],
-    filters?: ObjectFiltersDto,
-  ): Object[] {
+  filterObjects(stixObjects: BasicStixObject[], filters?: ObjectFiltersDto): object[] {
     this.logger.debug(
       `Executing sortAscending with filters ${JSON.stringify(filters)}`,
       this.constructor.name,
@@ -276,7 +239,7 @@ export class FilterService {
       // let {id, type, version, specVersion} = match;
 
       // A placeholder array to store objects that match at least one search param. This array will be returned.
-      const matchingObjects: Object[] = [];
+      const matchingObjects: object[] = [];
 
       stixObjects.forEach((currObject) => {
         if (this.isMatch(currObject, filters)) {
@@ -298,10 +261,7 @@ export class FilterService {
    * @param stixObject The STIX object to filter.
    * @param filters The set of URL query parameters to filter the object by.
    */
-  async filterObject(
-    stixObject: BasicStixObject,
-    filters?: ObjectFiltersDto,
-  ): Promise<Object> {
+  async filterObject(stixObject: BasicStixObject, filters?: ObjectFiltersDto): Promise<object> {
     return new Promise((resolve, reject) => {
       if (filters) {
         // All checks passed! Store the object to return!

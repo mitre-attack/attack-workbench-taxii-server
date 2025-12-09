@@ -1,22 +1,22 @@
-import { ConsoleLogger, Inject, Injectable } from "@nestjs/common";
-import { HttpService } from "@nestjs/axios";
-import { lastValueFrom, map } from "rxjs";
+import { ConsoleLogger, Inject, Injectable } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom, map } from 'rxjs';
 import {
   TaxiiBadRequestException,
   TaxiiNotFoundException,
   TaxiiServiceUnavailableException,
-} from "src/common/exceptions";
+} from 'src/common/exceptions';
 import {
   WorkbenchCollectionDto,
   WorkbenchCollectionStixProperties,
-} from "src/stix/dto/workbench-collection.dto";
-import { plainToInstance } from "class-transformer";
-import { WorkbenchCollectionBundleDto } from "src/stix/dto/workbench-collection-bundle.dto";
-import { AttackObjectDto } from "src/stix/dto/attack-object.dto";
-import { StixIdentityPrefix, WorkbenchRESTEndpoint } from "src/stix/constants";
-import { WorkbenchConnectOptionsInterface } from "src/stix/interfaces/workbench-connect-options.interface";
-import { WORKBENCH_OPTIONS } from "src/stix/constants";
-import { StixBundleDto } from "src/stix/dto/stix-bundle.dto";
+} from 'src/stix/dto/workbench-collection.dto';
+import { plainToInstance } from 'class-transformer';
+import { WorkbenchCollectionBundleDto } from 'src/stix/dto/workbench-collection-bundle.dto';
+import { AttackObjectDto } from 'src/stix/dto/attack-object.dto';
+import { StixIdentityPrefix, WorkbenchRESTEndpoint } from 'src/stix/constants';
+import { WorkbenchConnectOptionsInterface } from 'src/stix/interfaces/workbench-connect-options.interface';
+import { WORKBENCH_OPTIONS } from 'src/stix/constants';
+import { StixBundleDto } from 'src/stix/dto/stix-bundle.dto';
 
 interface WorkbenchCollectionResponseDto {
   _id: string;
@@ -46,10 +46,7 @@ export class WorkbenchRepository {
    * @private
    */
   private async fetchHttp(url: string): Promise<any> {
-    this.logger.debug(
-      `Sending HTTP GET request to ${url}`,
-      this.constructor.name,
-    );
+    this.logger.debug(`Sending HTTP GET request to ${url}`, this.constructor.name);
 
     let data;
     try {
@@ -76,17 +73,17 @@ export class WorkbenchRepository {
 
         if (err.response.status >= 400 && err.response.status <= 499) {
           throw new TaxiiBadRequestException({
-            title: "STIX Objects Not Found",
+            title: 'STIX Objects Not Found',
             description:
-              "The TAXII server made a request to the STIX server but the target responded with a 4xx status code. The requested STIX object may not be available. Please verify that your request is correct and contact the TAXII server administrator for help.",
+              'The TAXII server made a request to the STIX server but the target responded with a 4xx status code. The requested STIX object may not be available. Please verify that your request is correct and contact the TAXII server administrator for help.',
           });
         }
 
         if (err.response.status >= 500 && err.response.status <= 599) {
           throw new TaxiiServiceUnavailableException({
-            title: "STIX Objects Not Found",
+            title: 'STIX Objects Not Found',
             description:
-              "The TAXII server made a request to the STIX server but the target responded with a 5xx status code. The STIX server may be temporarily unavailable. Please contact the TAXII server administrator and/or try again later.",
+              'The TAXII server made a request to the STIX server but the target responded with a 5xx status code. The STIX server may be temporarily unavailable. Please contact the TAXII server administrator and/or try again later.',
           });
         }
       } else if (err.request) {
@@ -99,9 +96,9 @@ export class WorkbenchRepository {
         this.logger.error(err, this.constructor.name);
 
         throw new TaxiiServiceUnavailableException({
-          title: "STIX Objects Not Found",
+          title: 'STIX Objects Not Found',
           description:
-            "The TAXII server made a request to the STIX server but no response was received. Please contact the TAXII server administrator and/or try again later.",
+            'The TAXII server made a request to the STIX server but no response was received. Please contact the TAXII server administrator and/or try again later.',
         });
       } else {
         // Something happened in setting up the request that triggered an Error
@@ -111,9 +108,9 @@ export class WorkbenchRepository {
         );
 
         throw new TaxiiNotFoundException({
-          title: "STIX Objects Not Found",
+          title: 'STIX Objects Not Found',
           description:
-            "Something happened while setting up the HTTP request to the STIX server. Please contact the TAXII server administrator.",
+            'Something happened while setting up the HTTP request to the STIX server. Please contact the TAXII server administrator.',
         });
       }
     }
@@ -129,19 +126,12 @@ export class WorkbenchRepository {
    * @param domain The ATT&CK domain to retrieve ("enterprise-attack", "mobile-attack", or "ics-attack").
    * @returns The STIX bundle for the specified domain.
    */
-  async getStixBundle(
-    domain: string,
-    version: "2.0" | "2.1",
-  ): Promise<StixBundleDto> {
+  async getStixBundle(domain: string, version: '2.0' | '2.1'): Promise<StixBundleDto> {
     // Validate the domain parameter to ensure it matches one of the supported domains
-    const supportedDomains = [
-      "enterprise-attack",
-      "mobile-attack",
-      "ics-attack",
-    ];
+    const supportedDomains = ['enterprise-attack', 'mobile-attack', 'ics-attack'];
     if (!supportedDomains.includes(domain)) {
       throw new Error(
-        `Invalid domain specified: ${domain}. Supported domains are: ${supportedDomains.join(", ")}`,
+        `Invalid domain specified: ${domain}. Supported domains are: ${supportedDomains.join(', ')}`,
       );
     }
 
@@ -175,9 +165,7 @@ export class WorkbenchRepository {
   /**
    * Retrieves a list of all available STIX objects
    */
-  async getAllStixObjects(
-    excludeExtraneousValues = true,
-  ): Promise<AttackObjectDto[]> {
+  async getAllStixObjects(excludeExtraneousValues = true): Promise<AttackObjectDto[]> {
     const url = `${this.baseUrl}/api/attack-objects?versions=all`;
     // Get all STIX objects from Workbench. The expected response body contains an array of STIX objects.
     const response: Array<AttackObjectDto> = await this.fetchHttp(url);
@@ -210,17 +198,14 @@ export class WorkbenchRepository {
    * Retrieves a list of all available x-mitre-collection objects
    * @param collectionId Only return the target collection if specified
    */
-  async getCollections(
-    collectionId?: string,
-  ): Promise<WorkbenchCollectionDto[]> {
+  async getCollections(collectionId?: string): Promise<WorkbenchCollectionDto[]> {
     let url = `${this.baseUrl}/api/collections/`;
     if (collectionId) {
       url += collectionId;
     }
 
     // Fetch the data from Workbench
-    const response: WorkbenchCollectionResponseDto[] =
-      await this.fetchHttp(url);
+    const response: WorkbenchCollectionResponseDto[] = await this.fetchHttp(url);
 
     // Extract only the STIX data we need
     return response.map(({ stix }) => new WorkbenchCollectionDto(stix));
@@ -230,9 +215,7 @@ export class WorkbenchRepository {
    * Retrieves a STIX bundle containing all STIX object in the specified collection
    * @param collectionId Identifier of the target collection
    */
-  async getCollectionBundle(
-    collectionId: string,
-  ): Promise<WorkbenchCollectionBundleDto> {
+  async getCollectionBundle(collectionId: string): Promise<WorkbenchCollectionBundleDto> {
     const url = `${this.baseUrl}/api/collection-bundles?collectionId=${collectionId}`;
 
     // Fetch the data from Workbench
@@ -262,7 +245,7 @@ export class WorkbenchRepository {
     versions = false,
   ): Promise<AttackObjectDto[]> {
     let url = `${this.baseUrl}`;
-    const prefix = stixId.split("--")[0];
+    const prefix = stixId.split('--')[0];
     switch (prefix) {
       case StixIdentityPrefix.ATTACK_PATTERN: {
         url += WorkbenchRESTEndpoint.ATTACK_PATTERN;
@@ -314,7 +297,7 @@ export class WorkbenchRepository {
     }
     url += stixId;
     if (versions == true) {
-      url += "?versions=all";
+      url += '?versions=all';
     }
     const object: AttackObjectDto[] = await this.fetchHttp(url);
     if (object) {

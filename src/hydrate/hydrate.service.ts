@@ -1,24 +1,21 @@
-import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
-import { Cron, CronExpression } from "@nestjs/schedule";
-import { InjectModel } from "@nestjs/mongoose";
-import { Logger } from "@nestjs/common";
-import { LoggerService } from "@nestjs/common/services/logger.service";
-import { Model } from "mongoose";
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { InjectModel } from '@nestjs/mongoose';
+import { Logger } from '@nestjs/common';
+import { LoggerService } from '@nestjs/common/services/logger.service';
+import { Model } from 'mongoose';
 import {
   TaxiiCollectionEntity,
   TaxiiCollectionDocument,
   AttackObjectEntity,
   AttackObjectDocument,
-} from "./schema";
-import { TaxiiCollectionDto } from "src/taxii/providers/collection/dto";
-import { WorkbenchCollectionDto } from "src/stix/dto/workbench-collection.dto";
-import { STIX_REPO_TOKEN } from "src/stix/constants";
-import { StixRepositoryInterface } from "src/stix/providers/stix.repository.interface";
-import {
-  GET_TAXII_RESOURCES_JOB_TOKEN,
-  HYDRATE_OPTIONS_TOKEN,
-} from "./constants";
-import { HydrateConnectOptions } from "./interfaces/hydrate-connect.options";
+} from './schema';
+import { TaxiiCollectionDto } from 'src/taxii/providers/collection/dto';
+import { WorkbenchCollectionDto } from 'src/stix/dto/workbench-collection.dto';
+import { STIX_REPO_TOKEN } from 'src/stix/constants';
+import { StixRepositoryInterface } from 'src/stix/providers/stix.repository.interface';
+import { GET_TAXII_RESOURCES_JOB_TOKEN, HYDRATE_OPTIONS_TOKEN } from './constants';
+import { HydrateConnectOptions } from './interfaces/hydrate-connect.options';
 
 /**
  * Service responsible for synchronizing TAXII collections and objects with ATT&CK Workbench.
@@ -47,45 +44,40 @@ export class HydrateService implements OnModuleInit {
       // Ensure indexes first
       await this.ensureIndex(
         this.stixObjectModel.collection,
-        { "_meta.createdAt": 1 },
-        { background: true, name: "taxii_object_sorting" },
+        { '_meta.createdAt': 1 },
+        { background: true, name: 'taxii_object_sorting' },
       );
 
       await this.ensureIndex(
         this.stixObjectModel.collection,
-        { "_meta.collectionRef.id": 1, "_meta.active": 1 },
-        { background: true, name: "taxii_objects_by_collection" },
+        { '_meta.collectionRef.id': 1, '_meta.active': 1 },
+        { background: true, name: 'taxii_objects_by_collection' },
       );
 
       await this.ensureIndex(
         this.stixObjectModel.collection,
-        { "_meta.collectionRef.id": 1, "stix.id": 1, "_meta.active": 1 },
-        { background: true, name: "taxii_object_lookup" },
+        { '_meta.collectionRef.id': 1, 'stix.id': 1, '_meta.active': 1 },
+        { background: true, name: 'taxii_object_lookup' },
       );
 
-      this.logger.debug("Successfully ensured all required indexes");
+      this.logger.debug('Successfully ensured all required indexes');
 
       // Try hydration only after indexes are created
       if (this.options.hydrateOnBoot) {
         try {
-          this.logger.debug(
-            "Hydration on boot enabled - starting initial hydration",
-          );
+          this.logger.debug('Hydration on boot enabled - starting initial hydration');
           await this.hydrate();
         } catch (hydrateError) {
           // Log but don't throw hydration errors during startup
           this.logger.error(
-            "Initial hydration failed - will retry during next scheduled run",
+            'Initial hydration failed - will retry during next scheduled run',
             hydrateError.stack,
           );
         }
       }
     } catch (error) {
       // Only throw if we couldn't create indexes
-      this.logger.error(
-        "Failed to ensure indexes - cannot continue",
-        error.stack,
-      );
+      this.logger.error('Failed to ensure indexes - cannot continue', error.stack);
       throw error;
     }
   }
@@ -149,7 +141,7 @@ export class HydrateService implements OnModuleInit {
       stix: stixObject,
       _meta: {
         collectionRef,
-        stixSpecVersion: "2.1",
+        stixSpecVersion: '2.1',
         createdAt: new Date(),
         active: true,
       },
@@ -176,35 +168,30 @@ export class HydrateService implements OnModuleInit {
     // Find current active collection
     const activeCollection = await this.collectionModel
       .findOne({
-        "title": workbenchCollection.stix.name,
-        "_meta.active": true,
+        title: workbenchCollection.stix.name,
+        '_meta.active': true,
       })
       .exec();
 
     // Find any existing inactive collection matching the Workbench version
     const matchingVersion = await this.collectionModel
       .findOne({
-        "title": workbenchCollection.stix.name,
-        "_meta.workbenchCollection.version": workbenchVersion,
-        "_meta.active": false,
+        title: workbenchCollection.stix.name,
+        '_meta.workbenchCollection.version': workbenchVersion,
+        '_meta.active': false,
       })
       .exec();
 
     // No active collection exists - create new
     if (!activeCollection) {
-      this.logger.debug(
-        `Creating new TAXII collection for ${workbenchCollection.stix.name}`,
-      );
-      const newCollection =
-        this.createTaxiiCollectionEntity(workbenchCollection);
+      this.logger.debug(`Creating new TAXII collection for ${workbenchCollection.stix.name}`);
+      const newCollection = this.createTaxiiCollectionEntity(workbenchCollection);
       await this.collectionModel.create(newCollection);
       return { shouldCreateObjects: true };
     }
 
     // Active collection exists but versions match - no action needed
-    if (
-      activeCollection._meta.workbenchCollection.version === workbenchVersion
-    ) {
+    if (activeCollection._meta.workbenchCollection.version === workbenchVersion) {
       this.logger.debug(
         `Collection ${workbenchCollection.stix.name} versions match - no action needed`,
       );
@@ -213,15 +200,15 @@ export class HydrateService implements OnModuleInit {
 
     // Deactivate current collection and its objects
     await this.collectionModel.findByIdAndUpdate(activeCollection._id, {
-      $set: { "_meta.active": false },
+      $set: { '_meta.active': false },
     });
 
     await this.stixObjectModel.updateMany(
       {
-        "_meta.collectionRef.id": activeCollection.id,
-        "_meta.active": true,
+        '_meta.collectionRef.id': activeCollection.id,
+        '_meta.active': true,
       },
-      { $set: { "_meta.active": false } },
+      { $set: { '_meta.active': false } },
     );
 
     // If we've seen this version before, reactivate it and its objects
@@ -230,16 +217,16 @@ export class HydrateService implements OnModuleInit {
         `Reactivating existing version ${workbenchVersion} for ${workbenchCollection.stix.name}`,
       );
       await this.collectionModel.findByIdAndUpdate(matchingVersion._id, {
-        $set: { "_meta.active": true },
+        $set: { '_meta.active': true },
       });
 
       await this.stixObjectModel.updateMany(
         {
-          "_meta.collectionRef.id": matchingVersion.id,
-          "_meta.collectionRef.version": workbenchVersion,
-          "_meta.active": false,
+          '_meta.collectionRef.id': matchingVersion.id,
+          '_meta.collectionRef.version': workbenchVersion,
+          '_meta.active': false,
         },
-        { $set: { "_meta.active": true } },
+        { $set: { '_meta.active': true } },
       );
 
       return { shouldCreateObjects: false };
@@ -257,52 +244,42 @@ export class HydrateService implements OnModuleInit {
   private async handleOrphanedCollections(
     workbenchCollections: WorkbenchCollectionDto[],
   ): Promise<void> {
-    const workbenchTitles = new Set(
-      workbenchCollections.map((collection) => collection.stix.name),
-    );
+    const workbenchTitles = new Set(workbenchCollections.map((collection) => collection.stix.name));
 
     const orphanedCollections = await this.collectionModel
       .find({
-        "title": { $nin: Array.from(workbenchTitles) },
-        "_meta.active": true,
+        title: { $nin: Array.from(workbenchTitles) },
+        '_meta.active': true,
       })
       .exec();
 
     if (orphanedCollections.length === 0) {
-      this.logger.debug("No orphaned collections found");
+      this.logger.debug('No orphaned collections found');
       return;
     }
 
     // Mark collections as inactive
     await this.collectionModel.updateMany(
       { _id: { $in: orphanedCollections.map((c) => c._id) } },
-      { $set: { "_meta.active": false } },
+      { $set: { '_meta.active': false } },
     );
 
     // Mark their objects as inactive
     await this.stixObjectModel.updateMany(
       {
-        "_meta.collectionRef.id": { $in: orphanedCollections.map((c) => c.id) },
+        '_meta.collectionRef.id': { $in: orphanedCollections.map((c) => c.id) },
       },
-      { $set: { "_meta.active": false } },
+      { $set: { '_meta.active': false } },
     );
 
-    this.logger.debug(
-      `Marked ${orphanedCollections.length} orphaned collections as inactive`,
-    );
+    this.logger.debug(`Marked ${orphanedCollections.length} orphaned collections as inactive`);
   }
 
-  private async syncCollectionObjects(
-    workbenchCollection: WorkbenchCollectionDto,
-  ): Promise<void> {
-    const bundle = await this.stixRepo.getCollectionBundle(
-      workbenchCollection.stix.id,
-    );
+  private async syncCollectionObjects(workbenchCollection: WorkbenchCollectionDto): Promise<void> {
+    const bundle = await this.stixRepo.getCollectionBundle(workbenchCollection.stix.id);
 
     if (!bundle.objects || bundle.objects.length === 0) {
-      this.logger.debug(
-        `No objects found in collection ${workbenchCollection.stix.id}`,
-      );
+      this.logger.debug(`No objects found in collection ${workbenchCollection.stix.id}`);
       return;
     }
 
@@ -328,7 +305,7 @@ export class HydrateService implements OnModuleInit {
     name: GET_TAXII_RESOURCES_JOB_TOKEN,
   })
   async findAndStoreTaxiiResources(): Promise<void> {
-    this.logger.debug("Starting database collection and object hydration");
+    this.logger.debug('Starting database collection and object hydration');
 
     try {
       const workbenchCollections = await this.stixRepo.getCollections();
@@ -340,34 +317,25 @@ export class HydrateService implements OnModuleInit {
 
       for (const workbenchCollection of workbenchCollections) {
         try {
-          const { shouldCreateObjects } =
-            await this.handleCollectionSync(workbenchCollection);
+          const { shouldCreateObjects } = await this.handleCollectionSync(workbenchCollection);
 
           if (shouldCreateObjects) {
             await this.syncCollectionObjects(workbenchCollection);
           }
 
-          this.logger.debug(
-            `Processed collection '${workbenchCollection.stix.id}'`,
-          );
+          this.logger.debug(`Processed collection '${workbenchCollection.stix.id}'`);
         } catch (e) {
-          this.logger.error(
-            `Failed to process collection ${workbenchCollection.stix.id}`,
-            e.stack,
-          );
+          this.logger.error(`Failed to process collection ${workbenchCollection.stix.id}`, e.stack);
         }
       }
     } catch (e) {
-      this.logger.error(
-        "Failed to retrieve collections from Workbench",
-        e.stack,
-      );
+      this.logger.error('Failed to retrieve collections from Workbench', e.stack);
       throw e;
     }
   }
 
   async hydrate(): Promise<void> {
-    this.logger.debug("Manual hydration process triggered");
+    this.logger.debug('Manual hydration process triggered');
     await this.findAndStoreTaxiiResources();
   }
 }

@@ -1,7 +1,7 @@
-import { Expose, Type } from "class-transformer";
-import { IsArray } from "class-validator";
-import { GenericPageDto } from "../../pagination/dto/generic-page.dto";
-import { ManifestRecordDto } from "./manifest-record.dto";
+import { Expose, Type } from 'class-transformer';
+import { IsArray } from 'class-validator';
+import { GenericPageDto } from '../../pagination/dto/generic-page.dto';
+import { ManifestRecordDto } from './manifest-record.dto';
 
 interface ManifestDtoConstructor {
   more?: boolean;

@@ -1,9 +1,9 @@
-import { PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common';
+import { PipeTransform, Injectable } from '@nestjs/common';
 import { TaxiiBadRequestException } from '../exceptions';
 
 @Injectable()
 export class ParseTimestampPipe implements PipeTransform {
-  transform(value: any, metadata: ArgumentMetadata) {
+  transform(value: string) {
     if (!value) return undefined;
 
     const dateValue = Date.parse(value);

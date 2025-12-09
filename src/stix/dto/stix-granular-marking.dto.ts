@@ -5,7 +5,7 @@ export class StixGranularMarkingDto {
   marking_ref?: IdentifierDto;
   selectors: Array<string>;
 
-  constructor(partial?: Partial<any>) {
+  constructor(partial?: Partial<StixGranularMarkingDto>) {
     Object.assign(this, partial);
   }
 }

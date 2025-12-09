@@ -83,6 +83,7 @@ export class HydrateService implements OnModuleInit {
   }
 
   private async ensureIndex(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     collection: any,
     indexSpec: object,
     options: object = {},
@@ -134,6 +135,7 @@ export class HydrateService implements OnModuleInit {
   }
 
   private createStixObjectEntity(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     stixObject: any,
     collectionRef: ReturnType<typeof this.createCollectionRef>,
   ): AttackObjectEntity {

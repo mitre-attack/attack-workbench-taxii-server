@@ -5,7 +5,6 @@ import { TaxiiLoggerService as Logger } from 'src/common/logger';
 import { ObjectFiltersDto } from '../filter/dto';
 import 'object-hash';
 import { TaxiiNotFoundException } from 'src/common/exceptions';
-import { StixObjectPropertiesInterface } from 'src/stix/interfaces/stix-object-properties.interface';
 import { EnvelopeDto } from './dto';
 import { PaginationService } from '../pagination';
 
@@ -42,6 +41,7 @@ export class EnvelopeService {
 
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.
     // TODO cast `objects` this to correct type when attack-data-model is integrated
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const stixObjects: { [key: string]: any }[] =
       await this.objectsService.findByCollectionId(filters);
 
@@ -74,6 +74,7 @@ export class EnvelopeService {
     });
 
     // TODO cast `objects` this to correct type when attack-data-model is integrated
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const stixObjects: { [key: string]: any }[] = await this.objectsService.findOne(
       collectionId,
       objectId,

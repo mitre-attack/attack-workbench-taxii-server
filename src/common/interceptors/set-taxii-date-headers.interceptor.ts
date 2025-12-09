@@ -27,7 +27,7 @@ export class SetTaxiiDateHeadersInterceptor implements NestInterceptor {
     this.type = options.useType;
   }
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     return next.handle().pipe(
       map((data) => {
         if (!data) return data; // Early return if no data

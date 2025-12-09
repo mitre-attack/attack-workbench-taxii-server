@@ -21,7 +21,6 @@ import { VersionsDto } from 'src/taxii/providers/version/dto/versions.dto';
 import { TimestampQuery } from 'src/common/decorators/timestamp.query.decorator';
 import { NumberQuery } from 'src/common/decorators/number.query.decorator';
 import { TaxiiServiceUnavailableException } from 'src/common/exceptions';
-import { SnakeCaseInterceptor } from 'src/common/interceptors/snake-case.interceptor';
 import {
   SetTaxiiDateHeadersInterceptor,
   TaxiiDateFrom,
@@ -174,7 +173,8 @@ export class CollectionsController {
 
   @ApiExcludeEndpoint()
   @Post('/:collectionId/objects/')
-  async addObjects(@Param('collectionId') collectionId: string): Promise<any> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async addObjects(@Param('collectionId') _collectionId: string): Promise<never> {
     this.logger.warn(`${this.addObjects.name} is not implemented`, this.constructor.name);
     throw new TaxiiServiceUnavailableException({
       title: 'Not Implemented',
@@ -185,9 +185,11 @@ export class CollectionsController {
   @ApiExcludeEndpoint()
   @Delete('/:collectionId/objects/:objectId/')
   async deleteAnObject(
-    @Param('collectionId') collectionId: string,
-    @Param('objectId') objectId: string,
-  ): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Param('collectionId') _collectionId: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Param('objectId') _objectId: string,
+  ): Promise<never> {
     this.logger.warn(`${this.deleteAnObject.name} is not implemented`, this.constructor.name);
     throw new TaxiiServiceUnavailableException({
       title: 'Not Implemented',

@@ -5,7 +5,7 @@ export class StixExternalReferencesDto {
   hashes?: string;
   external_id?: string;
 
-  constructor(partial?: Partial<any>) {
+  constructor(partial?: Partial<StixExternalReferencesDto>) {
     Object.assign(this, partial);
   }
 }

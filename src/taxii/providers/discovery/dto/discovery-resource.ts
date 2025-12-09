@@ -1,6 +1,5 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { DiscoveryDto } from './discovery.dto';
-import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class DiscoveryResource extends OmitType(DiscoveryDto, []) {
   @ApiProperty({

@@ -13,5 +13,6 @@ export class WorkbenchCollectionBundleDto implements StixBundleInterface {
 
   @Expose()
   @Type(() => Object)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   objects?: { [key: string]: any }[];
 }

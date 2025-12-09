@@ -13,7 +13,7 @@ export class SetResponseMediaType implements NestInterceptor {
   private readonly HEALTH_CHECK_PATH = '/health/ping';
   private readonly DEFAULT_CONTENT_TYPE = 'application/json';
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const req = context.switchToHttp().getRequest<Request>();
     const res = context.switchToHttp().getResponse<Response>();
 
@@ -27,7 +27,7 @@ export class SetResponseMediaType implements NestInterceptor {
     }
 
     // Override the json method to prevent Express from adding charset
-    res.json = function (body: any) {
+    res.json = function (body: unknown) {
       res.setHeader('Content-Type', contentType);
       res.end(JSON.stringify(body));
       return res;

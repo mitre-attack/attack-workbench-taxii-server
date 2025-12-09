@@ -5,7 +5,7 @@ import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class SnakeCaseInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     return next.handle().pipe(
       map((data) => {
         // Handle undefined/null data
@@ -38,7 +38,7 @@ export class SnakeCaseInterceptor implements NestInterceptor {
     );
   }
 
-  private transform(data: any): any {
+  private transform(data: unknown): unknown {
     if (!data || typeof data !== 'object') {
       return data;
     }
@@ -50,7 +50,7 @@ export class SnakeCaseInterceptor implements NestInterceptor {
     return this.transformToSnakeCase(data);
   }
 
-  private transformToSnakeCase(data: any): any {
+  private transformToSnakeCase(data: unknown): unknown {
     if (!data || typeof data !== 'object') {
       return data;
     }

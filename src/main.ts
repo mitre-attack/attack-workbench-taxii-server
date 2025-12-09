@@ -96,7 +96,7 @@ export async function bootstrap() {
       );
       http.createServer(server).listen(tempConfigService.APP_PORT);
     }
-  } catch (err) {
+  } catch {
     // Fall back to HTTP (insecure) in case SSL keys cannot be loaded
     console.log('SSL keys not found. Falling back to HTTP (insecure)');
     console.log(

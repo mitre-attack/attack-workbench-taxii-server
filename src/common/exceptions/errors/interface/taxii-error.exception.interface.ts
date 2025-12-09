@@ -1,6 +1,3 @@
-import { DEFAULT_EXT_DETAILS } from '../helper';
-import { HttpException } from '@nestjs/common';
-
 export interface TaxiiErrorExceptionInterface {
   /**
    * @name title

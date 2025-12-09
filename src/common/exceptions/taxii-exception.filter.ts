@@ -14,7 +14,7 @@ export class TaxiiExceptionFilter implements ExceptionFilter {
    * @param exception The uncaught exception instance that triggered the filter
    * @param host Provides access to the HTTP context
    */
-  catch(exception: unknown, host: ArgumentsHost): any {
+  catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const reqCtx: RequestContext = RequestContextModel.get();
@@ -61,11 +61,11 @@ export class TaxiiExceptionFilter implements ExceptionFilter {
       const taxiiError = {
         title:
           typeof exceptionResponse === 'object' && 'error' in exceptionResponse
-            ? (exceptionResponse as any).error
+            ? exceptionResponse.error
             : exception.name,
         description:
           typeof exceptionResponse === 'object' && 'message' in exceptionResponse
-            ? (exceptionResponse as any).message
+            ? exceptionResponse.message
             : exception.message,
         error_id: requestId.toString(),
         http_status: status.toString(),

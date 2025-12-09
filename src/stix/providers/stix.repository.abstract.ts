@@ -6,26 +6,33 @@ import { StixBundleDto } from '../dto/stix-bundle.dto';
 export abstract class StixRepositoryAbstract implements StixRepositoryInterface {
   // ** ALL METHODS SHOULD BE OVERRIDDEN ** //
 
-  getStixBundle(domain: string, version: '2.0' | '2.1'): Promise<StixBundleDto> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getStixBundle(_domain: string, _version: '2.0' | '2.1'): Promise<StixBundleDto> {
     return;
   }
 
-  getAllStixObjects(excludeExtraneousValues?: boolean): Promise<StixObjectInterface[]> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getAllStixObjects(_excludeExtraneousValues?: boolean): Promise<StixObjectInterface[]> {
     return;
   }
 
-  getCollections(collectionId?: string): Promise<StixObjectInterface[]> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getCollections(_collectionId?: string): Promise<StixObjectInterface[]> {
     return;
   }
 
-  getCollectionBundle(collectionId: string): Promise<StixBundleInterface> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getCollectionBundle(_collectionId: string): Promise<StixBundleInterface> {
     return;
   }
 
   getAnObject(
-    collectionId: string,
-    stixId: string,
-    versions: boolean,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _collectionId: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _stixId: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _versions: boolean,
   ): Promise<StixObjectInterface[]> {
     return;
   }

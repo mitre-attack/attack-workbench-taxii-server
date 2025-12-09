@@ -8,6 +8,7 @@ export enum SupportedMediaSubTypes {
 
 export enum SupportedMediaVersion {
   V21 = '2.1',
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   LATEST = '2.1',
 }
 

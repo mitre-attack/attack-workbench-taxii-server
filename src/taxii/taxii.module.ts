@@ -51,7 +51,7 @@ import {
   ],
 })
 export class TaxiiModule implements NestModule {
-  configure(consumer: MiddlewareConsumer): any {
+  configure(consumer: MiddlewareConsumer): void {
     consumer.apply(SetRequestIdMiddleware).forRoutes('*'); // Generate a unique ID for each request
     consumer.apply(ContentNegotiationMiddleware).forRoutes('*'); // Inspect Accept header on all requests
     consumer.apply(ResLoggerMiddleware).forRoutes('*'); // Log each request

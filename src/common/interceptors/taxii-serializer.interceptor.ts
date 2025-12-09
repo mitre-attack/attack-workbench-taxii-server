@@ -5,7 +5,7 @@ import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class TaxiiSerializerInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(_context: ExecutionContext, next: CallHandler): Observable<unknown> {
     return next.handle().pipe(
       map((data) => {
         if (!data) {
@@ -29,7 +29,7 @@ export class TaxiiSerializerInterceptor implements NestInterceptor {
     );
   }
 
-  private toSnakeCase(data: any): any {
+  private toSnakeCase(data: unknown): unknown {
     if (!data || typeof data !== 'object') {
       return data;
     }
@@ -46,7 +46,7 @@ export class TaxiiSerializerInterceptor implements NestInterceptor {
     return result;
   }
 
-  private removeEmptyProperties(obj: any): any {
+  private removeEmptyProperties(obj: unknown): unknown {
     if (!obj || typeof obj !== 'object') {
       return obj;
     }

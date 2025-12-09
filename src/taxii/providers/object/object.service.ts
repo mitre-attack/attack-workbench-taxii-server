@@ -45,7 +45,7 @@ export class ObjectService {
       try {
         const object = await this.filterService.filterObject(stixObject, filters);
         yield object;
-      } catch (e) {
+      } catch {
         // Object does not match one or more filters - skip it
       }
     }
@@ -84,7 +84,7 @@ export class ObjectService {
       try {
         const object = await this.filterService.filterObject(stixObject, filters);
         stixObjects.push(object);
-      } catch (e) {
+      } catch {
         // Object does not match one or more filters - skip it
       }
     }

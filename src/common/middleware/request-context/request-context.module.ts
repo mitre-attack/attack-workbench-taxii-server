@@ -28,7 +28,7 @@ export class RequestContextModule implements NestModule {
     };
   }
 
-  configure(consumer: MiddlewareConsumer): any {
+  configure(consumer: MiddlewareConsumer): void {
     consumer.apply(RequestContextMiddleware).forRoutes('*');
   }
 }

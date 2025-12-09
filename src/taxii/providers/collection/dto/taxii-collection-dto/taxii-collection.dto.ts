@@ -20,6 +20,7 @@ export class TaxiiCollectionDto {
 
     // Handle title/name conversion
     if (!this.title) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this.title = (partial as any)?.name;
     }
 

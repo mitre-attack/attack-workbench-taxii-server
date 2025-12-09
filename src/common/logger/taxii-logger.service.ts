@@ -53,76 +53,87 @@ export class TaxiiLoggerService extends ConsoleLogger {
     }
   }
 
-  private formatMessageToJSON(message: any): any {
+  private formatMessageToJSON(message: unknown): Record<string, unknown> {
     return {
       reqId: this.ctx['x-request-id'],
       message: message,
     };
   }
 
-  private formatMessageToString(message: any): any {
+  private formatMessageToString(message: unknown): string {
     let reqId: string;
     try {
       reqId = this.ctx['x-request-id'];
-    } catch (e) {
+    } catch {
       reqId = 'NO REQUEST ID';
     }
-    return reqId ? `[${reqId}]  ${message}` : message;
+    const messageStr = String(message);
+    return reqId ? `[${reqId}]  ${messageStr}` : messageStr;
   }
 
-  log(message: any, context?: string) {
+  log(message: unknown, context?: string) {
     // loggerPlus (winston) will handle log to file, HTTP, and webhook (Slack or Sentry)
     if (isDefined(this.loggerPlus)) {
       this.loggerPlus.log(this.formatMessageToJSON(message), context);
     }
     // super (ConsoleLogger) will handle logging to console
-    isDefined(context)
-      ? super.log(this.formatMessageToString(message), context)
-      : super.log(this.formatMessageToString(message));
+    if (isDefined(context)) {
+      super.log(this.formatMessageToString(message), context);
+    } else {
+      super.log(this.formatMessageToString(message));
+    }
   }
 
-  warn(message: any, context?: string) {
+  warn(message: unknown, context?: string) {
     // loggerPlus (winston) will handle log to file, HTTP, and webhook (Slack or Sentry)
     if (isDefined(this.loggerPlus)) {
       this.loggerPlus.warn(this.formatMessageToJSON(message), context);
     }
     // super (ConsoleLogger) will handle logging to console
-    isDefined(context)
-      ? super.warn(this.formatMessageToString(message), context)
-      : super.warn(this.formatMessageToString(message));
+    if (isDefined(context)) {
+      super.warn(this.formatMessageToString(message), context);
+    } else {
+      super.warn(this.formatMessageToString(message));
+    }
   }
 
-  debug(message: any, context?: string) {
+  debug(message: unknown, context?: string) {
     // loggerPlus (winston) will handle log to file, HTTP, and webhook (Slack or Sentry)
     if (isDefined(this.loggerPlus)) {
       this.loggerPlus.debug(this.formatMessageToJSON(message), context);
     }
     // super (ConsoleLogger) will handle logging to console
-    isDefined(context)
-      ? super.debug(this.formatMessageToString(message), context)
-      : super.debug(this.formatMessageToString(message));
+    if (isDefined(context)) {
+      super.debug(this.formatMessageToString(message), context);
+    } else {
+      super.debug(this.formatMessageToString(message));
+    }
   }
 
-  error(message: any, stack?: string, context?: string) {
+  error(message: unknown, _stack?: string, context?: string) {
     // loggerPlus (winston) will handle log to file, HTTP, and webhook (Slack or Sentry)
     if (isDefined(this.loggerPlus)) {
       this.loggerPlus.error(this.formatMessageToJSON(message), context);
     }
     // super (ConsoleLogger) will handle logging to console
-    isDefined(context)
-      ? super.error(this.formatMessageToString(message), context)
-      : super.error(this.formatMessageToString(message));
+    if (isDefined(context)) {
+      super.error(this.formatMessageToString(message), context);
+    } else {
+      super.error(this.formatMessageToString(message));
+    }
   }
 
-  verbose(message: any, context?: string) {
+  verbose(message: unknown, context?: string) {
     // loggerPlus (winston) will handle log to file, HTTP, and webhook (Slack or Sentry)
     if (isDefined(this.loggerPlus)) {
       this.loggerPlus.verbose(this.formatMessageToJSON(message), context);
     }
     // super (ConsoleLogger) will handle logging to console
-    isDefined(context)
-      ? super.verbose(this.formatMessageToString(message), context)
-      : super.verbose(this.formatMessageToString(message));
+    if (isDefined(context)) {
+      super.verbose(this.formatMessageToString(message), context);
+    } else {
+      super.verbose(this.formatMessageToString(message));
+    }
   }
 
   private createLoggerPlus(
@@ -164,6 +175,7 @@ export class TaxiiLoggerService extends ConsoleLogger {
 
     if (slack) {
       // add slack transport method
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const SlackHook = require('winston-slack-webhook-transport');
       transports.push(
         new SlackHook({
@@ -174,6 +186,7 @@ export class TaxiiLoggerService extends ConsoleLogger {
 
     if (sentry) {
       // add sentry transport method
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const Sentry = require('winston-transport-sentry-node').default;
       transports.push(
         new Sentry({

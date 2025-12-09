@@ -20,11 +20,11 @@ import { StixBundleDto } from 'src/stix/dto/stix-bundle.dto';
 
 interface WorkbenchCollectionResponseDto {
   _id: string;
-  workspace: any;
+  workspace: unknown;
   stix: WorkbenchCollectionStixProperties;
   __t: string;
   __v: number;
-  created_by_identity: any;
+  created_by_identity: unknown;
 }
 
 @Injectable()
@@ -45,6 +45,7 @@ export class WorkbenchRepository {
    * @param url Base URL of the target Workbench REST API instance
    * @private
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async fetchHttp(url: string): Promise<any> {
     this.logger.debug(`Sending HTTP GET request to ${url}`, this.constructor.name);
 

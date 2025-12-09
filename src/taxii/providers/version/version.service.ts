@@ -5,7 +5,6 @@ import { TaxiiLoggerService as Logger } from 'src/common/logger';
 import { ObjectFiltersDto } from '../filter/dto';
 import { MatchDto } from 'src/common/models/match/match.dto';
 import { TaxiiNotFoundException } from 'src/common/exceptions';
-import { StixObjectPropertiesInterface } from 'src/stix/interfaces/stix-object-properties.interface';
 
 @Injectable()
 export class VersionService {
@@ -38,6 +37,7 @@ export class VersionService {
 
     // Retrieve the STIX object from the connected STIX repository.
     // TODO cast `objects` this to correct type when attack-data-model is integrated
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const objects: { [key: string]: any }[] = await this.objectService.findOne(
       collectionId,
       objectId,

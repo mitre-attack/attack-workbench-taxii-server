@@ -1,10 +1,11 @@
-import { Expose, Transform } from 'class-transformer';
-import { IsArray, IsOptional } from 'class-validator';
+import { Expose } from 'class-transformer';
+import { IsArray } from 'class-validator';
 import { GenericPageDto } from '../../pagination/dto/generic-page.dto';
 
 export class EnvelopeDto extends GenericPageDto {
   @Expose()
   @IsArray()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   objects?: Record<string, any>[];
 
   constructor(partial: Partial<EnvelopeDto>) {

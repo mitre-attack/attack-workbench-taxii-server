@@ -4,6 +4,7 @@ export interface WorkbenchCollectionStixProperties {
   modified: string;
   name: string;
   description?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   x_mitre_contents?: any[];
   x_mitre_version: string;
   x_mitre_attack_spec_version: string;
@@ -14,6 +15,7 @@ export interface WorkbenchCollectionStixProperties {
   created_by_ref: string;
   object_marking_refs?: string[];
   x_mitre_domains?: string[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   external_references?: any[];
 }
 

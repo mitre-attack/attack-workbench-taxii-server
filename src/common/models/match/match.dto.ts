@@ -53,7 +53,7 @@ export class MatchDto {
     return this.spec_version;
   }
 
-  constructor(partial?: Partial<any>) {
+  constructor(partial?: Partial<MatchDto>) {
     Object.assign(this, partial);
   }
 }

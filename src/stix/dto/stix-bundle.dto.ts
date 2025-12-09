@@ -18,5 +18,6 @@ export class StixBundleDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => Object) // Allow any object type in the array
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   objects: { [key: string]: any }[]; // Flexible type for STIX objects
 }

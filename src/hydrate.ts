@@ -1,7 +1,6 @@
 import { NestApplication, NestFactory } from '@nestjs/core';
 import { TaxiiConfigModule, TaxiiConfigService } from './config';
 import { HydrateModule } from './hydrate/hydrate.module';
-import { HydrateService } from './hydrate/hydrate.service';
 
 /**
  * Starts the Nest.js application

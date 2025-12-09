@@ -1,17 +1,17 @@
 meta {
-  name: Get Objects
+  name: Get Objects (With Pagination)
   type: http
-  seq: 5
+  seq: 6
 }
 
 get {
-  url: {{host}}/api/v21/collections/{{collectionId}}/objects
+  url: {{host}}/api/v21/collections/{{collectionId}}/objects?limit=100
   body: none
   auth: none
 }
 
 query {
-  ~limit: 100
+  limit: 100
   ~match[type]: x-mitre-matrix
   ~match[spec_version]: 2.1
   ~next: 2
@@ -26,7 +26,6 @@ headers {
 
 vars:pre-request {
   collectionId: x-mitre-collection--1f5f1533-f617-4ca8-9ab4-6a02367fa019
-  ~collectionId: x-mitre-collection--90c00720-636b-4485-b342-8751d232bf09
 }
 
 tests {

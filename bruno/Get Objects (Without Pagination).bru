@@ -1,19 +1,22 @@
 meta {
-  name: Get An Object
+  name: Get Objects (Without Pagination)
   type: http
-  seq: 7
+  seq: 5
 }
 
 get {
-  url: {{host}}/api/v21/collections/{{collectionId}}/objects/{{objectId}}
+  url: {{host}}/api/v21/collections/{{collectionId}}/objects
   body: none
   auth: none
 }
 
 query {
-  ~limit: 1
-  ~next: 1
+  ~limit: 100
+  ~match[type]: x-mitre-matrix
   ~match[spec_version]: 2.1
+  ~next: 2
+  ~added_after: 2024-01-01
+  ~match[type]: intrusion-set,tool
 }
 
 headers {
@@ -21,8 +24,7 @@ headers {
 }
 
 vars:pre-request {
-  collectionId: x-mitre-collection--1f5f1533-f617-4ca8-9ab4-6a02367fa019
-  objectId: attack-pattern--00f90846-cbd1-4fc5-9233-df5c2bf2a662
+  collectionId: x-mitre-collection--90c00720-636b-4485-b342-8751d232bf09
 }
 
 tests {
@@ -38,26 +40,19 @@ tests {
     expect(contentType).to.include('version=2.1');
   });
   
-  test("Verify returned object ID matches requested object ID", function() {
-    const url = req.getUrl();  // Get the URL from the request
-    // Regular expression to match the objectId in the URL format
-    const objectIdRegex = /objects\/([^\/]+)/;
-    // Use the regex to find the objectId
-    let requestedObjectId = url.match(objectIdRegex)[1];
+  test("Verify response body structure", function() {
     const data = res.getBody();
-    expect(data.objects).to.be.an('array');
-    if (data.objects.length > 0) {
-      data.objects.forEach(obj => {
-        expect(obj.id).to.equal(requestedObjectId);
-      });
+    expect(data).to.not.have.property('more')
+    expect(data).to.have.property('objects').that.is.an('array');
+    
+    if (data.more === true) {
+      expect(data).to.have.property('next').that.is.a('string');
     }
   });
   
-  test("Verify object properties", function() {
+  test("Verify objects properties", function() {
     const data = res.getBody();
     const failedObjects = [];
-  
-    expect(data.objects).to.be.an('array');
   
     data.objects.forEach((obj, index) => {
       try {

@@ -1,33 +1,31 @@
-module.exports = [
+import pluginJs from '@eslint/js';
+import * as mdx from 'eslint-plugin-mdx';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+
+export default [
   {
-    // Ignore build and dependency folders
-    ignores: ["dist/**", "coverage/**", "node_modules/**"]
+    ignores: ['node_modules', 'dist'],
+  },
+  { files: ['**/*.{js,mjs,cjs,ts}'] },
+  { languageOptions: { globals: globals.browser } },
+  pluginJs.configs.recommended,
+  ...tseslint.configs.recommended,
+  eslintPluginPrettierRecommended,
+
+  // MDX file support (in the documentation)
+  {
+    files: ['**/*.mdx'],
+    processor: mdx.processors.mdx,
   },
   {
-    // Apply to all TypeScript files
-    files: ["**/*.ts"],
-    languageOptions: {
-      // Use the actual parser module instead of a string so ESLint can call parse()/parseForESLint()
-      parser: require("@typescript-eslint/parser"),
-      parserOptions: {
-        project: "./tsconfig.json",
-        sourceType: "module",
-        ecmaVersion: "latest"
-      }
-    },
+    files: ['**/*.{md,mdx}'],
     plugins: {
-      "@typescript-eslint": require("@typescript-eslint/eslint-plugin"),
-      "prettier": require("eslint-plugin-prettier")
+      mdx,
     },
     rules: {
-      "@typescript-eslint/no-unused-vars": "off",
-      "@typescript-eslint/no-explicit-any": "off",
-      "prettier/prettier": [
-        "error",
-        {
-          quoteProps: "consistent"
-        }
-      ],
-    }
-  }
+      'mdx/no-unused-expressions': 'error',
+    },
+  },
 ];

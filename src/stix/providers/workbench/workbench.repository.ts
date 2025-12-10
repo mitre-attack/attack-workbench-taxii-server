@@ -45,7 +45,7 @@ export class WorkbenchRepository {
    * @param url Base URL of the target Workbench REST API instance
    * @private
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   private async fetchHttp(url: string): Promise<any> {
     this.logger.debug(`Sending HTTP GET request to ${url}`, this.constructor.name);
 

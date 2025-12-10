@@ -23,7 +23,7 @@ export interface StixObjectPropertiesInterface {
   extensions?: object;
 
   // ** MITRE ATTACK non-standard properties ** //
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   x_mitre_platforms?: Array<any>;
   x_mitre_domains?: Array<string>;
   x_mitre_contributors?: Array<string>;

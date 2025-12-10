@@ -173,7 +173,6 @@ export class CollectionsController {
 
   @ApiExcludeEndpoint()
   @Post('/:collectionId/objects/')
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async addObjects(@Param('collectionId') _collectionId: string): Promise<never> {
     this.logger.warn(`${this.addObjects.name} is not implemented`, this.constructor.name);
     throw new TaxiiServiceUnavailableException({
@@ -185,9 +184,8 @@ export class CollectionsController {
   @ApiExcludeEndpoint()
   @Delete('/:collectionId/objects/:objectId/')
   async deleteAnObject(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Param('collectionId') _collectionId: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     @Param('objectId') _objectId: string,
   ): Promise<never> {
     this.logger.warn(`${this.deleteAnObject.name} is not implemented`, this.constructor.name);

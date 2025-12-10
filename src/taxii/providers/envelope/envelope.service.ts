@@ -41,7 +41,7 @@ export class EnvelopeService {
 
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.
     // TODO cast `objects` this to correct type when attack-data-model is integrated
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const stixObjects: { [key: string]: any }[] =
       await this.objectsService.findByCollectionId(filters);
 
@@ -74,7 +74,7 @@ export class EnvelopeService {
     });
 
     // TODO cast `objects` this to correct type when attack-data-model is integrated
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const stixObjects: { [key: string]: any }[] = await this.objectsService.findOne(
       collectionId,
       objectId,

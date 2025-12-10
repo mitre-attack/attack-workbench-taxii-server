@@ -25,7 +25,6 @@ export class ManifestRecordDto {
   @IsOptional()
   mediaType?: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(stixObject: { [key: string]: any }) {
     if (!stixObject) return;
 

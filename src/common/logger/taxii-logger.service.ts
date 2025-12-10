@@ -175,7 +175,7 @@ export class TaxiiLoggerService extends ConsoleLogger {
 
     if (slack) {
       // add slack transport method
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+
       const SlackHook = require('winston-slack-webhook-transport');
       transports.push(
         new SlackHook({
@@ -186,7 +186,7 @@ export class TaxiiLoggerService extends ConsoleLogger {
 
     if (sentry) {
       // add sentry transport method
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+
       const Sentry = require('winston-transport-sentry-node').default;
       transports.push(
         new Sentry({

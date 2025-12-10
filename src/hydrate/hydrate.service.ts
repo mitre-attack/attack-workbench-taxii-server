@@ -83,7 +83,6 @@ export class HydrateService implements OnModuleInit {
   }
 
   private async ensureIndex(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     collection: any,
     indexSpec: object,
     options: object = {},
@@ -135,7 +134,6 @@ export class HydrateService implements OnModuleInit {
   }
 
   private createStixObjectEntity(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     stixObject: any,
     collectionRef: ReturnType<typeof this.createCollectionRef>,
   ): AttackObjectEntity {
@@ -170,7 +168,7 @@ export class HydrateService implements OnModuleInit {
     // Find current active collection
     const activeCollection = await this.collectionModel
       .findOne({
-        title: workbenchCollection.stix.name,
+        'title': workbenchCollection.stix.name,
         '_meta.active': true,
       })
       .exec();
@@ -178,7 +176,7 @@ export class HydrateService implements OnModuleInit {
     // Find any existing inactive collection matching the Workbench version
     const matchingVersion = await this.collectionModel
       .findOne({
-        title: workbenchCollection.stix.name,
+        'title': workbenchCollection.stix.name,
         '_meta.workbenchCollection.version': workbenchVersion,
         '_meta.active': false,
       })
@@ -250,7 +248,7 @@ export class HydrateService implements OnModuleInit {
 
     const orphanedCollections = await this.collectionModel
       .find({
-        title: { $nin: Array.from(workbenchTitles) },
+        'title': { $nin: Array.from(workbenchTitles) },
         '_meta.active': true,
       })
       .exec();

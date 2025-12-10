@@ -15,7 +15,7 @@ export enum SPEC_VERSION {
   V21 = '2.1',
   V20_V21 = '2.0,2.1',
   V21_V20 = '2.1,2.0',
-  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
+
   DEFAULT_UNSPECIFIED = '2.1', // <-- change to 2.1 when ready to convert back to default TAXII 2.1 behavior (see
   // note above)
 }

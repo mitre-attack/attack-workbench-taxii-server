@@ -29,7 +29,7 @@ export enum WorkbenchRESTEndpoint {
   ATTACK_PATTERN = '/api/techniques/',
   TACTIC = '/api/tactics/',
   MALWARE = '/api/software/',
-  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
+
   TOOL = '/api/software/',
   GROUP = '/api/groups/',
   MITIGATION = '/api/mitigations/',

@@ -4,7 +4,6 @@ import { Expose, Type } from 'class-transformer';
 export class AttackObjectDto implements StixObjectInterface {
   @Expose()
   @Type(Object)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   stix: { [key: string]: any };
 
   workspace: WorkbenchWorkspace;

@@ -37,7 +37,7 @@ export class VersionService {
 
     // Retrieve the STIX object from the connected STIX repository.
     // TODO cast `objects` this to correct type when attack-data-model is integrated
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const objects: { [key: string]: any }[] = await this.objectService.findOne(
       collectionId,
       objectId,

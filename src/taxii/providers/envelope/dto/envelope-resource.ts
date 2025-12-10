@@ -25,6 +25,5 @@ export class EnvelopeResource extends OmitType(EnvelopeDto, ['next', 'objects'])
     type: [Object],
     required: false,
   })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   objects: { [key: string]: any }[];
 }

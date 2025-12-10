@@ -1,14 +1,23 @@
-import { ConsoleLogger, Injectable, LoggerService, Scope, LogLevel } from '@nestjs/common';
-import { RequestContext, RequestContextModel } from '../middleware/request-context';
+import {
+  ConsoleLogger,
+  Inject,
+  Injectable,
+  LoggerService,
+  LogLevel,
+  Optional,
+  Scope,
+} from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 import { WinstonModule } from 'nest-winston';
 import { TaxiiConfigService } from 'src/config';
 import * as winston from 'winston';
 import { isDefined } from 'class-validator';
+import { REQUEST_ID_TOKEN } from '../middleware/set-request-id.middleware';
 
 /**
- * In order to give the Logger access to the request object, the service is REQUEST scoped, which means that a new
- * instance of the provider (LoggerService in this case) is created exclusively for each incoming request. The
- * instance is garbage-collected after the request has completed processing.
+ * Request-scoped logger service that correlates log messages with HTTP request IDs.
+ * A new instance is created for each incoming request and garbage-collected after processing.
  */
 @Injectable({ scope: Scope.REQUEST })
 export class TaxiiLoggerService extends ConsoleLogger {
@@ -17,12 +26,10 @@ export class TaxiiLoggerService extends ConsoleLogger {
   // where else (e.g. to file, HTTP, Slack, and Sentry) because Winston handles much of the logic for us.
   private readonly loggerPlus: LoggerService;
 
-  // Allows access to the Request context, i.e. any info that has been stored on TaxiiRequestContextDto. The main purpose
-  // of this context is to grant the LoggerService access to the request's `x-request-id` value so that all logs
-  // are correlated to the request which triggered it. This will help with stack tracing and debugging.
-  private readonly ctx: RequestContext = RequestContextModel.get();
-
-  constructor(private readonly appConfigService: TaxiiConfigService) {
+  constructor(
+    private readonly appConfigService: TaxiiConfigService,
+    @Optional() @Inject(REQUEST) private readonly request?: Request,
+  ) {
     super();
 
     /**
@@ -53,20 +60,22 @@ export class TaxiiLoggerService extends ConsoleLogger {
     }
   }
 
+  /**
+   * Gets the request ID from the injected request object, if available.
+   */
+  private getRequestId(): string | undefined {
+    return this.request?.[REQUEST_ID_TOKEN];
+  }
+
   private formatMessageToJSON(message: unknown): Record<string, unknown> {
     return {
-      reqId: this.ctx['x-request-id'],
+      reqId: this.getRequestId(),
       message: message,
     };
   }
 
   private formatMessageToString(message: unknown): string {
-    let reqId: string;
-    try {
-      reqId = this.ctx['x-request-id'];
-    } catch {
-      reqId = 'NO REQUEST ID';
-    }
+    const reqId = this.getRequestId();
     const messageStr = String(message);
     return reqId ? `[${reqId}]  ${messageStr}` : messageStr;
   }

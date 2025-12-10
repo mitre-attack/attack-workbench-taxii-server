@@ -1,11 +1,10 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
-import { TaxiiConfigModule } from './config';
-import { RequestContext, RequestContextModule } from './common/middleware/request-context';
-import { TaxiiModule } from './taxii/taxii.module';
-import { StixModule } from './stix/stix.module';
-import { AppConnectOptions } from './interfaces';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TaxiiLoggerModule } from './common/logger/taxii-logger.module';
+import { TaxiiConfigModule } from './config';
+import { AppConnectOptions } from './interfaces';
+import { StixModule } from './stix/stix.module';
+import { TaxiiModule } from './taxii/taxii.module';
 
 @Global()
 @Module({})
@@ -14,19 +13,6 @@ export class AppModule {
     return {
       module: AppModule,
       imports: [
-        /**
-         * IMPORTANT: RequestContextModule must be loaded before the TaxiiModule!
-         * The RequestContextModule effectively grants TaxiiModule providers a hook into every request object.
-         * This is where request IDs are stored, and thus how the Taxii providers/providers are able to
-         * log messages with corollary HTTP request information. The primary objective of this module is to make
-         * error tracing easier by automatically mapping end-user request information to corresponding log
-         * messages.
-         **/
-        RequestContextModule.forRoot({
-          contextClass: RequestContext,
-          isGlobal: true,
-        }),
-
         MongooseModule.forRoot(connectOptions.databaseConnectOptions.mongoUri),
 
         /** This is where all user-configurable parameters are defined **/

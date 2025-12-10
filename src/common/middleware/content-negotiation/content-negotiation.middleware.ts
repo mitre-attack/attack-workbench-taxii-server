@@ -1,7 +1,7 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { TaxiiBadRequestException, TaxiiNotAcceptableException } from '../../exceptions';
-import { RequestContext, RequestContextModel } from '../request-context';
+import { REQUEST_ID_TOKEN } from '../set-request-id.middleware';
 import { MediaTypeObject } from './media-type-object';
 import { MEDIA_TYPE_TOKEN } from './constants';
 
@@ -11,12 +11,10 @@ export class ContentNegotiationMiddleware implements NestMiddleware {
   private readonly HEALTH_CHECK_PATH = '/health/ping';
 
   use(req: Request, res: Response, next: NextFunction) {
-    const ctx: RequestContext = RequestContextModel.get();
+    const reqId = req[REQUEST_ID_TOKEN] || 'unknown';
 
     if (req.originalUrl.endsWith(this.HEALTH_CHECK_PATH)) {
-      this.logger.debug(
-        `[${ctx['x-request-id']}] Skipping content negotiation check on health check endpoint`,
-      );
+      this.logger.debug(`[${reqId}] Skipping content negotiation check on health check endpoint`);
       return next();
     }
 
@@ -24,7 +22,7 @@ export class ContentNegotiationMiddleware implements NestMiddleware {
     const mediaType: string = req.headers['accept'];
 
     if (typeof mediaType === 'undefined') {
-      this.logger.error(`[${ctx['x-request-id']}] Request is missing Accept header.`);
+      this.logger.error(`[${reqId}] Request is missing Accept header.`);
 
       throw new TaxiiNotAcceptableException({
         title: 'Missing Accept header',
@@ -44,7 +42,7 @@ export class ContentNegotiationMiddleware implements NestMiddleware {
         // If validation passes, proceed with the request
         return next();
       } catch (error) {
-        this.logger.error(`[${ctx['x-request-id']}] Error processing media type: ${error.message}`);
+        this.logger.error(`[${reqId}] Error processing media type: ${error.message}`);
         throw error;
       }
     }
@@ -60,13 +58,13 @@ export class ContentNegotiationMiddleware implements NestMiddleware {
   }
 
   private validate(req: Request) {
-    const ctx: RequestContext = RequestContextModel.get();
+    const reqId = req[REQUEST_ID_TOKEN] || 'unknown';
     const mediaType: MediaTypeObject = req[MEDIA_TYPE_TOKEN];
 
     // The validation is now handled in the MediaTypeObject constructor
     // We just need to check if we got a valid MediaTypeObject
     if (!mediaType || !(mediaType instanceof MediaTypeObject)) {
-      this.logger.error(`[${ctx['x-request-id']}] Invalid media type object`);
+      this.logger.error(`[${reqId}] Invalid media type object`);
 
       throw new TaxiiNotAcceptableException({
         title: 'Invalid Accept header',
@@ -75,7 +73,7 @@ export class ContentNegotiationMiddleware implements NestMiddleware {
     }
 
     this.logger.debug(
-      `[${ctx['x-request-id']}] The media type specified in the Accept header (${mediaType.toString()}) is valid`,
+      `[${reqId}] The media type specified in the Accept header (${mediaType.toString()}) is valid`,
     );
   }
 }

@@ -1,7 +1,7 @@
 import { ArgumentsHost, ExceptionFilter, HttpException, Logger } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { DEFAULT_MEDIA_TYPE } from '../middleware/content-negotiation/constants';
-import { RequestContext, RequestContextModel } from '../middleware/request-context';
+import { REQUEST_ID_TOKEN } from '../middleware/set-request-id.middleware';
 import { TaxiiErrorException } from './errors/interface/taxii-error.exception';
 import { TaxiiInternalServerErrorException } from './errors/taxii-internal-server-error.exception';
 
@@ -16,9 +16,9 @@ export class TaxiiExceptionFilter implements ExceptionFilter {
    */
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
+    const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
-    const reqCtx: RequestContext = RequestContextModel.get();
-    const requestId = reqCtx?.['x-request-id'] || 'unknown';
+    const requestId = request?.[REQUEST_ID_TOKEN] || 'unknown';
 
     // Log the exception type and details
     this.logger.error(

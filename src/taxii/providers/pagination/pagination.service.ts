@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { TaxiiLoggerService as Logger } from 'src/common/logger';
-import { TaxiiNotFoundException } from 'src/common/exceptions';
-import { EnvelopeDto } from '../envelope';
 import { isNumber } from '@nestjs/common/utils/shared.utils';
+import { TaxiiNotFoundException } from 'src/common/exceptions';
+import { TaxiiLoggerService as Logger } from 'src/common/logger';
+import { EnvelopeDto } from '../envelope';
 import { ManifestDto, ManifestRecordDto } from '../manifest/dto';
 import { VersionsDto } from '../version/dto/versions.dto';
 // import { StixObjectDto } from "src/stix/dto/stix-object.dto";
@@ -84,11 +84,7 @@ export class PaginationService {
    */
   async getEnvelope(objects: object[], limit?: number, next?: number): Promise<EnvelopeDto> {
     const page = await this.getPage(objects, limit, next);
-    return new EnvelopeDto({
-      more: page.more,
-      next: page.next,
-      objects: page.items,
-    });
+    return new EnvelopeDto({ ...page });
   }
 
   /**

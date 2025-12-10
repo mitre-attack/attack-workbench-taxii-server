@@ -8,7 +8,7 @@ type StixCoreFields = {
   modified?: string | Date;
 };
 
-type ManifestRecordInput = StixCoreFields | { stix: StixCoreFields };
+export type ManifestRecordInput = StixCoreFields | { stix: StixCoreFields };
 
 /**
  * The manifest-record type captures metadata about a single version of an object, indicated by the id property. The

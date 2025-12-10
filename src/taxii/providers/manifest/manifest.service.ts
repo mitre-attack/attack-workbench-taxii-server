@@ -4,7 +4,7 @@ import { ObjectService } from '../object';
 import { ObjectFiltersDto } from '../filter/dto';
 import { MatchDto } from 'src/common/models/match/match.dto';
 import { PaginationService } from '../pagination';
-import { ManifestDto, ManifestRecordDto } from './dto';
+import { ManifestDto, ManifestRecordDto, ManifestRecordInput } from './dto';
 
 @Injectable()
 export class ManifestService {
@@ -40,7 +40,7 @@ export class ManifestService {
     const manifestRecords: ManifestRecordDto[] = [];
 
     for await (const object of stixObjects) {
-      manifestRecords.push(new ManifestRecordDto(object));
+      manifestRecords.push(new ManifestRecordDto(object as ManifestRecordInput));
     }
 
     // Paginate the manifest-records and return the appropriate page

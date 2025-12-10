@@ -1,22 +1,21 @@
-import { ConsoleLogger, Inject, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { ConsoleLogger, Inject, Injectable } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
 import { lastValueFrom, map } from 'rxjs';
 import {
   TaxiiBadRequestException,
   TaxiiNotFoundException,
   TaxiiServiceUnavailableException,
 } from 'src/common/exceptions';
+import { StixIdentityPrefix, WORKBENCH_OPTIONS, WorkbenchRESTEndpoint } from 'src/stix/constants';
+import { AttackObjectDto } from 'src/stix/dto/attack-object.dto';
+import { StixBundleDto } from 'src/stix/dto/stix-bundle.dto';
+import { WorkbenchCollectionBundleDto } from 'src/stix/dto/workbench-collection-bundle.dto';
 import {
   WorkbenchCollectionDto,
   WorkbenchCollectionStixProperties,
 } from 'src/stix/dto/workbench-collection.dto';
-import { plainToInstance } from 'class-transformer';
-import { WorkbenchCollectionBundleDto } from 'src/stix/dto/workbench-collection-bundle.dto';
-import { AttackObjectDto } from 'src/stix/dto/attack-object.dto';
-import { StixIdentityPrefix, WorkbenchRESTEndpoint } from 'src/stix/constants';
 import { WorkbenchConnectOptionsInterface } from 'src/stix/interfaces/workbench-connect-options.interface';
-import { WORKBENCH_OPTIONS } from 'src/stix/constants';
-import { StixBundleDto } from 'src/stix/dto/stix-bundle.dto';
 
 interface WorkbenchCollectionResponseDto {
   _id: string;
@@ -45,8 +44,8 @@ export class WorkbenchRepository {
    * @param url Base URL of the target Workbench REST API instance
    * @private
    */
-
-  private async fetchHttp(url: string): Promise<unknown> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async fetchHttp(url: string): Promise<any> {
     this.logger.debug(`Sending HTTP GET request to ${url}`, this.constructor.name);
 
     let data;

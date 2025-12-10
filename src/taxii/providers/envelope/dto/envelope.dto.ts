@@ -5,7 +5,7 @@ import { GenericPageDto } from '../../pagination/dto/generic-page.dto';
 export class EnvelopeDto extends GenericPageDto {
   @Expose()
   @IsArray()
-  objects?: Record<string, unknown>[];
+  objects?: object[];
 
   constructor(partial: Partial<EnvelopeDto>) {
     super(partial);

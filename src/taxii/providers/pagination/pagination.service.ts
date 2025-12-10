@@ -84,7 +84,11 @@ export class PaginationService {
    */
   async getEnvelope(objects: object[], limit?: number, next?: number): Promise<EnvelopeDto> {
     const page = await this.getPage(objects, limit, next);
-    return new EnvelopeDto({ ...page });
+    return new EnvelopeDto({ 
+        more: page.more,
+        next: page.next,
+        objects: page.items,
+     });
   }
 
   /**

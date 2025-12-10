@@ -1,26 +1,19 @@
-import { IsBoolean, IsOptional, IsString, ValidateNested, IsUUID, IsArray } from 'class-validator';
 import { Exclude, Expose, Type } from 'class-transformer';
+import { IsArray, IsBoolean, IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator';
 import { ALL_MEDIA_TYPES } from 'src/common/middleware/content-negotiation';
 import { WorkbenchCollectionDto } from 'src/stix/dto/workbench-collection.dto';
 
+type StixLikePartial = Partial<TaxiiCollectionDto> & { name?: string };
+
 @Exclude()
 export class TaxiiCollectionDto {
-  constructor(partial: Partial<TaxiiCollectionDto> | WorkbenchCollectionDto) {
-    // If we're passed a WorkbenchCollectionDto, extract the STIX data
-    if (partial instanceof WorkbenchCollectionDto) {
-      partial = partial.stix;
-    }
+  constructor(partial: StixLikePartial | { stix: StixLikePartial } | WorkbenchCollectionDto) {
+    const data: StixLikePartial = 'stix' in partial ? partial.stix : partial;
 
-    // Handle case where partial is the STIX object directly
-    if (partial && 'stix' in partial) {
-      partial = partial.stix;
-    }
+    Object.assign(this, data);
 
-    Object.assign(this, partial);
-
-    // Handle title/name conversion
-    if (!this.title) {
-      this.title = (partial as any)?.name;
+    if (!this.title && data.name) {
+      this.title = data.name;
     }
 
     // Set default values

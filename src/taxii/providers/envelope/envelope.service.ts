@@ -42,8 +42,7 @@ export class EnvelopeService {
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.
     // TODO cast `objects` this to correct type when attack-data-model is integrated
 
-    const stixObjects: { [key: string]: any }[] =
-      await this.objectsService.findByCollectionId(filters);
+    const stixObjects: object[] = await this.objectsService.findByCollectionId(filters);
 
     // Paginate the array of STIX objects and return the requested page & page count
     return await this.paginationService.getEnvelope(stixObjects, limit, next);
@@ -75,7 +74,7 @@ export class EnvelopeService {
 
     // TODO cast `objects` this to correct type when attack-data-model is integrated
 
-    const stixObjects: { [key: string]: any }[] = await this.objectsService.findOne(
+    const stixObjects: object[] = await this.objectsService.findOne(
       collectionId,
       objectId,
       filters,

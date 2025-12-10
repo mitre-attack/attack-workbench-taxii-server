@@ -25,5 +25,5 @@ export class EnvelopeResource extends OmitType(EnvelopeDto, ['next', 'objects'])
     type: [Object],
     required: false,
   })
-  objects: { [key: string]: any }[];
+  objects: object[];
 }

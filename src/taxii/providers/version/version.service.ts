@@ -1,10 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { TaxiiNotFoundException } from 'src/common/exceptions';
+import { TaxiiLoggerService as Logger } from 'src/common/logger';
+import { MatchDto } from 'src/common/models/match/match.dto';
+import { ObjectFiltersDto } from '../filter/dto';
 import { ObjectService } from '../object';
 import { PaginationService } from '../pagination';
-import { TaxiiLoggerService as Logger } from 'src/common/logger';
-import { ObjectFiltersDto } from '../filter/dto';
-import { MatchDto } from 'src/common/models/match/match.dto';
-import { TaxiiNotFoundException } from 'src/common/exceptions';
+
+// Define a minimal, safe type for STIX objects that guarantees at least one timestamp
+type VersionedStixObject = (
+  | { modified: string; created?: string }
+  | { modified?: string; created: string }
+) &
+  Record<string, unknown>;
 
 @Injectable()
 export class VersionService {
@@ -38,11 +45,7 @@ export class VersionService {
     // Retrieve the STIX object from the connected STIX repository.
     // TODO cast `objects` this to correct type when attack-data-model is integrated
 
-    const objects: { [key: string]: any }[] = await this.objectService.findOne(
-      collectionId,
-      objectId,
-      filters,
-    );
+    const objects = await this.objectService.findOne(collectionId, objectId, filters);
 
     /**
      * Extract the version string of the object(s) that are being requested.
@@ -57,7 +60,7 @@ export class VersionService {
      *
      * This implementation assumes that all STIX objects will properties `modified`, `created`, or both.
      */
-    const objectVersions: string[] = objects.map((object) =>
+    const objectVersions: string[] = (objects as VersionedStixObject[]).map((object) =>
       object.modified
         ? new Date(object.modified).toISOString()
         : new Date(object.created).toISOString(),

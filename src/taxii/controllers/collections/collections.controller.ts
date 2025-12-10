@@ -11,15 +11,15 @@ import {
 } from 'src/taxii/providers';
 
 // ** dtos ** //
+import { MatchDto } from 'src/common/models/match/match.dto';
 import { TaxiiCollectionDto, TaxiiCollectionsDto } from 'src/taxii/providers/collection/dto';
 import { EnvelopeDto } from 'src/taxii/providers/envelope/dto';
 import { ManifestDto } from 'src/taxii/providers/manifest/dto';
-import { MatchDto } from 'src/common/models/match/match.dto';
 import { VersionsDto } from 'src/taxii/providers/version/dto/versions.dto';
 
 // ** middleware ** //
-import { TimestampQuery } from 'src/common/decorators/timestamp.query.decorator';
 import { NumberQuery } from 'src/common/decorators/number.query.decorator';
+import { TimestampQuery } from 'src/common/decorators/timestamp.query.decorator';
 import { TaxiiServiceUnavailableException } from 'src/common/exceptions';
 import {
   SetTaxiiDateHeadersInterceptor,
@@ -27,18 +27,18 @@ import {
 } from 'src/common/interceptors/set-taxii-date-headers.interceptor';
 
 // ** transformation pipes ** //
-import { ParseTimestampPipe } from 'src/common/pipes/parse-timestamp.pipe';
-import { ParseMatchQueryParamPipe } from 'src/common/pipes/parse-match-query-param.pipe';
 import { instanceToPlain } from 'class-transformer';
+import { ParseMatchQueryParamPipe } from 'src/common/pipes/parse-match-query-param.pipe';
+import { ParseTimestampPipe } from 'src/common/pipes/parse-timestamp.pipe';
 
 // ** open-api ** //
 import { ApiExcludeEndpoint, ApiHeader, ApiOkResponse } from '@nestjs/swagger';
-import { SwaggerDocumentation as SWAGGER } from './collections.controller.swagger.json';
-import { VersionsResource } from '../../providers/version/dto/versions-resource';
 import { EnvelopeResource } from 'src/taxii/providers/envelope/dto/envelope-resource';
-import { TaxiiCollectionsResource } from '../../providers/collection/dto/taxii-collections-dto/taxii-collections-resource';
 import { TaxiiCollectionResource } from '../../providers/collection/dto/taxii-collection-dto/taxii-collection-resource';
+import { TaxiiCollectionsResource } from '../../providers/collection/dto/taxii-collections-dto/taxii-collections-resource';
 import { ManifestResource } from '../../providers/manifest/dto';
+import { VersionsResource } from '../../providers/version/dto/versions-resource';
+import { SwaggerDocumentation as SWAGGER } from './collections.controller.swagger.json';
 
 @ApiHeader({
   name: SWAGGER.AcceptHeader.Name,
@@ -173,6 +173,7 @@ export class CollectionsController {
 
   @ApiExcludeEndpoint()
   @Post('/:collectionId/objects/')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async addObjects(@Param('collectionId') _collectionId: string): Promise<never> {
     this.logger.warn(`${this.addObjects.name} is not implemented`, this.constructor.name);
     throw new TaxiiServiceUnavailableException({
@@ -184,8 +185,9 @@ export class CollectionsController {
   @ApiExcludeEndpoint()
   @Delete('/:collectionId/objects/:objectId/')
   async deleteAnObject(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Param('collectionId') _collectionId: string,
-
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Param('objectId') _objectId: string,
   ): Promise<never> {
     this.logger.warn(`${this.deleteAnObject.name} is not implemented`, this.constructor.name);

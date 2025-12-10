@@ -46,7 +46,7 @@ export class WorkbenchRepository {
    * @private
    */
 
-  private async fetchHttp(url: string): Promise<any> {
+  private async fetchHttp(url: string): Promise<unknown> {
     this.logger.debug(`Sending HTTP GET request to ${url}`, this.constructor.name);
 
     let data;

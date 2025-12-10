@@ -1,3 +1,3 @@
 export interface StixObjectInterface {
-  stix: { [key: string]: any };
+  stix: { [key: string]: unknown };
 }

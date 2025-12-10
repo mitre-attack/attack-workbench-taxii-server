@@ -13,5 +13,5 @@ export class WorkbenchCollectionBundleDto implements StixBundleInterface {
 
   @Expose()
   @Type(() => Object)
-  objects?: { [key: string]: any }[];
+  objects?: { [key: string]: unknown }[];
 }

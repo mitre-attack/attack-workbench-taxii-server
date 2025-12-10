@@ -5,7 +5,7 @@ export interface WorkbenchCollectionStixProperties {
   name: string;
   description?: string;
 
-  x_mitre_contents?: any[];
+  x_mitre_contents?: object[];
   x_mitre_version: string;
   x_mitre_attack_spec_version: string;
   type: string;
@@ -16,7 +16,7 @@ export interface WorkbenchCollectionStixProperties {
   object_marking_refs?: string[];
   x_mitre_domains?: string[];
 
-  external_references?: any[];
+  external_references?: object[];
 }
 
 export class WorkbenchCollectionDto {

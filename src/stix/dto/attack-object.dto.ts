@@ -4,7 +4,7 @@ import { Expose, Type } from 'class-transformer';
 export class AttackObjectDto implements StixObjectInterface {
   @Expose()
   @Type(Object)
-  stix: { [key: string]: any };
+  stix: { [key: string]: unknown };
 
   workspace: WorkbenchWorkspace;
 }

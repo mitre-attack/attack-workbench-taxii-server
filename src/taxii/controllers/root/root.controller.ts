@@ -44,7 +44,10 @@ export class RootController {
   }
 
   @Get(`/:statusId/`)
-  getStatus(@Param('statusId') _statusId: string): Promise<never> {
+  getStatus(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Param('statusId') _statusId: string,
+  ): Promise<never> {
     this.logger.warn(`${this.getStatus.name} is not implemented`, this.constructor.name);
     throw new TaxiiServiceUnavailableException({
       title: 'Not Implemented',

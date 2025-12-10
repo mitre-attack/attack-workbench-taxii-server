@@ -18,5 +18,5 @@ export class StixBundleDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => Object) // Allow any object type in the array
-  objects: { [key: string]: any }[]; // Flexible type for STIX objects
+  objects: { [key: string]: unknown }[]; // Flexible type for STIX objects
 }

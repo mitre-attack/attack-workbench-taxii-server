@@ -24,7 +24,7 @@ export interface StixObjectPropertiesInterface {
 
   // ** MITRE ATTACK non-standard properties ** //
 
-  x_mitre_platforms?: Array<any>;
+  x_mitre_platforms?: Array<string>;
   x_mitre_domains?: Array<string>;
   x_mitre_contributors?: Array<string>;
   x_mitre_data_sources?: Array<string>;

@@ -25,9 +25,9 @@
   },
   "homepage": "https://github.com/mitre-attack/attack-workbench-taxii-server#readme",
   "dependencies": {
-    "@usebruno/cli": "^1.14.0",
+    "@usebruno/cli": "^2.15.1",
+    "@xmldom/xmldom": "^0.8.11",
     "xml2js": "^0.6.2",
-    "xmldom": "^0.6.0",
     "xpath": "^0.0.34"
   }
 }

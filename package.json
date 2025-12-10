@@ -36,8 +36,8 @@
     "test:e2e": "jest --config jest-e2e.json",
     "lint": "npx eslint src",
     "lint:fix": "npm run lint -- --fix",
-    "prettier": "npx prettier src --check",
-    "prettier:fix": "npm run prettier -- --write",
+    "prettier": "prettier src --check",
+    "prettier:fix": "prettier src --write",
     "format": "npm run prettier:fix && npm run lint:fix",
     "check:lockfile": "bash scripts/check-package-lock.sh"
   },

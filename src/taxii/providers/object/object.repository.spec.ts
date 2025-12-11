@@ -4,7 +4,6 @@ import { closeInMongodConnection, rootMongooseTestModule } from 'src/../test/tes
 import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
 import { TaxiiConfigModule } from 'src/config';
 import { AttackObjectEntity, AttackObjectSchema } from 'src/hydrate/schema';
-import { TaxiiModule } from 'src/taxii/taxii.module';
 import { FilterModule } from '../filter/filter.module';
 import { ObjectModule } from './object.module';
 import { ObjectRepository } from './object.repository';

@@ -15,7 +15,6 @@ import {
   ManifestModule,
   VersionModule,
 } from 'src/taxii/providers';
-import { TaxiiModule } from 'src/taxii/taxii.module';
 import { CollectionsController } from './collections.controller';
 
 describe('CollectionsController', () => {

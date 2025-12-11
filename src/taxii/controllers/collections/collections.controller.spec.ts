@@ -39,12 +39,9 @@ describe('CollectionsController', () => {
       controllers: [CollectionsController],
     }).compile();
 
-    controller = await module
-      .resolve(CollectionsController);
-    
-    });
-    
-    
+    controller = await module.resolve(CollectionsController);
+  });
+
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });

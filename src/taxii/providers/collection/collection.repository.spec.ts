@@ -1,10 +1,10 @@
-import { Test } from '@nestjs/testing';
-import { CollectionRepository } from './collection.repository';
-import { TaxiiConfigModule } from 'src/config';
-import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
-import { closeInMongodConnection, rootMongooseTestModule } from 'src/../test/test.mongoose.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Test } from '@nestjs/testing';
+import { closeInMongodConnection, rootMongooseTestModule } from 'src/../test/test.mongoose.module';
+import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
+import { TaxiiConfigModule } from 'src/config';
 import { TaxiiCollectionEntity, TaxiiCollectionSchema } from 'src/hydrate/schema';
+import { CollectionRepository } from './collection.repository';
 import { CollectionService } from './collection.service';
 
 describe('CollectionRepository', () => {
@@ -23,7 +23,7 @@ describe('CollectionRepository', () => {
       providers: [CollectionService, CollectionRepository],
     }).compile();
 
-    collectionRepo = module.get<CollectionRepository>(CollectionRepository);
+    collectionRepo = await module.resolve<CollectionRepository>(CollectionRepository);
   });
 
   it('should be defined', async () => {

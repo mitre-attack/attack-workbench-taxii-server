@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TaxiiConfigModule } from 'src/config';
 import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
+import { TaxiiConfigModule } from 'src/config';
 import { DiscoveryService } from './discovery.service';
 
 describe('DiscoveryService', () => {
@@ -11,7 +11,7 @@ describe('DiscoveryService', () => {
       providers: [DiscoveryService],
     }).compile();
 
-    discoveryService = module.get<DiscoveryService>(DiscoveryService);
+    discoveryService = await module.resolve<DiscoveryService>(DiscoveryService);
   });
 
   it('should be defined', async () => {

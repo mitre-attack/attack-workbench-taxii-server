@@ -1,12 +1,12 @@
+import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PaginationService } from '../pagination';
-import { ObjectModule } from '../object';
-import { VersionService } from './version.service';
+import { closeInMongodConnection, rootMongooseTestModule } from 'src/../test/test.mongoose.module';
 import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
 import { TaxiiConfigModule } from 'src/config';
-import { MongooseModule } from '@nestjs/mongoose';
-import { rootMongooseTestModule, closeInMongodConnection } from 'src/../test/test.mongoose.module';
 import { AttackObjectEntity, AttackObjectSchema } from 'src/hydrate/schema';
+import { ObjectModule } from '../object';
+import { PaginationService } from '../pagination';
+import { VersionService } from './version.service';
 
 describe('VersionService', () => {
   let versionService: VersionService;
@@ -23,7 +23,7 @@ describe('VersionService', () => {
       providers: [VersionService, PaginationService],
     }).compile();
 
-    versionService = module.get<VersionService>(VersionService);
+    versionService = await module.resolve<VersionService>(VersionService);
   });
 
   it('should be defined', () => {

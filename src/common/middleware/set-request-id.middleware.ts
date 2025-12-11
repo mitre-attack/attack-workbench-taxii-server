@@ -1,7 +1,5 @@
 import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
-import { v5 as uuidv5 } from 'uuid';
-import * as stringify from 'json-stringify-safe';
 import { randomUUID } from 'crypto';
 
 /** Key used to store the request ID on the Express request object */
@@ -23,7 +21,7 @@ export class SetRequestIdMiddleware implements NestMiddleware {
     const contentType = req.headers['content-type'] || '';
 
     // Generate a unique ID and store it directly on the request object
-    const reqId = this.generateRequestId(req);
+    const reqId = randomUUID();
     req[REQUEST_ID_TOKEN] = reqId;
 
     this.logger.log(
@@ -31,12 +29,5 @@ export class SetRequestIdMiddleware implements NestMiddleware {
     );
 
     next();
-  }
-
-  /**
-   * Generates a Type 5 UUID for the request by hashing the stringified request with a random value.
-   */
-  private generateRequestId(req: Request): string {
-    return uuidv5(stringify(req), randomUUID());
   }
 }

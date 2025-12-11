@@ -1,12 +1,12 @@
-import { CacheModule } from '@nestjs/cache-manager';
-import { Test } from '@nestjs/testing';
-import { WorkbenchRepository } from './workbench.repository';
 import { HttpModule } from '@nestjs/axios';
-import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
-import { TaxiiConfigModule } from 'src/config';
+import { CacheModule } from '@nestjs/cache-manager';
 import { ConsoleLogger } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
 import { TaxiiLoggerService } from 'src/common/logger/taxii-logger.service';
+import { TaxiiConfigModule } from 'src/config';
 import { WORKBENCH_OPTIONS } from 'src/stix/constants';
+import { WorkbenchRepository } from './workbench.repository';
 
 it('can create an instance of WorkbenchRepository', async () => {
   const module = await Test.createTestingModule({
@@ -29,6 +29,6 @@ it('can create an instance of WorkbenchRepository', async () => {
     ],
   }).compile();
 
-  const workbenchRepo = module.get(WorkbenchRepository);
+  const workbenchRepo = await module.resolve(WorkbenchRepository);
   expect(workbenchRepo).toBeDefined();
 });

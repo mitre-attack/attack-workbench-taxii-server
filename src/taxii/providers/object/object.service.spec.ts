@@ -1,13 +1,13 @@
+import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ObjectService } from './object.service';
-import { ObjectRepository } from './object.repository';
+import { closeInMongodConnection, rootMongooseTestModule } from 'src/../test/test.mongoose.module';
 import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
 import { TaxiiConfigModule } from 'src/config';
-import { ObjectModule } from './object.module';
-import { closeInMongodConnection, rootMongooseTestModule } from 'src/../test/test.mongoose.module';
-import { MongooseModule } from '@nestjs/mongoose';
 import { AttackObjectEntity, AttackObjectSchema } from 'src/hydrate/schema';
 import { FilterModule } from '../filter/filter.module';
+import { ObjectModule } from './object.module';
+import { ObjectRepository } from './object.repository';
+import { ObjectService } from './object.service';
 
 describe('ObjectService', () => {
   let objectService: ObjectService;
@@ -25,7 +25,7 @@ describe('ObjectService', () => {
       providers: [ObjectService, ObjectRepository],
     }).compile();
 
-    objectService = module.get(ObjectService);
+    objectService = await module.resolve(ObjectService);
   });
 
   it('should be defined', () => {

@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RootController } from './root.controller';
-import { DiscoveryModule } from 'src/taxii/providers';
-import { TaxiiConfigModule } from 'src/config';
 import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
+import { TaxiiConfigModule } from 'src/config';
+import { DiscoveryModule } from 'src/taxii/providers';
+import { RootController } from './root.controller';
 
 describe('RootController', () => {
   let controller: RootController;
@@ -13,7 +13,7 @@ describe('RootController', () => {
       controllers: [RootController],
     }).compile();
 
-    controller = module.get<RootController>(RootController);
+    controller = await module.resolve<RootController>(RootController);
   });
 
   it('should be defined', () => {

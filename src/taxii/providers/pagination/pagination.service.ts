@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { isNumber } from '@nestjs/common/utils/shared.utils';
 import { TaxiiNotFoundException } from 'src/common/exceptions';
 import { TaxiiLoggerService as Logger } from 'src/common/logger';
-import { EnvelopeDto } from '../envelope';
+import { EnvelopeDto } from '../envelope/dto';
 import { ManifestDto, ManifestRecordDto } from '../manifest/dto';
 import { VersionsDto } from '../version/dto/versions.dto';
 // import { StixObjectDto } from "src/stix/dto/stix-object.dto";

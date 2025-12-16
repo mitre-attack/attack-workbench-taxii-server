@@ -1,10 +1,10 @@
 // object.repository.ts
 import { Injectable } from '@nestjs/common';
-import { TaxiiLoggerService as Logger } from 'src/common/logger';
 import { InjectModel } from '@nestjs/mongoose';
-import { AttackObjectEntity, AttackObjectDocument } from 'src/hydrate/schema/attack-object.schema';
 import { Model } from 'mongoose';
 import { TaxiiNotFoundException } from 'src/common/exceptions';
+import { TaxiiLoggerService as Logger } from 'src/common/logger';
+import { AttackObjectDocument, AttackObjectEntity } from 'src/hydrate/schema/attack-object.schema';
 
 @Injectable()
 export class ObjectRepository {
@@ -40,7 +40,7 @@ export class ObjectRepository {
   }
 
   /**
-   * Get the latest version of a STIX object from a specific collection.
+   * Get all versions of a STIX object from a specific collection.
    *
    * @param collectionId TAXII/STIX ID of the collection
    * @param objectId STIX ID of the requested object
@@ -53,7 +53,6 @@ export class ObjectRepository {
       .find({
         '_meta.collectionRef.id': collectionId,
         'stix.id': objectId,
-        '_meta.active': true,
       })
       .sort({ '_meta.createdAt': 1 })
       .exec();

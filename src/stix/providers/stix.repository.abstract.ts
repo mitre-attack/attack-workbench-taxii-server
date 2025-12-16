@@ -1,7 +1,7 @@
-import { StixRepositoryInterface } from './stix.repository.interface';
-import { StixObjectInterface } from '../interfaces/stix-object.interface';
-import { StixBundleInterface } from '../interfaces/stix-bundle.interface';
 import { StixBundleDto } from '../dto/stix-bundle.dto';
+import { StixBundleInterface } from '../interfaces/stix-bundle.interface';
+import { StixObjectInterface } from '../interfaces/stix-object.interface';
+import { StixRepositoryInterface } from './stix.repository.interface';
 
 export abstract class StixRepositoryAbstract implements StixRepositoryInterface {
   // ** ALL METHODS SHOULD BE OVERRIDDEN ** //
@@ -17,12 +17,12 @@ export abstract class StixRepositoryAbstract implements StixRepositoryInterface 
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  getCollections(_collectionId?: string): Promise<StixObjectInterface[]> {
+  getCollections(_collectionId?: string, versions?: 'all' | 'latest'): Promise<StixObjectInterface[]> {
     return;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  getCollectionBundle(_collectionId: string): Promise<StixBundleInterface> {
+  getCollectionBundle(_collectionId: string, modified?: string): Promise<StixBundleInterface> {
     return;
   }
 

@@ -1,21 +1,20 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { InjectModel } from '@nestjs/mongoose';
-import { Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { LoggerService } from '@nestjs/common/services/logger.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { Model } from 'mongoose';
-import {
-  TaxiiCollectionEntity,
-  TaxiiCollectionDocument,
-  AttackObjectEntity,
-  AttackObjectDocument,
-} from './schema';
-import { TaxiiCollectionDto } from 'src/taxii/providers/collection/dto';
-import { WorkbenchCollectionDto } from 'src/stix/dto/workbench-collection.dto';
 import { STIX_REPO_TOKEN } from 'src/stix/constants';
+import { WorkbenchCollectionDto } from 'src/stix/dto/workbench-collection.dto';
 import { StixRepositoryInterface } from 'src/stix/providers/stix.repository.interface';
+import { TaxiiCollectionDto } from 'src/taxii/providers/collection/dto';
 import { GET_TAXII_RESOURCES_JOB_TOKEN, HYDRATE_OPTIONS_TOKEN } from './constants';
 import { HydrateConnectOptions } from './interfaces/hydrate-connect.options';
+import {
+  AttackObjectDocument,
+  AttackObjectEntity,
+  TaxiiCollectionDocument,
+  TaxiiCollectionEntity,
+} from './schema';
 
 /**
  * Service responsible for synchronizing TAXII collections and objects with ATT&CK Workbench.
@@ -278,7 +277,7 @@ export class HydrateService implements OnModuleInit {
   }
 
   private async syncCollectionObjects(workbenchCollection: WorkbenchCollectionDto): Promise<void> {
-    const bundle = await this.stixRepo.getCollectionBundle(workbenchCollection.stix.id);
+    const bundle = await this.stixRepo.getCollectionBundle(workbenchCollection.stix.id, workbenchCollection.stix.modified);
 
     if (!bundle.objects || bundle.objects.length === 0) {
       this.logger.debug(`No objects found in collection ${workbenchCollection.stix.id}`);

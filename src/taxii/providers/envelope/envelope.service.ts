@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { ObjectService } from '../object';
-import { MatchDto } from 'src/common/models/match/match.dto';
-import { TaxiiLoggerService as Logger } from 'src/common/logger';
-import { ObjectFiltersDto } from '../filter/dto';
 import 'object-hash';
 import { TaxiiNotFoundException } from 'src/common/exceptions';
-import { EnvelopeDto } from './dto';
+import { TaxiiLoggerService as Logger } from 'src/common/logger';
+import { MatchDto } from 'src/common/models/match/match.dto';
+import { ObjectFiltersDto } from '../filter/dto';
+import { ObjectService } from '../object';
 import { PaginationService } from '../pagination';
+import { EnvelopeDto } from './dto';
 
 @Injectable()
 export class EnvelopeService {
@@ -30,13 +30,13 @@ export class EnvelopeService {
     addedAfter?: string,
     limit?: number,
     next?: number,
-    matches?: MatchDto[],
+    match?: MatchDto,
   ): Promise<EnvelopeDto> {
     const filters = new ObjectFiltersDto({
       collectionId,
       addedAfter,
       limit,
-      matches,
+      match,
     });
 
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.
@@ -63,13 +63,13 @@ export class EnvelopeService {
     addedAfter?: string,
     limit?: number,
     next?: number,
-    matches?: MatchDto[],
+    match?: MatchDto,
   ): Promise<EnvelopeDto> {
     const filters = new ObjectFiltersDto({
       collectionId,
       addedAfter,
       limit,
-      matches,
+      match,
     });
 
     // TODO cast `objects` this to correct type when attack-data-model is integrated

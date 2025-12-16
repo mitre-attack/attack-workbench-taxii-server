@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ObjectFiltersDto } from '../filter/dto';
 import { TaxiiNotFoundException, TaxiiServiceNotImplementedException } from 'src/common/exceptions';
 import { TaxiiLoggerService as Logger } from 'src/common/logger';
-import { FilterService } from '../filter';
-import { ObjectRepository } from './object.repository';
 import { AttackObjectEntity as MongooseAttackObject } from 'src/hydrate/schema';
+import { FilterService } from '../filter';
+import { ObjectFiltersDto } from '../filter/dto';
+import { ObjectRepository } from './object.repository';
 
 @Injectable()
 export class ObjectService {
@@ -72,7 +72,8 @@ export class ObjectService {
 
     // Extract the STIX object from each document returned from the database
 
-    const stixObjects: object[] = [];
+    // First pass: apply non-version filters during streaming
+    const stixObjects = [];
 
     // For each attackObject document returned from the database...
     for await (const attackObject of attackObjects) {
@@ -81,21 +82,24 @@ export class ObjectService {
       // Run the DTO instance through the filterService, then append it onto the return array
       // The filterService will reject the promise if the DTO fails any of the filter checks, thus the object will not
       // appended to the array if any filter check fails.
-      try {
-        const object = await this.filterService.filterObject(stixObject, filters);
-        stixObjects.push(object);
-      } catch {
-        // Object does not match one or more filters - skip it
+      const filtered = this.filterService.filterObjectNonVersion(stixObject, filters);
+      if (filtered) {
+        stixObjects.push(filtered);
       }
     }
 
+    // Second pass: apply version filtering on collected results
+    const versionFiltered = this.filterService.applyVersionFilter(
+      stixObjects,
+      filters.match?.version,
+    );
+
     this.logger.debug(
-      `Successfully retrieved ${stixObjects.length} STIX objects`,
+      `Successfully retrieved ${versionFiltered.length} STIX objects`,
       this.constructor.name,
     );
 
-    // Sort & filter then return
-    return stixObjects;
+    return versionFiltered;
   }
 
   /**

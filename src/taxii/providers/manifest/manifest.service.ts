@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { TaxiiLoggerService as Logger } from 'src/common/logger';
-import { ObjectService } from '../object';
-import { ObjectFiltersDto } from '../filter/dto';
 import { MatchDto } from 'src/common/models/match/match.dto';
+import { ObjectFiltersDto } from '../filter/dto';
+import { ObjectService } from '../object';
 import { PaginationService } from '../pagination';
 import { ManifestDto, ManifestRecordDto, ManifestRecordInput } from './dto';
 
@@ -21,13 +21,13 @@ export class ManifestService {
     addedAfter?: string,
     limit?: number,
     next?: number,
-    matches?: MatchDto[],
+    match?: MatchDto,
   ): Promise<ManifestDto> {
     const searchFilters = new ObjectFiltersDto({
       collectionId,
       addedAfter,
       limit,
-      matches,
+      match,
     });
 
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.

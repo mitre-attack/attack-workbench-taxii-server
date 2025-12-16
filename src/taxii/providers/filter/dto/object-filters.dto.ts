@@ -1,12 +1,12 @@
-import { MatchDto } from 'src/common/models/match/match.dto';
 import { Type } from 'class-transformer';
+import { MatchDto } from 'src/common/models/match/match.dto';
 
 export interface ObjectFiltersOptions {
   collectionId?: string;
   objectId?: string;
   addedAfter?: string;
   limit?: number;
-  matches?: MatchDto[];
+  match?: MatchDto;
 }
 
 export class ObjectFiltersDto {
@@ -48,7 +48,7 @@ export class ObjectFiltersDto {
    *      ?match[spec_version]=...
    */
   @Type(() => MatchDto)
-  matches?: MatchDto[];
+  match?: MatchDto;
 
   /**
    * Default constructor

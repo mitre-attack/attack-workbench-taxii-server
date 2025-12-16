@@ -1,28 +1,103 @@
-import { PipeTransform, Injectable } from '@nestjs/common';
+// parse-match-query-param.pipe.ts
+
+import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 import { MatchDto } from '../models/match/match.dto';
 
-/**
- * Converts the specified query parameter to an instance of MatchDto
- */
+export interface ParseMatchQueryParamPipeOptions {
+  /**
+   * If 'latest', defaults version filter to 'last' when not provided.
+   * If 'all', leaves version filter undefined (returns all versions).
+   */
+  defaultVersionBehavior: 'all' | 'latest';
+}
+
 @Injectable()
 export class ParseMatchQueryParamPipe implements PipeTransform {
-  transform(value: Record<string, string>) {
-    if (!value) return undefined;
+  private static readonly MATCH_KEY_REGEX = /^match\[(\w+)\]$/;
+  private static readonly VALID_FIELDS = new Set(['id', 'type', 'version', 'spec_version']);
+  private static readonly VERSION_KEYWORDS = new Set(['all', 'first', 'last']);
 
-    const matchDtos: MatchDto[] = [];
+  private readonly options: ParseMatchQueryParamPipeOptions;
 
-    for (const key in value) {
-      if (Object.prototype.hasOwnProperty.call(value, key)) {
-        // removes the square brackets using a regular expression and
-        // then splits the values by commas to create a MatchDto instance for
-        // each field.
-        const field = key.replace(/[[\]]/g, '');
-        const values = value[key].split(',');
-        const matchDto = new MatchDto({ [field]: values });
-        matchDtos.push(matchDto);
-      }
+  constructor(options: ParseMatchQueryParamPipeOptions = { defaultVersionBehavior: 'all' }) {
+    this.options = options;
+  }
+
+  transform(query: Record<string, string | string[]>): MatchDto | undefined {
+    if (!query || typeof query !== 'object') {
+      return this.buildDefaultMatch();
     }
 
-    return matchDtos;
+    const matchData: Partial<Record<string, string[]>> = {};
+
+    for (const key of Object.keys(query)) {
+      const regexMatch = ParseMatchQueryParamPipe.MATCH_KEY_REGEX.exec(key);
+      if (!regexMatch) continue;
+
+      const field = regexMatch[1];
+
+      if (!ParseMatchQueryParamPipe.VALID_FIELDS.has(field)) {
+        throw new BadRequestException(`Invalid match field: "${field}"`);
+      }
+
+      const rawValue = query[key];
+
+      if (Array.isArray(rawValue)) {
+        throw new BadRequestException(
+          `match[${field}] appears multiple times. Per TAXII 2.1, each field MUST NOT occur more than once.`,
+        );
+      }
+
+      matchData[field] = this.parseValues(field, rawValue);
+    }
+
+    // Apply default version behavior if version not specified
+    if (!matchData.version && this.options.defaultVersionBehavior === 'latest') {
+      matchData.version = ['last'];
+    }
+
+    return Object.keys(matchData).length > 0 ? new MatchDto(matchData) : this.buildDefaultMatch();
+  }
+
+  private buildDefaultMatch(): MatchDto | undefined {
+    if (this.options.defaultVersionBehavior === 'latest') {
+      return new MatchDto({ version: ['last'] });
+    }
+    return undefined;
+  }
+
+  private parseValues(field: string, rawValue: string): string[] {
+    const values = rawValue
+      .split(',')
+      .map((v) => v.trim())
+      .filter(Boolean);
+
+    if (field === 'version') {
+      this.validateVersionValues(values);
+    }
+
+    return values;
+  }
+
+  private validateVersionValues(values: string[]): void {
+    const hasAll = values.includes('all');
+
+    if (hasAll && values.length > 1) {
+      throw new BadRequestException(
+        'The "all" version keyword MUST NOT be used with any other version parameter',
+      );
+    }
+
+    const stixTimestampRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
+
+    for (const value of values) {
+      if (ParseMatchQueryParamPipe.VERSION_KEYWORDS.has(value)) continue;
+
+      if (!stixTimestampRegex.test(value) || isNaN(new Date(value).getTime())) {
+        throw new BadRequestException(
+          `Invalid version value: "${value}". Must be "all", "first", "last", or a valid STIX timestamp`,
+        );
+      }
+    }
   }
 }

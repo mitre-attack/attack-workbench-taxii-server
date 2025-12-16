@@ -11,6 +11,44 @@ import {
 } from 'src/taxii/providers';
 
 // ** dtos ** //
+/**
+ * Special note regarding MatchDto:
+ *
+ * In order to support multiple "match" query parameters (as allowed by the TAXII 2.1 specification),
+ * we need to accept an array of MatchDto objects here.
+ *
+ * ```typescript
+ * @Query(ParseMatchQueryParamPipe) match?: MatchDto[],
+ * ```
+ *
+ * The ParseMatchQueryParamPipe will handle parsing each "match" query parameter into a single
+ * MatchDto object/instance.
+ *
+ * However, for some reason, despite the return type of ParseMatchQueryParamPipe being MatchDto,
+ * NestJS seems to coerce the type into an array of MatchDto when multiple "match" query parameters
+ * are provided.
+ *
+ * Therefore, in order to satisfy TypeScript and ensure type safety, we declare the type of "match"
+ * as MatchDto[] (an array of MatchDto) in the controller methods.
+ *
+ * If you change the type to just MatchDto --
+ *
+ * ```typescript
+ * @Query(ParseMatchQueryParamPipe) match?: MatchDto,
+ * ```
+ *
+ * -- the ParseMatchQueryParamPipe will return `undefined`, thereby breaking the filtering logic.
+ *
+ * Moreover, because the underlying services expect a single MatchDto instance for filtering,
+ * we need to cast the "match" parameter back to MatchDto when passing it to those services:
+ *
+ * ```typescript
+ * match as unknown as MatchDto
+ * ```
+ *
+ * This casting is a workaround to satisfy both NestJS's handling of query parameters and the
+ * expected input types of the service methods.
+ */
 import { MatchDto } from 'src/common/models/match/match.dto';
 import { TaxiiCollectionDto, TaxiiCollectionsDto } from 'src/taxii/providers/collection/dto';
 import { EnvelopeDto } from 'src/taxii/providers/envelope/dto';
@@ -93,11 +131,11 @@ export class CollectionsController {
     @TimestampQuery('added_after') addedAfter?: string,
     @NumberQuery('limit') limit?: number,
     @NumberQuery('next') next?: number,
-    @Query('match', ParseMatchQueryParamPipe) matches?: MatchDto[],
+    @Query(new ParseMatchQueryParamPipe({ defaultVersionBehavior: 'latest' })) match?: MatchDto[], // See note on MatchDto above
   ): Promise<ManifestDto> {
     this.logger.debug(
       `Received request for object manifests with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${JSON.stringify(
-        matches,
+        match,
       )} }`,
       this.constructor.name,
     );
@@ -106,7 +144,7 @@ export class CollectionsController {
       addedAfter,
       limit,
       next,
-      matches,
+      match as unknown as MatchDto, // See note on MatchDto above
     );
   }
 
@@ -121,7 +159,7 @@ export class CollectionsController {
     @Query('added_after', ParseTimestampPipe) addedAfter?: string,
     @NumberQuery('limit') limit?: number,
     @NumberQuery('next') next?: number,
-    @Query('match', ParseMatchQueryParamPipe) matches?: MatchDto[],
+    @Query(new ParseMatchQueryParamPipe({ defaultVersionBehavior: 'latest' })) match?: MatchDto[], // See note on MatchDto above
     /**
      * Quick note on the above multi-step pipeline that processes "matches":
      * The ParseArrayPipe is used to parse the match query parameter as an array.
@@ -130,7 +168,7 @@ export class CollectionsController {
      */
   ): Promise<EnvelopeDto> {
     this.logger.debug(
-      `Received request for objects with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, matches: ${JSON.stringify(matches)} }`,
+      `Received request for objects with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${JSON.stringify(match)} }`,
       this.constructor.name,
     );
     return await this.envelopeService.findByCollectionId(
@@ -138,7 +176,7 @@ export class CollectionsController {
       addedAfter,
       limit,
       next,
-      matches,
+      match as unknown as MatchDto, // See note on MatchDto above
     );
   }
 
@@ -154,7 +192,7 @@ export class CollectionsController {
     @NumberQuery('limit') limit?: number,
     @NumberQuery('next') next?: number,
     @Query('added_after', ParseTimestampPipe) addedAfter?: string,
-    @Query('match', ParseMatchQueryParamPipe) matches?: MatchDto[],
+    @Query(new ParseMatchQueryParamPipe({ defaultVersionBehavior: 'latest' })) match?: MatchDto[], // See note on MatchDto above
   ): Promise<EnvelopeDto> {
     this.logger.debug(
       `Received request for an object with options { collectionId: ${collectionId}, objectId: ${objectId} }`,
@@ -167,7 +205,7 @@ export class CollectionsController {
       addedAfter,
       limit,
       next,
-      matches,
+      match as unknown as MatchDto, // See note on MatchDto above
     );
   }
 
@@ -209,10 +247,10 @@ export class CollectionsController {
     @Query('added_after', ParseTimestampPipe) addedAfter?: string,
     @NumberQuery('limit') limit?: number,
     @NumberQuery('next') next?: number,
-    @Query('match', ParseMatchQueryParamPipe) matches?: MatchDto[],
+    @Query(new ParseMatchQueryParamPipe({ defaultVersionBehavior: 'all' })) match?: MatchDto[], // See note on MatchDto above
   ): Promise<VersionsDto> {
     this.logger.debug(
-      `Received request for object versions with options { collectionId: ${collectionId}, objectId: ${objectId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${JSON.stringify(matches)} }`,
+      `Received request for object versions with options { collectionId: ${collectionId}, objectId: ${objectId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${JSON.stringify(match)} }`,
       this.constructor.name,
     );
     return await this.versionsService.findObjectVersions(
@@ -221,7 +259,7 @@ export class CollectionsController {
       addedAfter,
       limit,
       next,
-      matches,
+      match as unknown as MatchDto, // See note on MatchDto above
     );
   }
 }

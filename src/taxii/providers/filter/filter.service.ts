@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { ObjectFiltersDto } from './dto';
+import { isDefined } from 'class-validator';
 import { TaxiiLoggerService as Logger } from 'src/common/logger';
 import { SPEC_VERSION } from './constants';
-import { isDefined } from 'class-validator';
+import { ObjectFiltersDto } from './dto';
 
 // TODO remove this after integrating attack-data-model
 type BasicStixObject = {
@@ -14,6 +14,13 @@ type BasicStixObject = {
   modified: string;
 };
 
+// Version filter keywords
+const VERSION_KEYWORD = {
+  ALL: 'all',
+  FIRST: 'first',
+  LAST: 'last',
+} as const;
+
 @Injectable()
 export class FilterService {
   constructor(private readonly logger: Logger) {
@@ -21,56 +28,43 @@ export class FilterService {
   }
 
   private isMatch(stixObject: BasicStixObject, filters: ObjectFiltersDto): boolean {
-    const { addedAfter, matches } = filters;
+    const { addedAfter, match } = filters;
 
-    // Filter by match[id], match[type], match[version], and match[spec_version]
-    if (matches) {
-      for (const match of matches) {
-        const { id, type, version, spec_version } = match;
+    if (match) {
+      const { id, type, version, spec_version } = match;
 
-        /**
-         * For each property, we use the Array.some() method to check if any of the target
-         * values match the corresponding property of the stixObject.
-         *
-         * If none of the target values match, the method returns false, indicating that
-         * the object does not match the current match instance.
-         *
-         * Multiple match instances are treated as an AND condition, while multiple
-         * values within each match instance are treated as an OR condition, as per the
-         * TAXII 2.1 specification.
-         */
+      // Each field is ANDed: all specified fields must match
+      // Within each field, values are ORed: any value can match
 
-        // check match[id]
-        if (id && !id.some((targetId) => this.hasMatchingId(stixObject, targetId))) {
-          return false;
-        }
+      if (id?.length && !id.some((targetId) => this.hasMatchingId(stixObject, targetId))) {
+        return false;
+      }
 
-        // check match[type]
-        if (type && !type.some((targetType) => this.hasMatchingType(stixObject, targetType))) {
-          return false;
-        }
+      if (
+        type?.length &&
+        !type.some((targetType) => this.hasMatchingType(stixObject, targetType))
+      ) {
+        return false;
+      }
 
-        // check match[version]
-        if (
-          version &&
-          !version.some((targetVersion) => this.hasMatchingVersion(stixObject, targetVersion))
-        ) {
-          return false;
-        }
+      if (
+        version?.length &&
+        !version.some((targetVersion) => this.hasMatchingVersion(stixObject, targetVersion))
+      ) {
+        return false;
+      }
 
-        // check match[spec_version]
-        if (
-          spec_version &&
-          !spec_version.some((targetSpecVersion) =>
-            this.hasMatchingSpecVersion(stixObject, targetSpecVersion),
-          )
-        ) {
-          return false;
-        }
+      if (
+        spec_version?.length &&
+        !spec_version.some((targetSpecVersion) =>
+          this.hasMatchingSpecVersion(stixObject, targetSpecVersion),
+        )
+      ) {
+        return false;
       }
     }
 
-    // check added_after (include those objects added after the specified timestamp)
+    // check added_after
     if (addedAfter && new Date(stixObject.created) <= new Date(addedAfter)) {
       return false;
     }
@@ -99,6 +93,18 @@ export class FilterService {
 
   private hasMatchingVersion(stixObject: BasicStixObject, targetVersion: string): boolean {
     if (targetVersion) {
+      // Version keywords (all, first, last) require comparing multiple objects
+      // and cannot be evaluated on a single object. Pass them through here;
+      // actual filtering happens in applyVersionFilter() after collection.
+      if (
+        targetVersion === VERSION_KEYWORD.ALL ||
+        targetVersion === VERSION_KEYWORD.FIRST ||
+        targetVersion === VERSION_KEYWORD.LAST
+      ) {
+        return true;
+      }
+
+      // Exact timestamp matching
       if (stixObject.modified) {
         if (new Date(stixObject.modified).toISOString() !== targetVersion) {
           return false;
@@ -218,39 +224,226 @@ export class FilterService {
   }
 
   /**
-   * Filters an array of objects based on the specified ObjectFiltersDto. Returns the post-filtered resultant array.
-   * This method is used by the ObjectService's findOne method. It passes the entire array of objects that were
-   * synchronously returned from the database.
+   * Applies non-version match filters and added_after.
+   */
+  private matchesNonVersionFilters(
+    stixObject: BasicStixObject,
+    filters: ObjectFiltersDto,
+  ): boolean {
+    const { addedAfter, match } = filters;
+
+    if (match) {
+      const { id, type, spec_version } = match;
+
+      if (id?.length && !id.some((targetId) => stixObject.id === targetId)) {
+        return false;
+      }
+
+      if (type?.length && !type.some((targetType) => stixObject.type === targetType)) {
+        return false;
+      }
+
+      if (
+        spec_version?.length &&
+        !spec_version.some((targetSpecVersion) =>
+          this.hasMatchingSpecVersion(stixObject, targetSpecVersion),
+        )
+      ) {
+        return false;
+      }
+    }
+
+    if (addedAfter && new Date(stixObject.created) <= new Date(addedAfter)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Applies version filtering to a list of objects.
+   *
+   * Version filter semantics:
+   * - undefined/empty: return latest version of each object (default)
+   * - ['all']: return all versions
+   * - ['first']: return earliest version of each object
+   * - ['last']: return latest version of each object
+   * - ['first', 'last']: return both earliest and latest versions
+   * - ['2016-01-01T01:01:01.000Z']: return exact version match
+   * - ['first', '2016-01-01T01:01:01.000Z']: return earliest OR exact match
+   */
+  applyVersionFilter(stixObjects: BasicStixObject[], versionFilter?: string[]): BasicStixObject[] {
+    // Default behavior: return latest version of each object
+
+    // NOTE so we have an issue: if no version filter is provided as with cases where the version filter is not supported (e.g., Get Object Versions)
+    // then the default behavior will kick in and only the latest versions will be returned. However, in cases where we want all versions to be returned
+    // (e.g., Get Object Versions) we need to explicitly provide the 'all' keyword to override the default behavior. But the match[version] parameter
+    // is not supported in Get Object Versions, so we cannot provide the 'all' keyword there. Therefore, we need to make an exception here:
+
+    // Scenario 1: match[version] is supported AND NOT provided by user -> default to latest versions
+    // Scenario 2: match[version] is supported AND provided by user -> apply user-specified filter
+    // Scenario 3: match[version] is NOT supported -> return all versions (override default behavior)
+
+    // Thus, we should change the default behavior to return all versions when versionFilter is undefined,
+    // and higher up in the stack like when MatchDto is constructed we can set versionFilter to 'latest' when
+    // match[version] is supported but not provided by the user.
+
+    // No version filter provided: return everything
+    if (!versionFilter?.length) {
+      return stixObjects;
+    }
+
+    // 'all' keyword: return everything (no version filtering)
+    if (versionFilter.includes(VERSION_KEYWORD.ALL)) {
+      return stixObjects;
+    }
+
+    // Group objects by ID to handle first/last across versions
+    const objectsById = this.groupById(stixObjects);
+    const result: BasicStixObject[] = [];
+
+    const hasFirst = versionFilter.includes(VERSION_KEYWORD.FIRST);
+    const hasLast = versionFilter.includes(VERSION_KEYWORD.LAST);
+    const exactTimestamps = versionFilter.filter(
+      (v) => v !== VERSION_KEYWORD.FIRST && v !== VERSION_KEYWORD.LAST,
+    );
+
+    for (const [, versions] of objectsById) {
+      // Sort by modified (or created) ascending
+      const sorted = this.sortByVersion(versions);
+
+      const matched = new Set<BasicStixObject>();
+
+      if (hasFirst && sorted.length > 0) {
+        matched.add(sorted[0]);
+      }
+
+      if (hasLast && sorted.length > 0) {
+        matched.add(sorted[sorted.length - 1]);
+      }
+
+      // Check exact timestamp matches
+      for (const timestamp of exactTimestamps) {
+        for (const obj of sorted) {
+          if (this.matchesExactVersion(obj, timestamp)) {
+            matched.add(obj);
+          }
+        }
+      }
+
+      result.push(...matched);
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns only the latest version of each object (grouped by ID).
+   */
+  private filterToLatestVersions(stixObjects: BasicStixObject[]): BasicStixObject[] {
+    const objectsById = this.groupById(stixObjects);
+    const result: BasicStixObject[] = [];
+
+    for (const [, versions] of objectsById) {
+      const sorted = this.sortByVersion(versions);
+      if (sorted.length > 0) {
+        result.push(sorted[sorted.length - 1]); // Latest is last after ascending sort
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Groups objects by their ID.
+   */
+  private groupById(stixObjects: BasicStixObject[]): Map<string, BasicStixObject[]> {
+    const grouped = new Map<string, BasicStixObject[]>();
+
+    for (const obj of stixObjects) {
+      const existing = grouped.get(obj.id);
+      if (existing) {
+        existing.push(obj);
+      } else {
+        grouped.set(obj.id, [obj]);
+      }
+    }
+
+    return grouped;
+  }
+
+  /**
+   * Sorts objects by version timestamp (modified or created) in ascending order.
+   * Earliest first, latest last.
+   */
+  private sortByVersion(stixObjects: BasicStixObject[]): BasicStixObject[] {
+    return [...stixObjects].sort((a, b) => {
+      const aTime = new Date(a.modified || a.created).getTime();
+      const bTime = new Date(b.modified || b.created).getTime();
+      return aTime - bTime;
+    });
+  }
+
+  /**
+   * Checks if an object's version matches an exact timestamp.
+   */
+  private matchesExactVersion(stixObject: BasicStixObject, targetVersion: string): boolean {
+    const objectVersion = stixObject.modified || stixObject.created;
+    if (!objectVersion) return false;
+
+    return new Date(objectVersion).toISOString() === targetVersion;
+  }
+
+  /**
+   * Filters a single object based on non-version filters only.
+   * Use this during streaming, then call applyVersionFilter on the collected results.
+   *
+   * Returns the object if it passes non-version filters, undefined otherwise.
+   */
+  filterObjectNonVersion(
+    stixObject: BasicStixObject,
+    filters?: ObjectFiltersDto,
+  ): BasicStixObject | undefined {
+    if (!filters) {
+      return stixObject;
+    }
+
+    if (!this.matchesNonVersionFilters(stixObject, filters)) {
+      return undefined;
+    }
+
+    return stixObject;
+  }
+
+  /**
+   * Filters an array of objects based on the specified ObjectFiltersDto.
+   *
+   * For version filtering, objects are grouped by ID first, then filtered
+   * based on version keywords (all/first/last) or exact timestamps.
+   *
    * @param stixObjects The pre-filtered array of STIX objects to be processed.
    * @param filters The set of URL query parameters to filter the objects by.
    */
   filterObjects(stixObjects: BasicStixObject[], filters?: ObjectFiltersDto): object[] {
     this.logger.debug(
-      `Executing sortAscending with filters ${JSON.stringify(filters)}`,
+      `Executing filterObjects with filters ${JSON.stringify(filters)}`,
       this.constructor.name,
     );
 
-    // Now that the list is sorted, filter (keep) objects that match any supplied filter arguments. Filter arguments
-    // in this case include filtering by added_after (i.e. only including objects added after the specified timestamp)
-    // and by match query parameters (e.g., ?match[id]=x, ?match[type]=y; i.e., only including objects that
-    // contained the specified property indicated in the MatchDto
-    if (filters) {
-      // const { addedAfter, match } = filters;
-      // let {id, type, version, specVersion} = match;
-
-      // A placeholder array to store objects that match at least one search param. This array will be returned.
-      const matchingObjects: object[] = [];
-
-      stixObjects.forEach((currObject) => {
-        if (this.isMatch(currObject, filters)) {
-          matchingObjects.push(currObject);
-        }
-      });
-      // All filters have been applied. Return the sorted, filtered array.
-      return matchingObjects;
+    if (!filters) {
+      // No filters: default behavior is to return latest version of each object
+      return this.filterToLatestVersions(stixObjects);
     }
-    // No filters were passed. Just return the sorted, original array.
-    return stixObjects;
+
+    const { match } = filters;
+
+    // First, apply non-version filters (id, type, spec_version, added_after)
+    let filtered = stixObjects.filter((obj) => this.matchesNonVersionFilters(obj, filters));
+
+    // Then apply version filtering
+    filtered = this.applyVersionFilter(filtered, match?.version);
+
+    return filtered;
   }
 
   /**
@@ -263,6 +456,10 @@ export class FilterService {
    */
   async filterObject(stixObject: BasicStixObject, filters?: ObjectFiltersDto): Promise<object> {
     return new Promise((resolve, reject) => {
+      if (!filters) {
+        // No filters: default behavior is to return latest version of each object
+        return resolve(this.filterToLatestVersions([stixObject]));
+      }
       if (filters) {
         // All checks passed! Store the object to return!
         if (!this.isMatch(stixObject, filters)) {

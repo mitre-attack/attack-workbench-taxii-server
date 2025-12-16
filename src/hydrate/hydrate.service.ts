@@ -277,7 +277,10 @@ export class HydrateService implements OnModuleInit {
   }
 
   private async syncCollectionObjects(workbenchCollection: WorkbenchCollectionDto): Promise<void> {
-    const bundle = await this.stixRepo.getCollectionBundle(workbenchCollection.stix.id, workbenchCollection.stix.modified);
+    const bundle = await this.stixRepo.getCollectionBundle(
+      workbenchCollection.stix.id,
+      workbenchCollection.stix.modified,
+    );
 
     if (!bundle.objects || bundle.objects.length === 0) {
       this.logger.debug(`No objects found in collection ${workbenchCollection.stix.id}`);

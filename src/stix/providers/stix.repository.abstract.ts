@@ -17,7 +17,10 @@ export abstract class StixRepositoryAbstract implements StixRepositoryInterface 
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  getCollections(_collectionId?: string, versions?: 'all' | 'latest'): Promise<StixObjectInterface[]> {
+  getCollections(
+    _collectionId?: string,
+    versions?: 'all' | 'latest',
+  ): Promise<StixObjectInterface[]> {
     return;
   }
 

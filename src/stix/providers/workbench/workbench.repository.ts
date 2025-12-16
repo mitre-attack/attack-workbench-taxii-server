@@ -198,7 +198,10 @@ export class WorkbenchRepository {
    * Retrieves a list of all available x-mitre-collection objects
    * @param collectionId Only return the target collection if specified
    */
-  async getCollections(collectionId?: string, versions: 'all' | 'latest' = 'all'): Promise<WorkbenchCollectionDto[]> {
+  async getCollections(
+    collectionId?: string,
+    versions: 'all' | 'latest' = 'all',
+  ): Promise<WorkbenchCollectionDto[]> {
     let url = `${this.baseUrl}/api/collections/`;
     if (collectionId) {
       url += collectionId;
@@ -216,10 +219,12 @@ export class WorkbenchRepository {
    * Retrieves a STIX bundle containing all STIX object in the specified collection
    * @param collectionId Identifier of the target collection
    */
-  async getCollectionBundle(collectionId: string, modified?: string): Promise<WorkbenchCollectionBundleDto> {
-    
+  async getCollectionBundle(
+    collectionId: string,
+    modified?: string,
+  ): Promise<WorkbenchCollectionBundleDto> {
     let url = `${this.baseUrl}/api/collection-bundles?collectionId=${collectionId}`;
-    if (modified) { 
+    if (modified) {
       // The modified date of the collection to export. collectionId must be provided if collectionModified is provided.
       // Example : 2020-03-30T02:39:23.582Z
       url += `&collectionModified=${modified}`;

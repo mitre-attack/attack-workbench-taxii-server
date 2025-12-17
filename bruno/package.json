@@ -4,7 +4,8 @@
   "description": "API tests for MITRE ATT&CK Workbench TAXII 2.1 API Server",
   "main": "index.js",
   "scripts": {
-    "test": "bru run --env aws --format junit --output report.xml"
+    "test:local": "bru run --env local --format junit --output report.xml",
+    "test:ci": "bru run --env CI --format junit --output report.xml"
   },
   "repository": {
     "type": "git",

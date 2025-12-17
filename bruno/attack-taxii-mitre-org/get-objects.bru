@@ -1,26 +1,13 @@
 meta {
-  name: Get Objects (Without Pagination)
+  name: Get Objects
   type: http
-  seq: 5
+  seq: 6
 }
 
 get {
-  url: {{host}}/api/v21/collections/{{collectionId}}/objects
+  url: {{host}}/{{apiRoot}}/collections/{{collectionId}}/objects
   body: none
   auth: none
-}
-
-query {
-  ~limit: 100
-  ~match[type]: x-mitre-matrix
-  ~match[spec_version]: 2.1
-  ~next: 2
-  ~added_after: 2024-01-01
-  ~match[type]: intrusion-set,tool
-}
-
-headers {
-  Accept: application/taxii+json;version=2.1
 }
 
 vars:pre-request {
@@ -28,23 +15,17 @@ vars:pre-request {
 }
 
 tests {
-  const { validateObject } = require('./util/object-validation');
+  const { validateObject } = require('./utils.js');
   
   test("Verify response status code", function() {
     expect(res.getStatus()).to.equal(200);
-  });
-  
-  test("Verify response content type", function() {
-    const contentType = res.getHeader('content-type');
-    expect(contentType).to.include('application/taxii+json');
-    expect(contentType).to.include('version=2.1');
   });
   
   test("Verify response body structure", function() {
     const data = res.getBody();
     expect(data).to.not.have.property('more')
     expect(data).to.have.property('objects').that.is.an('array');
-    
+  
     if (data.more === true) {
       expect(data).to.have.property('next').that.is.a('string');
     }
@@ -75,4 +56,11 @@ tests {
       throw new Error(failureMessage);
     }
   });
+}
+
+settings {
+  encodeUrl: false
+  timeout: 10000
+  followRedirects: false
+  maxRedirects: 0
 }

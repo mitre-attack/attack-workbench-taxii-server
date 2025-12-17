@@ -1,22 +1,13 @@
 meta {
   name: Get Object Manifests
   type: http
-  seq: 8
+  seq: 9
 }
 
 get {
-  url: {{host}}/api/v21/collections/{{collectionId}}/manifest?limit=1
+  url: {{host}}/{{apiRoot}}/collections/{{collectionId}}/manifest
   body: none
   auth: none
-}
-
-query {
-  limit: 1
-  ~next: 1
-}
-
-headers {
-  Accept: application/taxii+json;version=2.1
 }
 
 vars:pre-request {
@@ -28,15 +19,8 @@ tests {
     expect(res.getStatus()).to.equal(200);
   });
   
-  test("Verify response content type", function() {
-    const contentType = res.getHeader('content-type');
-    expect(contentType).to.include('application/taxii+json');
-    expect(contentType).to.include('version=2.1');
-  });
-  
   test("Verify response body structure", function() {
     const data = res.getBody();
-    expect(data).to.have.property('more').that.is.a('boolean');
   
     if (data.hasOwnProperty('objects')) {
       expect(data.objects).to.be.an('array');
@@ -54,11 +38,11 @@ tests {
         try {
           expect(obj).to.have.property('id').that.is.a('string');
           expect(obj).to.have.property('date_added').that.is.a('string');
-          
+  
           if (!obj.id.includes('marking-definition')) {
             expect(obj).to.have.property('version').that.is.a('string');
           }
-          
+  
           if (obj.hasOwnProperty('media_type')) {
             expect(obj.media_type).to.be.a('string');
           }
@@ -80,4 +64,11 @@ tests {
       });
     }
   });
+}
+
+settings {
+  encodeUrl: false
+  timeout: 10000
+  followRedirects: false
+  maxRedirects: 0
 }

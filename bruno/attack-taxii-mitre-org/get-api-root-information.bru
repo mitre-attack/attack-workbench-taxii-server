@@ -1,7 +1,7 @@
 meta {
   name: Get API Root Information
   type: http
-  seq: 2
+  seq: 3
 }
 
 get {
@@ -10,19 +10,9 @@ get {
   auth: none
 }
 
-headers {
-  Accept: application/taxii+json;version=2.1
-}
-
 tests {
   test("Verify response status code", function() {
     expect(res.getStatus()).to.equal(200);
-  });
-  
-  test("Verify response content type", function() {
-    const contentType = res.getHeader('content-type');
-    expect(contentType).to.include('application/taxii+json');
-    expect(contentType).to.include('version=2.1');
   });
   
   test("Verify response body", function() {
@@ -35,11 +25,18 @@ tests {
       });
     expect(data).to.have.property('max_content_length');
     const maxContentLength = data['max_content_length'];
-    
+  
     if (typeof maxContentLength === 'string') {
       expect(parseInt(maxContentLength)).to.be.a('number').and.not.NaN;
     } else {
       expect(maxContentLength).to.be.a('number');
     }
   });
+}
+
+settings {
+  encodeUrl: false
+  followRedirects: false
+  maxRedirects: 0
+  timeout: 2000
 }

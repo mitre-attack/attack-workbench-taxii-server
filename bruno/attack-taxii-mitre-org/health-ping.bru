@@ -1,7 +1,7 @@
 meta {
   name: Health Ping
   type: http
-  seq: 10
+  seq: 1
 }
 
 get {
@@ -14,4 +14,11 @@ tests {
   test("Verify response status code", function() {
     expect(res.getStatus()).to.equal(204);
   });
+}
+
+settings {
+  encodeUrl: false
+  followRedirects: false
+  maxRedirects: 0
+  timeout: 2000
 }

@@ -1,0 +1,173 @@
+meta {
+  name: Test Pagination
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{host}}/{{apiRoot}}/collections/{{collectionId}}/objects?limit=100
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  // ICS ATT&CK
+  collectionId: x-mitre-collection--90c00720-636b-4485-b342-8751d232bf09
+}
+
+script:post-response {
+  const { validateObject } = require('./utils.js');
+  
+  // Configuration
+  const MAX_PAGES = 50;
+  const LIMIT = 100;
+  
+  // Initialize pagination results
+  const paginationResult = {
+    success: true,
+    error: null,
+    pageCount: 1,
+    totalObjects: 0,
+    reachedEnd: false,
+    duplicatesFound: [],
+    invalidObjects: []
+  };
+  
+  try {
+    const requestUrl = req.getUrl();
+    const baseUrl = requestUrl.split('?')[0];
+  
+    let currentData = res.getBody();
+    paginationResult.totalObjects = currentData.objects.length;
+    const seenObjectIds = new Set(currentData.objects.map(obj => obj.id));
+  
+    // Validate first page objects
+    currentData.objects.forEach((obj, index) => {
+      try {
+        validateObject(obj);
+      } catch (err) {
+        paginationResult.invalidObjects.push({ page: 1, index, id: obj.id, error: err.message });
+      }
+    });
+  
+    // If no pagination needed, we're done
+    if (currentData.more !== true) {
+      paginationResult.reachedEnd = true;
+      bru.setVar('paginationResult', JSON.stringify(paginationResult));
+      return;
+    }
+  
+    // Follow pagination
+    while (currentData.more === true && paginationResult.pageCount < MAX_PAGES) {
+      if (!currentData.next) {
+        throw new Error(`Page ${paginationResult.pageCount} has more=true but no 'next' token`);
+      }
+  
+      const nextUrl = `${baseUrl}?limit=${LIMIT}&next=${currentData.next}`;
+  
+      const nextResponse = await bru.sendRequest({
+          method: 'GET',
+          url: nextUrl,
+          headers: { 'Accept': 'application/taxii+json;version=2.1' },
+          timeout: 120000
+      });
+  
+      paginationResult.pageCount++;
+  
+      if (nextResponse.status !== 200) {
+        throw new Error(`Page ${paginationResult.pageCount} returned status ${nextResponse.status}`);
+      }
+  
+      currentData = nextResponse.data;
+  
+      if (!currentData.objects || !Array.isArray(currentData.objects)) {
+        throw new Error(`Page ${paginationResult.pageCount} missing 'objects' array`);
+      }
+  
+      if (currentData.objects.length > LIMIT) {
+        throw new Error(`Page ${paginationResult.pageCount} returned ${currentData.objects.length} objects, exceeding limit of ${LIMIT}`);
+      }
+  
+      if (currentData.more === true && currentData.objects.length !== LIMIT) {
+        throw new Error(`Page ${paginationResult.pageCount} should have exactly ${LIMIT} objects when more=true, got ${currentData.objects.length}`);
+      }
+  
+      // Check for duplicates
+      currentData.objects.forEach((obj) => {
+        if (seenObjectIds.has(obj.id)) {
+          paginationResult.duplicatesFound.push({ page: paginationResult.pageCount, id: obj.id });
+        }
+        seenObjectIds.add(obj.id);
+      });
+  
+      // Validate STIX objects
+      currentData.objects.forEach((obj, index) => {
+        try {
+          validateObject(obj);
+        } catch (err) {
+          paginationResult.invalidObjects.push({ page: paginationResult.pageCount, index, id: obj.id, error: err.message });
+        }
+      });
+  
+      paginationResult.totalObjects += currentData.objects.length;
+    }
+  
+    paginationResult.reachedEnd = currentData.more !== true;
+  
+  } catch (err) {
+    paginationResult.success = false;
+    paginationResult.error = err.message;
+  }
+  
+  bru.setVar('paginationResult', JSON.stringify(paginationResult));
+  console.log(`Pagination: ${paginationResult.pageCount} pages, ${paginationResult.totalObjects} objects${paginationResult.reachedEnd ? '' : ' (more available)'}`);
+}
+
+tests {
+  const LIMIT = 100;
+  
+  test("Verify first page response is valid", function() {
+    expect(res.getStatus()).to.equal(200);
+    const data = res.getBody();
+    expect(data).to.have.property('objects').that.is.an('array');
+    expect(data.objects.length).to.be.greaterThan(0, 'Response should contain objects');
+  });
+  
+  test("Verify limit parameter is respected", function() {
+    const data = res.getBody();
+    if (data.more === true) {
+      expect(data.objects.length).to.equal(LIMIT, `When more=true, should return exactly ${LIMIT} objects`);
+    } else {
+      expect(data.objects.length).to.be.at.most(LIMIT, `Should not return more than ${LIMIT} objects`);
+    }
+  });
+  
+  test("Verify pagination properties when more data exists", function() {
+    const data = res.getBody();
+    if (data.more === true) {
+      expect(data).to.have.property('next').that.is.a('string').and.not.empty;
+    }
+  });
+  
+  test("Verify pagination through all pages succeeded", function() {
+    const result = JSON.parse(bru.getVar('paginationResult'));
+    expect(result.success).to.equal(true, result.error || 'Pagination failed');
+  });
+  
+  test("Verify no duplicate objects across pages", function() {
+    const result = JSON.parse(bru.getVar('paginationResult'));
+    expect(result.duplicatesFound.length).to.equal(0,
+      `Found ${result.duplicatesFound.length} duplicate objects: ${JSON.stringify(result.duplicatesFound)}`);
+  });
+  
+  test("Verify all STIX objects are valid", function() {
+    const result = JSON.parse(bru.getVar('paginationResult'));
+    expect(result.invalidObjects.length).to.equal(0,
+      `Found ${result.invalidObjects.length} invalid objects: ${JSON.stringify(result.invalidObjects.slice(0, 5))}`);
+  });
+}
+
+settings {
+  encodeUrl: false
+  timeout: 120000
+}

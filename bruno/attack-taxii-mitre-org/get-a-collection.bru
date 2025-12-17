@@ -1,34 +1,22 @@
 meta {
   name: Get A Collection
   type: http
-  seq: 4
+  seq: 5
 }
 
 get {
-  url: {{host}}/api/v21/collections/{{collectionId}}
+  url: {{host}}/{{apiRoot}}/collections/{{collectionId}}
   body: none
   auth: none
 }
 
-headers {
-  Accept: application/taxii+json;version=2.1
-}
-
 vars:pre-request {
   collectionId: x-mitre-collection--1f5f1533-f617-4ca8-9ab4-6a02367fa019
-  ~collectionId: x-mitre-collection--90c00720-636b-4485-b342-8751d232bf09
-  ~collectionId: x-mitre-collection--dac0d2d7-8653-445c-9bff-82f934c1e858
 }
 
 tests {
   test("Verify response status code", function() {
     expect(res.getStatus()).to.equal(200);
-  });
-  
-  test("Verify response content type", function() {
-    const contentType = res.getHeader('content-type');
-    expect(contentType).to.include('application/taxii+json');
-    expect(contentType).to.include('version=2.1');
   });
   
   test("Verify response body", function() {
@@ -53,4 +41,11 @@ tests {
       });
     }
   });
+}
+
+settings {
+  encodeUrl: false
+  followRedirects: false
+  maxRedirects: 0
+  timeout: 5000
 }

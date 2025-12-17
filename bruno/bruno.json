@@ -9,5 +9,8 @@
   "ignore": [
     "node_modules",
     ".git"
-  ]
+  ],
+  "scripts": {
+    "additionalContextRoots": ["./utils.js"] 
+  }
 }

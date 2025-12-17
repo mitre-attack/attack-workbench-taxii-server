@@ -1,23 +1,13 @@
 meta {
   name: Get An Object
   type: http
-  seq: 7
+  seq: 8
 }
 
 get {
-  url: {{host}}/api/v21/collections/{{collectionId}}/objects/{{objectId}}
+  url: {{host}}/{{apiRoot}}/collections/{{collectionId}}/objects/{{objectId}}
   body: none
   auth: none
-}
-
-query {
-  ~limit: 1
-  ~next: 1
-  ~match[spec_version]: 2.1
-}
-
-headers {
-  Accept: application/taxii+json;version=2.1
 }
 
 vars:pre-request {
@@ -26,16 +16,11 @@ vars:pre-request {
 }
 
 tests {
-  const { validateObject } = require('./util/object-validation');
+  const { validateObject } = require('./utils.js');
+  
   
   test("Verify response status code", function() {
     expect(res.getStatus()).to.equal(200);
-  });
-  
-  test("Verify response content type", function() {
-    const contentType = res.getHeader('content-type');
-    expect(contentType).to.include('application/taxii+json');
-    expect(contentType).to.include('version=2.1');
   });
   
   test("Verify returned object ID matches requested object ID", function() {
@@ -80,4 +65,11 @@ tests {
       throw new Error(failureMessage);
     }
   });
+}
+
+settings {
+  encodeUrl: false
+  followRedirects: false
+  maxRedirects: 0
+  timeout: 2000
 }

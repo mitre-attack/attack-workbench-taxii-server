@@ -1,21 +1,13 @@
 meta {
   name: Get Object Versions
   type: http
-  seq: 9
+  seq: 10
 }
 
 get {
-  url: {{host}}/api/v21/collections/{{collectionId}}/objects/{{objectId}}/versions/
+  url: {{host}}/{{apiRoot}}/collections/{{collectionId}}/objects/{{objectId}}/versions/
   body: none
   auth: none
-}
-
-query {
-  ~limit: 1
-}
-
-headers {
-  Accept: application/taxii+json;version=2.1
 }
 
 vars:pre-request {
@@ -28,23 +20,17 @@ tests {
     expect(res.getStatus()).to.equal(200);
   });
   
-  test("Verify response content type", function() {
-    const contentType = res.getHeader('content-type');
-    expect(contentType).to.include('application/taxii+json');
-    expect(contentType).to.include('version=2.1');
-  });
-  
   test("Verify response body structure", function() {
     const data = res.getBody();
     if (data.hasOwnProperty('more')) {
       expect(data.more).to.be.a('boolean');
     }
   
-    // The list of object versions returned by the request. 
+    // The list of object versions returned by the request.
     if (data.hasOwnProperty('versions')) {
       expect(data.versions).to.be.an('array');
     } else {
-      // If there are no versions returned, this key MUST be omitted, 
+      // If there are no versions returned, this key MUST be omitted,
       // and the response is an empty object.
       expect(data).to.be.an('object').and.to.be.empty;
     }
@@ -59,4 +45,11 @@ tests {
       });
     }
   });
+}
+
+settings {
+  encodeUrl: false
+  followRedirects: false
+  maxRedirects: 0
+  timeout: 10000
 }

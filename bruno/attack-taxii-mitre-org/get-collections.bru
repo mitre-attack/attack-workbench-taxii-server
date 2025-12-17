@@ -1,0 +1,82 @@
+meta {
+  name: Get Collections
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{host}}/{{apiRoot}}/collections/
+  body: none
+  auth: none
+}
+
+tests {
+  // Expected MITRE ATT&CK collections
+  const EXPECTED_COLLECTIONS = [
+    {
+      id: 'x-mitre-collection--1f5f1533-f617-4ca8-9ab4-6a02367fa019',
+      title: 'Enterprise ATT&CK'
+    },
+    {
+      id: 'x-mitre-collection--90c00720-636b-4485-b342-8751d232bf09',
+      title: 'ICS ATT&CK'
+    },
+    {
+      id: 'x-mitre-collection--dac0d2d7-8653-445c-9bff-82f934c1e858',
+      title: 'Mobile ATT&CK'
+    }
+  ];
+  
+  test("Verify response status code", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Verify all three ATT&CK domain collections are returned", function() {
+    const data = res.getBody();
+    expect(data).to.have.property('collections').that.is.an('array');
+  
+    // Check that we have at least 3 collections (the 3 ATT&CK domains)
+    expect(data.collections.length).to.be.at.least(3);
+  
+    // Verify each expected collection exists
+    EXPECTED_COLLECTIONS.forEach(expected => {
+      const found = data.collections.find(c => c.id === expected.id);
+      expect(found, `Collection "${expected.title}" (${expected.id}) not found`).to.exist;
+      expect(found.title).to.equal(expected.title);
+    });
+  });
+  
+  test("Verify collection properties", function() {
+    const data = res.getBody();
+  
+    data.collections.forEach(collection => {
+      expect(collection).to.have.property('id').that.is.a('string');
+      expect(collection).to.have.property('title').that.is.a('string').and.is.not.empty;
+  
+      if (collection.hasOwnProperty('description')) {
+        expect(collection.description).to.be.a('string');
+      }
+  
+      if (collection.hasOwnProperty('alias')) {
+        expect(collection.alias).to.be.a('string');
+      }
+  
+      expect(collection).to.have.property('can_read').that.is.a('boolean');
+      expect(collection).to.have.property('can_write').that.is.a('boolean');
+  
+      if (collection.hasOwnProperty('media_types')) {
+        expect(collection.media_types).to.be.an('array').and.not.be.empty;
+        collection.media_types.forEach(mediaType => {
+          expect(mediaType).to.be.a('string').and.include('application/taxii+json');
+        });
+      }
+    });
+  });
+}
+
+settings {
+  encodeUrl: false
+  followRedirects: false
+  maxRedirects: 0
+  timeout: 5000
+}

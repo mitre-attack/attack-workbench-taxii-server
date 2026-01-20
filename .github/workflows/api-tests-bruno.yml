@@ -18,6 +18,10 @@ jobs:
     name: API Tests by Bruno
     runs-on: ubuntu-latest
     steps:
+      - name: Generate timestamp
+        id: timestamp
+        run: echo "value=$(date -u '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+
       - uses: actions/checkout@v4
 
       - name: Install dependencies and run tests
@@ -25,10 +29,6 @@ jobs:
           cd bruno
           npm install
           npm run test:ci
-
-      - name: Generate timestamp
-        id: timestamp
-        run: echo "value=$(date -u '+%Y-%m-%d %H:%M')" >> $GITHUB_OUTPUT
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v2

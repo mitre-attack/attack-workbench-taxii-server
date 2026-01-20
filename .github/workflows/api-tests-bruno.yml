@@ -3,9 +3,9 @@
 name: API Tests - Bruno
 
 on:
-  schedule:
-    # every hour at minute 0 (UTC)
-    # - cron: "0 * * * *" # TODO uncomment after tests are stable
+  #schedule:
+  #  # every hour at minute 0 (UTC)
+  #  - cron: "0 * * * *" # TODO uncomment after tests are stable
   workflow_dispatch:
 
 permissions:

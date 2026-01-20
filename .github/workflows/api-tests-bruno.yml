@@ -26,13 +26,17 @@ jobs:
           npm install
           npm run test:ci
 
+      - name: Generate timestamp
+        id: timestamp
+        run: echo "value=$(date -u '+%Y-%m-%d %H:%M')" >> $GITHUB_OUTPUT
+
       - name: Publish Test Report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2
         if: ${{ success() || failure() }}   # run this step even if previous step failed
         with:
-          name: Bruno API Tests             # Name of the check run which will be created
-          path: bruno/report.xml            # Path to test results
-          reporter: java-junit              # Format of test results
+          name: Bruno API Tests ${{ steps.timestamp.outputs.value }}  # Name of the check run which will be created
+          path: bruno/report.xml  # Path to test results
+          reporter: java-junit  # Format of test results
 
       - name: Notify Slack on failure
         if: ${{ failure() }}

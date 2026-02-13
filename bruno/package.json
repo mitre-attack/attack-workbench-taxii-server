@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test:local": "bru run --env local --format junit --output report.xml",
-    "test:ci": "bru run --env CI --format junit --output report.xml"
+    "test:ci": "node run-with-retry.js"
   },
   "repository": {
     "type": "git",

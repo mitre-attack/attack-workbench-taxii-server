@@ -3,7 +3,7 @@
 # unexpected behavior.
 # Since we are using the multi-stage build feature, we are also using the AS statement to name the image development.
 # The name here can be anything; it is only to reference the image later on.
-FROM node:current-alpine3.14 AS development
+FROM node:22-alpine AS development
 
 # Set the working directory within the container to /app. After setting WORKDIR, each command Docker executes (defined
 # in the RUN statement) will be executed in the specified context.
@@ -13,21 +13,28 @@ WORKDIR /app
 # install command. Once it finishes, we copy the rest of our application’s files into the Docker container.
 COPY package*.json ./
 
-# Here we install only devDependencies due to the container being used as a “builder” that takes all the necessary tools
-# to build the application and later send a clean /dist folder to the production image.
-RUN npm install --only=development
+RUN npm ci
 
 COPY . .
+RUN mkdir -p /app-seed && cp -R src /app-seed/src
+
+ENV CHOKIDAR_USEPOLLING=true
+
+EXPOSE 8000
+
+CMD ["sh", "-c", "if [ ! -f src/main.ts ]; then cp -R /app-seed/src/. src/; fi; exec npm run start:dev"]
 
 # Finally, we make sure the app is built in the /dist folder. Since our application uses TypeScript and other build-time
-# dependencies, we have to execute this command in the development image.
+# dependencies, we have to execute this command in a build image derived from the development image.
+FROM development AS build
+
 RUN npm run build
 
 # By using the FROM statement again, we are telling Docker that it should create a new, fresh image without any
 # connection to the previous one. This time we are naming it production.
 # Thanks to the multi-stage build feature, we can keep our final image (here called production) as slim as possible by
 # keeping all the unnecessary bloat in the development image.
-FROM node:current-alpine3.14 AS production
+FROM node:22-alpine AS production
 
 # Define build arguments
 ARG VERSION=dev
@@ -73,7 +80,7 @@ COPY ecosystem.config.js .
 
 # Here we copy the built /dist folder from the development image. This way we are only getting the /dist directory,
 # without the devDependencies, installed in our final image.
-COPY --from=development /app/dist ./dist
+COPY --from=build /app/dist ./dist
 
 # Copy .env file and optional SSL keys (public-certificate.pem + private-key.pem) to image
 RUN mkdir config

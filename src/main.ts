@@ -12,6 +12,7 @@ import { TaxiiConfigModule, TaxiiConfigService } from './config';
  * Starts the Nest.js application
  */
 export async function bootstrap() {
+  // Dev watch validation marker.
   // ** Initialize Express adapter ** //
   const server: express.Express = express();
 

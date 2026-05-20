@@ -18,9 +18,10 @@ export class RootController {
   }
 
   @Get('/health/ping')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  healthPing(): void {
+  @HttpCode(HttpStatus.OK)
+  healthPing(): string {
     this.logger.debug('Health ping.');
+    return 'taxii live reload worx!';
   }
 
   @ApiOkResponse({

@@ -6,6 +6,10 @@ import { TaxiiNotFoundException } from 'src/common/exceptions';
 import { TaxiiLoggerService as Logger } from 'src/common/logger';
 import { AttackObjectDocument, AttackObjectEntity } from 'src/hydrate/schema/attack-object.schema';
 
+export interface FindByCollectionIdOptions {
+  latestOnly?: boolean;
+}
+
 @Injectable()
 export class ObjectRepository {
   constructor(
@@ -21,13 +25,55 @@ export class ObjectRepository {
    * Objects are returned in ascending order by creation date per TAXII spec.
    *
    * @param collectionId TAXII/STIX ID of the collection
+   * @param options.latestOnly When true, stream only the newest version of each STIX object ID
    * @returns AsyncIterableIterator of AttackObjectEntity
    */
-  async *findByCollectionId(collectionId: string): AsyncIterableIterator<AttackObjectEntity> {
+  async *findByCollectionId(
+    collectionId: string,
+    options: FindByCollectionIdOptions = {},
+  ): AsyncIterableIterator<AttackObjectEntity> {
+    if (options.latestOnly) {
+      const cursor = this.attackObjectsModel
+        .aggregate([
+          {
+            $match: {
+              '_meta.collectionRef.id': collectionId,
+              '_meta.active': true, // this field dictates whether the object is deleted or not (see hydrate.service::handleOrphanedCollections)
+            },
+          },
+          {
+            $addFields: {
+              _taxiiVersionDate: { $ifNull: ['$stix.modified', '$stix.created'] },
+            },
+          },
+          {
+            $sort: {
+              'stix.id': 1,
+              _taxiiVersionDate: -1,
+              '_meta.collectionRef.modified': -1,
+              '_meta.createdAt': -1,
+            },
+          },
+          { $group: { _id: '$stix.id', document: { $first: '$$ROOT' } } },
+          { $replaceRoot: { newRoot: '$document' } },
+          { $project: { _taxiiVersionDate: 0 } },
+          { $sort: { '_meta.createdAt': 1 } },
+        ])
+        .allowDiskUse(true)
+        .cursor();
+
+      for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
+        yield this.attackObjectsModel.hydrate(doc);
+      }
+
+      this.logger.debug(`Finished streaming latest collection ${collectionId} from database`);
+      return;
+    }
+
     const cursor = this.attackObjectsModel
       .find({
         '_meta.collectionRef.id': collectionId,
-        '_meta.active': true,
+        '_meta.active': true, // this field dictates whether the object is deleted or not (see hydrate.service::handleOrphanedCollections)
       })
       .sort({ '_meta.createdAt': 1 }) // Uses taxii_object_sorting index
       .cursor();
@@ -53,6 +99,7 @@ export class ObjectRepository {
       .find({
         '_meta.collectionRef.id': collectionId,
         'stix.id': objectId,
+        '_meta.active': true, // this field dictates whether the object is deleted or not (see hydrate.service::handleOrphanedCollections)
       })
       .sort({ '_meta.createdAt': 1 })
       .exec();

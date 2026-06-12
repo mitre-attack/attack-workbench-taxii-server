@@ -55,6 +55,20 @@ export class HydrateService implements OnModuleInit {
 
       await this.ensureIndex(
         this.stixObjectModel.collection,
+        {
+          '_meta.collectionRef.id': 1,
+          '_meta.active': 1,
+          'stix.id': 1,
+          'stix.modified': -1,
+          'stix.created': -1,
+          '_meta.collectionRef.modified': -1,
+          '_meta.createdAt': -1,
+        },
+        { background: true, name: 'taxii_latest_objects_by_collection' },
+      );
+
+      await this.ensureIndex(
+        this.stixObjectModel.collection,
         { '_meta.collectionRef.id': 1, 'stix.id': 1, '_meta.active': 1 },
         { background: true, name: 'taxii_object_lookup' },
       );

@@ -84,6 +84,23 @@ AttackObjectSchema.index(
   },
 );
 
+// Required for "Get Objects" endpoint default latest-version grouping
+AttackObjectSchema.index(
+  {
+    '_meta.collectionRef.id': 1,
+    '_meta.active': 1,
+    'stix.id': 1,
+    'stix.modified': -1,
+    'stix.created': -1,
+    '_meta.collectionRef.modified': -1,
+    '_meta.createdAt': -1,
+  },
+  {
+    background: true,
+    name: 'taxii_latest_objects_by_collection',
+  },
+);
+
 // Required for "Get An Object" endpoint
 AttackObjectSchema.index(
   {

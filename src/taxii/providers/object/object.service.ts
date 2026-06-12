@@ -16,6 +16,11 @@ export class ObjectService {
     logger.setContext(ObjectService.name);
   }
 
+  private shouldRetrieveLatestVersionsOnly(filters: ObjectFiltersDto): boolean {
+    const versionFilter = filters.match?.version;
+    return !versionFilter?.length || (versionFilter.length === 1 && versionFilter[0] === 'last');
+  }
+
   async *findAsyncIterableByCollectionId(filters: ObjectFiltersDto): AsyncIterableIterator<object> {
     // A collection ID is required at a minimum
 
@@ -29,7 +34,9 @@ export class ObjectService {
     // Retrieve a list of STIX objects from the database
 
     const attackObjects: AsyncIterableIterator<MongooseAttackObject> =
-      this.stixObjectRepo.findByCollectionId(filters.collectionId);
+      this.stixObjectRepo.findByCollectionId(filters.collectionId, {
+        latestOnly: this.shouldRetrieveLatestVersionsOnly(filters),
+      });
 
     // For each attackObject document returned from the database...
     for await (const attackObject of attackObjects) {
@@ -68,7 +75,9 @@ export class ObjectService {
     // Retrieve a list of STIX objects from the database
 
     const attackObjects: AsyncIterableIterator<MongooseAttackObject> =
-      this.stixObjectRepo.findByCollectionId(filters.collectionId);
+      this.stixObjectRepo.findByCollectionId(filters.collectionId, {
+        latestOnly: this.shouldRetrieveLatestVersionsOnly(filters),
+      });
 
     // Extract the STIX object from each document returned from the database
 

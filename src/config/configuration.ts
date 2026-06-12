@@ -14,6 +14,8 @@ export const configuration = registerAs("app", () => ({
   contactEmail:               process.env.TAXII_CONTACT_EMAIL         || DEFAULTS.DEFAULT_CONTACT_EMAIL,
   workbenchRestApiUrl:        process.env.TAXII_STIX_SRC_URL          || DEFAULTS.DEFAULT_WORKBENCH_REST_API_URL,
   workbenchAuthHeader:        process.env.TAXII_WORKBENCH_AUTH_HEADER || DEFAULTS.DEFAULT_WORKBENCH_AUTH_HEADER,
+  stixDataSrc:                process.env.TAXII_STIX_DATA_SRC         || DEFAULTS.DEFAULT_STIX_DATA_SRC,
+  mitreAttackDataUrl:         process.env.TAXII_MITRE_ATTACK_DATA_URL || DEFAULTS.DEFAULT_MITRE_ATTACK_DATA_URL,
   logLevel:                   process.env.TAXII_LOG_LEVEL             || DEFAULTS.DEFAULT_LOG_LEVEL,
   logToFile:                  process.env.TAXII_LOG_TO_FILE           || DEFAULTS.DEFAULT_LOG_TO_FILE,
   mongoUri:                   process.env.TAXII_MONGO_URI             || DEFAULTS.DEFAULT_MONGO_URI,
@@ -80,6 +82,16 @@ export const validationSchema = Joi.object({
   WORKBENCH_AUTH_HEADER: Joi
       .string()
       .default(DEFAULTS.DEFAULT_WORKBENCH_AUTH_HEADER),
+
+  STIX_DATA_SRC: Joi
+      .string()
+      .valid("workbench", "mitre-attack")
+      .default(DEFAULTS.DEFAULT_STIX_DATA_SRC),
+
+  MITRE_ATTACK_DATA_URL: Joi
+      .string()
+      .uri()
+      .default(DEFAULTS.DEFAULT_MITRE_ATTACK_DATA_URL),
 
   LOG_LEVEL: Joi
       .string()

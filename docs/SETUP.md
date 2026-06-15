@@ -189,9 +189,17 @@ serves STIX data from an instance of MongoDB (as defined by the `TAXII_MONGO_URI
 
 2. TAXII Collector (`taxii21-collector`) : Initialized by `src/hydrate.ts`, this process is responsible for synchronizing
 and hydrating the Mongo database. This process is expected to run in the background and operates on a timer via the
-Nest.js native [task scheduler](https://docs.nestjs.com/techniques/task-scheduling). It retrieves STIX objects from an
-instance of Workbench (as determined by the `TAXII_STIX_SRC_URL` environment variable) and writes them to Mongo
-Collections that the `taxii21-server` process queries resources from.
+Nest.js native [task scheduler](https://docs.nestjs.com/techniques/task-scheduling). It retrieves STIX objects from the
+configured STIX data source (as determined by the `TAXII_STIX_DATA_SRC` environment variable: an ATT&CK Workbench
+instance, or the official MITRE ATT&CK releases on GitHub) and writes them to Mongo Collections that the
+`taxii21-server` process queries resources from.
+
+Hydration is additive: every (collection, release) pair advertised by the STIX data source is hydrated exactly once and
+exposed through its own TAXII API root (e.g. `api/v21/attack-19.1`), while the default API root (`api/v21`) always
+tracks the latest release. When the ATT&CK team publishes a new release, the collector picks it up automatically on the
+next scheduled run — no operator involvement required. Note that the first hydration against the GitHub source
+downloads every historical release bundle (a few GB in total); this is a one-time cost, as published releases are
+immutable and never re-downloaded.
 
 ```text
 /app # pm2 list

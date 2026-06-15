@@ -13,6 +13,7 @@ import {
   CollectionModule,
   EnvelopeModule,
   ManifestModule,
+  ReleaseModule,
   VersionModule,
 } from 'src/taxii/providers';
 import { CollectionsController } from './collections.controller';
@@ -28,6 +29,7 @@ describe('CollectionsController', () => {
         CollectionModule,
         EnvelopeModule,
         ManifestModule,
+        ReleaseModule,
         VersionModule,
         rootMongooseTestModule(),
         MongooseModule.forFeature([

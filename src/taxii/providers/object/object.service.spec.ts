@@ -5,6 +5,7 @@ import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
 import { TaxiiConfigModule } from 'src/config';
 import { AttackObjectEntity, AttackObjectSchema } from 'src/hydrate/schema';
 import { FilterModule } from '../filter/filter.module';
+import { ReleaseModule } from '../release';
 import { ObjectModule } from './object.module';
 import { ObjectRepository } from './object.repository';
 import { ObjectService } from './object.service';
@@ -18,6 +19,7 @@ describe('ObjectService', () => {
         TaxiiLoggerModule,
         TaxiiConfigModule,
         FilterModule,
+        ReleaseModule,
         ObjectModule,
         rootMongooseTestModule(),
         MongooseModule.forFeature([{ name: AttackObjectEntity.name, schema: AttackObjectSchema }]),

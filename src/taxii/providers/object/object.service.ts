@@ -4,6 +4,7 @@ import { TaxiiLoggerService as Logger } from 'src/common/logger';
 import { AttackObjectEntity as MongooseAttackObject } from 'src/hydrate/schema';
 import { FilterService } from '../filter';
 import { ObjectFiltersDto } from '../filter/dto';
+import { ReleaseService } from '../release';
 import { ObjectRepository } from './object.repository';
 
 @Injectable()
@@ -12,6 +13,7 @@ export class ObjectService {
     private readonly logger: Logger,
     private readonly filterService: FilterService,
     private readonly stixObjectRepo: ObjectRepository,
+    private readonly releaseService: ReleaseService,
   ) {
     logger.setContext(ObjectService.name);
   }
@@ -19,6 +21,14 @@ export class ObjectService {
   private shouldRetrieveLatestVersionsOnly(filters: ObjectFiltersDto): boolean {
     const versionFilter = filters.match?.version;
     return !versionFilter?.length || (versionFilter.length === 1 && versionFilter[0] === 'last');
+  }
+
+  /**
+   * Resolves the ATT&CK release a request is scoped to: the pinned release of the API root the
+   * request arrived on, or the collection's latest release for the default API root.
+   */
+  private async resolveRelease(collectionId: string, release?: string): Promise<string> {
+    return release ?? (await this.releaseService.resolveLatestVersion(collectionId));
   }
 
   async *findAsyncIterableByCollectionId(filters: ObjectFiltersDto): AsyncIterableIterator<object> {
@@ -33,8 +43,9 @@ export class ObjectService {
 
     // Retrieve a list of STIX objects from the database
 
+    const release = await this.resolveRelease(filters.collectionId, filters.release);
     const attackObjects: AsyncIterableIterator<MongooseAttackObject> =
-      this.stixObjectRepo.findByCollectionId(filters.collectionId, {
+      this.stixObjectRepo.findByCollectionId(filters.collectionId, release, {
         latestOnly: this.shouldRetrieveLatestVersionsOnly(filters),
       });
 
@@ -74,8 +85,9 @@ export class ObjectService {
 
     // Retrieve a list of STIX objects from the database
 
+    const release = await this.resolveRelease(filters.collectionId, filters.release);
     const attackObjects: AsyncIterableIterator<MongooseAttackObject> =
-      this.stixObjectRepo.findByCollectionId(filters.collectionId, {
+      this.stixObjectRepo.findByCollectionId(filters.collectionId, release, {
         latestOnly: this.shouldRetrieveLatestVersionsOnly(filters),
       });
 
@@ -124,9 +136,11 @@ export class ObjectService {
   ): Promise<object[]> {
     // Retrieve the STIX object from the database
 
+    const release = await this.resolveRelease(collectionId, filters?.release);
     const attackObjects: MongooseAttackObject[] = await this.stixObjectRepo.findOne(
       collectionId,
       objectId,
+      release,
     );
 
     // Stop processing if no objects/docs were retrieved - raise an error and let the interceptor handle the response

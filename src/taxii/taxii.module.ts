@@ -20,6 +20,7 @@ import {
   EnvelopeModule,
   ManifestModule,
   ObjectModule,
+  ReleaseModule,
   VersionModule,
 } from './providers';
 
@@ -31,6 +32,7 @@ import {
     ManifestModule,
     VersionModule,
     EnvelopeModule,
+    ReleaseModule,
   ],
   controllers: [CollectionsController, RootController],
   /**

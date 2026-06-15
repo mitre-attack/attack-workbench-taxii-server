@@ -8,6 +8,7 @@ import { FilterService } from '../filter';
 import { ObjectService } from '../object';
 import { ObjectRepository } from '../object/object.repository';
 import { PaginationService } from '../pagination';
+import { ReleaseModule } from '../release';
 import { EnvelopeService } from './envelope.service';
 
 describe('EnvelopeService', () => {
@@ -19,6 +20,7 @@ describe('EnvelopeService', () => {
         TaxiiLoggerModule,
         TaxiiConfigModule,
         rootMongooseTestModule(),
+        ReleaseModule,
         MongooseModule.forFeature([{ name: AttackObjectEntity.name, schema: AttackObjectSchema }]),
       ],
       providers: [

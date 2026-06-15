@@ -78,11 +78,21 @@ import { ManifestResource } from '../../providers/manifest/dto';
 import { VersionsResource } from '../../providers/version/dto/versions-resource';
 import { SwaggerDocumentation as SWAGGER } from './collections.controller.swagger.json';
 
+// ** release (pinned API root) handling ** //
+import { ReleaseParamPipe } from 'src/taxii/providers/release';
+
 @ApiHeader({
   name: SWAGGER.AcceptHeader.Name,
   description: SWAGGER.AcceptHeader.Description,
 })
-@Controller('/collections')
+/**
+ * Mounted on two route spaces (relative to the global API root prefix, e.g. api/v21):
+ *   - `collections`                     — the default, latest-tracking API root
+ *   - `:release/collections`            — pinned per-release API roots, e.g. api/v21/attack-19.1
+ * The `release` path segment is validated and translated to an ATT&CK release version (e.g.
+ * "attack-19.1" -> "19.1") by the ReleaseParamPipe; undefined means "latest".
+ */
+@Controller(['/collections', '/:release/collections'])
 export class CollectionsController {
   constructor(
     private readonly logger: Logger,
@@ -99,9 +109,11 @@ export class CollectionsController {
     type: TaxiiCollectionsResource,
   })
   @Get('/')
-  async getCollections(): Promise<TaxiiCollectionsDto> {
+  async getCollections(
+    @Param('release', ReleaseParamPipe) release?: string,
+  ): Promise<TaxiiCollectionsDto> {
     this.logger.debug(`Received request for all collections`, this.constructor.name);
-    return await this.collectionService.findAll();
+    return await this.collectionService.findAll(release);
   }
 
   @ApiOkResponse({
@@ -109,12 +121,15 @@ export class CollectionsController {
     type: TaxiiCollectionResource,
   })
   @Get('/:collectionId/')
-  async getACollection(@Param('collectionId') collectionId: string): Promise<TaxiiCollectionDto> {
+  async getACollection(
+    @Param('collectionId') collectionId: string,
+    @Param('release', ReleaseParamPipe) release?: string,
+  ): Promise<TaxiiCollectionDto> {
     this.logger.debug(
       `Received request for a single collection with options { collectionId: ${collectionId} }`,
       this.constructor.name,
     );
-    const collection = await this.collectionService.findOne(collectionId);
+    const collection = await this.collectionService.findOne(collectionId, release);
     return instanceToPlain(collection, {
       excludeExtraneousValues: true,
     }) as TaxiiCollectionDto;
@@ -132,6 +147,7 @@ export class CollectionsController {
     @NumberQuery('limit') limit?: number,
     @NumberQuery('next') next?: number,
     @Query(new ParseMatchQueryParamPipe({ defaultVersionBehavior: 'latest' })) match?: MatchDto[], // See note on MatchDto above
+    @Param('release', ReleaseParamPipe) release?: string,
   ): Promise<ManifestDto> {
     this.logger.debug(
       `Received request for object manifests with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${JSON.stringify(
@@ -145,6 +161,7 @@ export class CollectionsController {
       limit,
       next,
       match as unknown as MatchDto, // See note on MatchDto above
+      release,
     );
   }
 
@@ -166,6 +183,7 @@ export class CollectionsController {
      * It will automatically split the comma-separated values into an array.
      * The ParseMatchQueryParamPipe is then applied to each element of the parsed array to transform it into a MatchDto object.
      */
+    @Param('release', ReleaseParamPipe) release?: string,
   ): Promise<EnvelopeDto> {
     this.logger.debug(
       `Received request for objects with options { collectionId: ${collectionId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${JSON.stringify(match)} }`,
@@ -177,6 +195,7 @@ export class CollectionsController {
       limit,
       next,
       match as unknown as MatchDto, // See note on MatchDto above
+      release,
     );
   }
 
@@ -193,6 +212,7 @@ export class CollectionsController {
     @NumberQuery('next') next?: number,
     @Query('added_after', ParseTimestampPipe) addedAfter?: string,
     @Query(new ParseMatchQueryParamPipe({ defaultVersionBehavior: 'latest' })) match?: MatchDto[], // See note on MatchDto above
+    @Param('release', ReleaseParamPipe) release?: string,
   ): Promise<EnvelopeDto> {
     this.logger.debug(
       `Received request for an object with options { collectionId: ${collectionId}, objectId: ${objectId} }`,
@@ -206,6 +226,7 @@ export class CollectionsController {
       limit,
       next,
       match as unknown as MatchDto, // See note on MatchDto above
+      release,
     );
   }
 
@@ -248,6 +269,7 @@ export class CollectionsController {
     @NumberQuery('limit') limit?: number,
     @NumberQuery('next') next?: number,
     @Query(new ParseMatchQueryParamPipe({ defaultVersionBehavior: 'all' })) match?: MatchDto[], // See note on MatchDto above
+    @Param('release', ReleaseParamPipe) release?: string,
   ): Promise<VersionsDto> {
     this.logger.debug(
       `Received request for object versions with options { collectionId: ${collectionId}, objectId: ${objectId}, addedAfter: ${addedAfter}, limit: ${limit}, next: ${next}, match: ${JSON.stringify(match)} }`,
@@ -260,6 +282,7 @@ export class CollectionsController {
       limit,
       next,
       match as unknown as MatchDto, // See note on MatchDto above
+      release,
     );
   }
 }

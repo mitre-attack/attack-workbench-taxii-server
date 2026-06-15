@@ -4,6 +4,7 @@ import { closeInMongodConnection, rootMongooseTestModule } from 'src/../test/tes
 import { TaxiiLoggerModule } from 'src/common/logger/taxii-logger.module';
 import { TaxiiConfigModule } from 'src/config';
 import { TaxiiCollectionEntity, TaxiiCollectionSchema } from 'src/hydrate/schema';
+import { ReleaseModule } from '../release';
 import { CollectionRepository } from './collection.repository';
 import { CollectionService } from './collection.service';
 
@@ -16,6 +17,7 @@ describe('CollectionRepository', () => {
         TaxiiLoggerModule,
         TaxiiConfigModule,
         rootMongooseTestModule(),
+        ReleaseModule,
         MongooseModule.forFeature([
           { name: TaxiiCollectionEntity.name, schema: TaxiiCollectionSchema },
         ]),

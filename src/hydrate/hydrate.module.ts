@@ -7,6 +7,8 @@ import { StixModule } from '../stix/stix.module';
 import {
   AttackObjectEntity,
   AttackObjectSchema,
+  ReleasePointerEntity,
+  ReleasePointerSchema,
   TaxiiCollectionEntity,
   TaxiiCollectionSchema,
 } from './schema';
@@ -16,7 +18,6 @@ import { HYDRATE_OPTIONS_TOKEN } from './constants';
 @Module({})
 export class HydrateModule {
   static register(options: HydrateConnectOptions): DynamicModule {
-    console.log(options);
     return {
       module: HydrateModule,
       imports: [
@@ -25,6 +26,7 @@ export class HydrateModule {
         MongooseModule.forFeature([
           { name: AttackObjectEntity.name, schema: AttackObjectSchema },
           { name: TaxiiCollectionEntity.name, schema: TaxiiCollectionSchema },
+          { name: ReleasePointerEntity.name, schema: ReleasePointerSchema },
         ]),
         StixModule.register(options.stixConnectOptions),
       ],

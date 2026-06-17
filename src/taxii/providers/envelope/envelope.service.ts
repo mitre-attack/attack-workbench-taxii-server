@@ -31,12 +31,14 @@ export class EnvelopeService {
     limit?: number,
     next?: number,
     match?: MatchDto,
+    release?: string,
   ): Promise<EnvelopeDto> {
     const filters = new ObjectFiltersDto({
       collectionId,
       addedAfter,
       limit,
       match,
+      release,
     });
 
     // First, get all of the STIX objects. Once acquired, we will paginate them into envelopes.
@@ -64,12 +66,14 @@ export class EnvelopeService {
     limit?: number,
     next?: number,
     match?: MatchDto,
+    release?: string,
   ): Promise<EnvelopeDto> {
     const filters = new ObjectFiltersDto({
       collectionId,
       addedAfter,
       limit,
       match,
+      release,
     });
 
     // TODO cast `objects` this to correct type when attack-data-model is integrated

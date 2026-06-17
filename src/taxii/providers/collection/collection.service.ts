@@ -15,10 +15,10 @@ export class CollectionService {
 
   /**
    * Gets a list of all available TaxiiCollectionDto objects
+   * @param release The ATT&CK release the request is scoped to; undefined means latest
    */
-  async findAll(): Promise<TaxiiCollectionsDto> {
-    // Fetch all STIX collection-_dto from the Workbench REST API and deserialize into JSON
-    const taxiiCollections: TaxiiCollectionsDto = await this.stixCollectionsRepo.findAll();
+  async findAll(release?: string): Promise<TaxiiCollectionsDto> {
+    const taxiiCollections: TaxiiCollectionsDto = await this.stixCollectionsRepo.findAll(release);
 
     if (!taxiiCollections) {
       throw new TaxiiNotFoundException({
@@ -39,9 +39,10 @@ export class CollectionService {
   /**
    * Gets one Collection object
    * @param id The unique STIX ID (workbench.id) of the target STIX collection object
+   * @param release The ATT&CK release the request is scoped to; undefined means latest
    */
-  async findOne(id: string): Promise<TaxiiCollectionDto> {
-    const taxiiCollection: TaxiiCollectionDto = await this.stixCollectionsRepo.findOne(id);
+  async findOne(id: string, release?: string): Promise<TaxiiCollectionDto> {
+    const taxiiCollection: TaxiiCollectionDto = await this.stixCollectionsRepo.findOne(id, release);
 
     this.logger.debug(`Retrieved TAXII Collection: ${JSON.stringify(taxiiCollection, null, 4)}`);
 

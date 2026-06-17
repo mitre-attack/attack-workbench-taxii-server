@@ -12,18 +12,26 @@ import { HydrateConnectOptions } from './interfaces/hydrate-connect.options';
 import {
   AttackObjectDocument,
   AttackObjectEntity,
+  ReleasePointerDocument,
+  ReleasePointerEntity,
   TaxiiCollectionDocument,
   TaxiiCollectionEntity,
 } from './schema';
 
 /**
- * Service responsible for synchronizing TAXII collections and objects with ATT&CK Workbench.
+ * Service responsible for synchronizing TAXII collections and objects with the configured STIX
+ * data source (ATT&CK Workbench or the official ATT&CK releases on GitHub).
  *
- * This service maintains exact synchronization with Workbench by:
- * 1. Always preferring the Workbench state, regardless of version
- * 2. Maintaining history through active/inactive states
- * 3. Reactivating previously seen versions when possible
- * 4. Creating new resources for unseen versions
+ * Hydration is additive and source-agnostic:
+ * 1. Every (collection, release) pair advertised by the source is hydrated exactly once. A pair
+ *    already present in the database is skipped, so immutable releases are never re-downloaded.
+ * 2. The collection document is written only after all of the release's objects, so its presence
+ *    acts as a per-release commit marker; a crash mid-release is retried (idempotently) on the
+ *    next sync.
+ * 3. A latest-release pointer per collection is flipped only after hydration completes, giving
+ *    clients of the default API root an atomic cutover to new releases.
+ * 4. Pairs that disappear from the source are hard-deleted (a no-op for the GitHub source, whose
+ *    releases are immutable and never delisted).
  */
 @Injectable()
 export class HydrateService implements OnModuleInit {
@@ -35,6 +43,8 @@ export class HydrateService implements OnModuleInit {
     private collectionModel: Model<TaxiiCollectionDocument>,
     @InjectModel(AttackObjectEntity.name)
     private stixObjectModel: Model<AttackObjectDocument>,
+    @InjectModel(ReleasePointerEntity.name)
+    private releasePointerModel: Model<ReleasePointerDocument>,
     @Inject(HYDRATE_OPTIONS_TOKEN) private options: HydrateConnectOptions,
   ) {}
 
@@ -49,13 +59,34 @@ export class HydrateService implements OnModuleInit {
 
       await this.ensureIndex(
         this.stixObjectModel.collection,
-        { '_meta.collectionRef.id': 1, '_meta.active': 1 },
+        {
+          '_meta.collectionRef.id': 1,
+          '_meta.collectionRef.version': 1,
+          '_meta.createdAt': 1,
+        },
         { background: true, name: 'taxii_objects_by_collection' },
       );
 
       await this.ensureIndex(
         this.stixObjectModel.collection,
-        { '_meta.collectionRef.id': 1, 'stix.id': 1, '_meta.active': 1 },
+        {
+          '_meta.collectionRef.id': 1,
+          '_meta.collectionRef.version': 1,
+          'stix.id': 1,
+          'stix.modified': -1,
+          'stix.created': -1,
+          '_meta.createdAt': -1,
+        },
+        { background: true, name: 'taxii_latest_objects_by_collection' },
+      );
+
+      await this.ensureIndex(
+        this.stixObjectModel.collection,
+        {
+          '_meta.collectionRef.id': 1,
+          '_meta.collectionRef.version': 1,
+          'stix.id': 1,
+        },
         { background: true, name: 'taxii_object_lookup' },
       );
 
@@ -102,9 +133,9 @@ export class HydrateService implements OnModuleInit {
   }
 
   private createTaxiiCollectionEntity(
-    workbenchCollection: WorkbenchCollectionDto,
+    sourceCollection: WorkbenchCollectionDto,
   ): TaxiiCollectionEntity {
-    const taxiiDto = new TaxiiCollectionDto(workbenchCollection);
+    const taxiiDto = new TaxiiCollectionDto(sourceCollection);
     return new this.collectionModel({
       id: taxiiDto.id,
       title: taxiiDto.title,
@@ -114,22 +145,21 @@ export class HydrateService implements OnModuleInit {
       canWrite: taxiiDto.canWrite,
       mediaTypes: taxiiDto.mediaTypes,
       _meta: {
-        workbenchCollection: {
-          version: workbenchCollection.stix.x_mitre_version,
-          modified: this.safeDate(workbenchCollection.stix.modified),
+        release: {
+          version: sourceCollection.stix.x_mitre_version,
+          modified: this.safeDate(sourceCollection.stix.modified),
         },
         createdAt: new Date(),
-        active: true,
       },
     });
   }
 
-  private createCollectionRef(workbenchCollection: WorkbenchCollectionDto) {
+  private createCollectionRef(sourceCollection: WorkbenchCollectionDto) {
     return {
-      id: workbenchCollection.stix.id,
-      title: workbenchCollection.stix.name,
-      version: workbenchCollection.stix.x_mitre_version,
-      modified: this.safeDate(workbenchCollection.stix.modified),
+      id: sourceCollection.stix.id,
+      title: sourceCollection.stix.name,
+      version: sourceCollection.stix.x_mitre_version,
+      modified: this.safeDate(sourceCollection.stix.modified),
     };
   }
 
@@ -144,165 +174,156 @@ export class HydrateService implements OnModuleInit {
         collectionRef,
         stixSpecVersion: '2.1',
         createdAt: new Date(),
-        active: true,
       },
     };
   }
 
   /**
-   * Handles collection synchronization with Workbench, always preferring the Workbench state.
+   * Hydrates a single (collection, release) pair unless it is already present in the database.
    *
-   * Key behaviors:
-   * 1. If no active TAXII collection exists with the same title -> create new
-   * 2. If active TAXII collection exists:
-   *    a. If versions match -> no action needed
-   *    b. If versions differ:
-   *       - Check if we've seen this version before
-   *       - If yes -> reactivate that version
-   *       - If no -> create new version
+   * Releases are treated as immutable: a pair is downloaded and written exactly once. The
+   * collection document is created only after all of the release's objects have been inserted, so
+   * its presence marks the release as fully hydrated. If a previous attempt crashed mid-release,
+   * the missing commit marker causes a retry here, and the pre-insert cleanup makes that retry
+   * idempotent.
+   *
+   * @returns true if the release was hydrated, false if it was already present
    */
-  private async handleCollectionSync(
-    workbenchCollection: WorkbenchCollectionDto,
-  ): Promise<{ shouldCreateObjects: boolean }> {
-    const workbenchVersion = workbenchCollection.stix.x_mitre_version;
+  private async hydrateRelease(sourceCollection: WorkbenchCollectionDto): Promise<boolean> {
+    const collectionId = sourceCollection.stix.id;
+    const version = sourceCollection.stix.x_mitre_version;
 
-    // Find current active collection
-    const activeCollection = await this.collectionModel
-      .findOne({
-        title: workbenchCollection.stix.name,
-        '_meta.active': true,
-      })
+    const exists = await this.collectionModel
+      .exists({ id: collectionId, '_meta.release.version': version })
       .exec();
-
-    // Find any existing inactive collection matching the Workbench version
-    const matchingVersion = await this.collectionModel
-      .findOne({
-        title: workbenchCollection.stix.name,
-        '_meta.workbenchCollection.version': workbenchVersion,
-        '_meta.active': false,
-      })
-      .exec();
-
-    // No active collection exists - create new
-    if (!activeCollection) {
-      this.logger.debug(`Creating new TAXII collection for ${workbenchCollection.stix.name}`);
-      const newCollection = this.createTaxiiCollectionEntity(workbenchCollection);
-      await this.collectionModel.create(newCollection);
-      return { shouldCreateObjects: true };
+    if (exists) {
+      return false;
     }
 
-    // Active collection exists but versions match - no action needed
-    if (activeCollection._meta.workbenchCollection.version === workbenchVersion) {
-      this.logger.debug(
-        `Collection ${workbenchCollection.stix.name} versions match - no action needed`,
-      );
-      return { shouldCreateObjects: false };
-    }
+    this.logger.debug(`Hydrating release ${version} of collection ${collectionId}`);
 
-    // Deactivate current collection and its objects
-    await this.collectionModel.findByIdAndUpdate(activeCollection._id, {
-      $set: { '_meta.active': false },
+    // Remove any objects left behind by a previously interrupted hydration of this release
+    await this.stixObjectModel.deleteMany({
+      '_meta.collectionRef.id': collectionId,
+      '_meta.collectionRef.version': version,
     });
 
-    await this.stixObjectModel.updateMany(
-      {
-        '_meta.collectionRef.id': activeCollection.id,
-        '_meta.active': true,
-      },
-      { $set: { '_meta.active': false } },
-    );
-
-    // If we've seen this version before, reactivate it and its objects
-    if (matchingVersion) {
-      this.logger.debug(
-        `Reactivating existing version ${workbenchVersion} for ${workbenchCollection.stix.name}`,
-      );
-      await this.collectionModel.findByIdAndUpdate(matchingVersion._id, {
-        $set: { '_meta.active': true },
-      });
-
-      await this.stixObjectModel.updateMany(
-        {
-          '_meta.collectionRef.id': matchingVersion.id,
-          '_meta.collectionRef.version': workbenchVersion,
-          '_meta.active': false,
-        },
-        { $set: { '_meta.active': true } },
-      );
-
-      return { shouldCreateObjects: false };
-    }
-
-    // Create new collection for unseen version
-    this.logger.debug(
-      `Creating new collection for version ${workbenchVersion} of ${workbenchCollection.stix.name}`,
-    );
-    const newCollection = this.createTaxiiCollectionEntity(workbenchCollection);
-    await this.collectionModel.create(newCollection);
-    return { shouldCreateObjects: true };
-  }
-
-  private async handleOrphanedCollections(
-    workbenchCollections: WorkbenchCollectionDto[],
-  ): Promise<void> {
-    const workbenchTitles = new Set(workbenchCollections.map((collection) => collection.stix.name));
-
-    const orphanedCollections = await this.collectionModel
-      .find({
-        title: { $nin: Array.from(workbenchTitles) },
-        '_meta.active': true,
-      })
-      .exec();
-
-    if (orphanedCollections.length === 0) {
-      this.logger.debug('No orphaned collections found');
-      return;
-    }
-
-    // Mark collections as inactive
-    await this.collectionModel.updateMany(
-      { _id: { $in: orphanedCollections.map((c) => c._id) } },
-      { $set: { '_meta.active': false } },
-    );
-
-    // Mark their objects as inactive
-    await this.stixObjectModel.updateMany(
-      {
-        '_meta.collectionRef.id': { $in: orphanedCollections.map((c) => c.id) },
-      },
-      { $set: { '_meta.active': false } },
-    );
-
-    this.logger.debug(`Marked ${orphanedCollections.length} orphaned collections as inactive`);
-  }
-
-  private async syncCollectionObjects(workbenchCollection: WorkbenchCollectionDto): Promise<void> {
     const bundle = await this.stixRepo.getCollectionBundle(
-      workbenchCollection.stix.id,
-      workbenchCollection.stix.modified,
+      collectionId,
+      sourceCollection.stix.modified,
     );
 
-    if (!bundle.objects || bundle.objects.length === 0) {
-      this.logger.debug(`No objects found in collection ${workbenchCollection.stix.id}`);
-      return;
-    }
+    const collectionRef = this.createCollectionRef(sourceCollection);
+    const objects = bundle.objects ?? [];
 
-    const collectionRef = this.createCollectionRef(workbenchCollection);
-    const bulkOps = bundle.objects.map((stixObject) => ({
-      insertOne: {
-        document: this.createStixObjectEntity(stixObject, collectionRef),
-      },
-    }));
-
-    // Execute bulk operations in batches of 1000
-    for (let i = 0; i < bulkOps.length; i += 1000) {
-      const batch = bulkOps.slice(i, i + 1000);
+    // Insert objects in batches of 1000
+    for (let i = 0; i < objects.length; i += 1000) {
+      const batch = objects.slice(i, i + 1000).map((stixObject) => ({
+        insertOne: { document: this.createStixObjectEntity(stixObject, collectionRef) },
+      }));
       await this.stixObjectModel.bulkWrite(batch);
     }
 
+    // Commit marker: written last so a partially hydrated release is never considered complete
+    await this.collectionModel.create(this.createTaxiiCollectionEntity(sourceCollection));
+
     this.logger.debug(
-      `Synchronized ${bundle.objects.length} objects for collection ${workbenchCollection.stix.id}`,
+      `Hydrated ${objects.length} objects for release ${version} of collection ${collectionId}`,
     );
+    return true;
+  }
+
+  /**
+   * Points each collection's latest-release pointer at the newest *fully hydrated* release.
+   * Pointers are computed from database state (not the source listing) so that a release that
+   * failed to hydrate never becomes the default-root target. Selection is by release modified
+   * timestamp because version strings do not sort lexicographically ("9.0" > "19.1").
+   */
+  private async updateLatestReleasePointers(): Promise<void> {
+    const latestReleases: Array<{ _id: string; version: string; modified: Date }> =
+      await this.collectionModel.aggregate([
+        { $sort: { id: 1, '_meta.release.modified': -1 } },
+        {
+          $group: {
+            _id: '$id',
+            version: { $first: '$_meta.release.version' },
+            modified: { $first: '$_meta.release.modified' },
+          },
+        },
+      ]);
+
+    for (const latest of latestReleases) {
+      await this.releasePointerModel.updateOne(
+        { collectionId: latest._id },
+        {
+          $set: {
+            version: latest.version,
+            modified: latest.modified,
+            updatedAt: new Date(),
+          },
+        },
+        { upsert: true },
+      );
+    }
+
+    this.logger.debug(`Updated ${latestReleases.length} latest-release pointers`);
+  }
+
+  /**
+   * Hard-deletes (collection, release) pairs that are no longer advertised by the STIX data
+   * source. This is a no-op for the GitHub source (the collection index never delists releases);
+   * for Workbench it covers collections or collection versions deleted by their curators.
+   */
+  private async removeOrphanedReleases(sourceCollections: WorkbenchCollectionDto[]): Promise<void> {
+    const sourcePairs = new Set(
+      sourceCollections.map((elem) => `${elem.stix.id}::${elem.stix.x_mitre_version}`),
+    );
+    const sourceIds = new Set(sourceCollections.map((elem) => elem.stix.id));
+
+    const hydratedPairs = await this.collectionModel
+      .find({}, { id: 1, '_meta.release.version': 1 })
+      .exec();
+
+    let removed = 0;
+    for (const pair of hydratedPairs) {
+      const version = pair._meta?.release?.version;
+
+      // A document without a string release version predates the per-release schema (its version
+      // lived under _meta.workbenchCollection). It can never match a source pair, so it is always
+      // orphaned; remove its commit marker so it stops polluting discovery. Its objects are NOT
+      // deleted here: the legacy version is unknown at this point, so a version-scoped deleteMany
+      // would pass an undefined filter that Mongoose strips, wiping every object of a still-live
+      // collection. Operators clear legacy objects out of band (see the upgrade runbook).
+      if (typeof version !== 'string') {
+        this.logger.warn(
+          `Removing legacy collection document ${pair.id} with no release version (pre-per-release schema)`,
+        );
+        await this.collectionModel.deleteOne({ _id: pair._id });
+        removed += 1;
+        continue;
+      }
+
+      if (sourcePairs.has(`${pair.id}::${version}`)) {
+        continue;
+      }
+
+      this.logger.debug(`Removing orphaned release ${version} of collection ${pair.id}`);
+      await this.stixObjectModel.deleteMany({
+        '_meta.collectionRef.id': pair.id,
+        '_meta.collectionRef.version': version,
+      });
+      await this.collectionModel.deleteOne({ _id: pair._id });
+      removed += 1;
+    }
+
+    // Drop pointers for collections that disappeared from the source entirely
+    await this.releasePointerModel.deleteMany({ collectionId: { $nin: Array.from(sourceIds) } });
+
+    if (removed > 0) {
+      this.logger.debug(`Removed ${removed} orphaned releases`);
+    } else {
+      this.logger.debug('No orphaned releases found');
+    }
   }
 
   @Cron(CronExpression.EVERY_30_MINUTES, {
@@ -311,31 +332,30 @@ export class HydrateService implements OnModuleInit {
   async findAndStoreTaxiiResources(): Promise<void> {
     this.logger.debug('Starting database collection and object hydration');
 
+    let sourceCollections: WorkbenchCollectionDto[];
     try {
-      const workbenchCollections = await this.stixRepo.getCollections();
+      sourceCollections = await this.stixRepo.getCollections(undefined, 'all');
       this.logger.debug(
-        `Successfully retrieved ${workbenchCollections.length} collections from Workbench`,
+        `Successfully retrieved ${sourceCollections.length} (collection, release) pairs from the STIX data source`,
       );
-
-      await this.handleOrphanedCollections(workbenchCollections);
-
-      for (const workbenchCollection of workbenchCollections) {
-        try {
-          const { shouldCreateObjects } = await this.handleCollectionSync(workbenchCollection);
-
-          if (shouldCreateObjects) {
-            await this.syncCollectionObjects(workbenchCollection);
-          }
-
-          this.logger.debug(`Processed collection '${workbenchCollection.stix.id}'`);
-        } catch (e) {
-          this.logger.error(`Failed to process collection ${workbenchCollection.stix.id}`, e.stack);
-        }
-      }
     } catch (e) {
-      this.logger.error('Failed to retrieve collections from Workbench', e.stack);
+      this.logger.error('Failed to retrieve collections from the STIX data source', e.stack);
       throw e;
     }
+
+    for (const sourceCollection of sourceCollections) {
+      try {
+        await this.hydrateRelease(sourceCollection);
+      } catch (e) {
+        this.logger.error(
+          `Failed to hydrate release ${sourceCollection.stix.x_mitre_version} of collection ${sourceCollection.stix.id}`,
+          e.stack,
+        );
+      }
+    }
+
+    await this.updateLatestReleasePointers();
+    await this.removeOrphanedReleases(sourceCollections);
   }
 
   async hydrate(): Promise<void> {

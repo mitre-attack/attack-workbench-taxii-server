@@ -25,12 +25,14 @@ export class AppModule {
 
         /**
          * The .register() call initializes the STIX module. The respective STIX repository/DAO contained
-         * within StixModule is instantiated as one of three types: WorkbenchRepository, OrmRepository, or
-         * FileRepository. The type selection is determined by the StixConnectOptions parameter, which itself
-         * is defined by the configuration service (AppConfigService).
+         * within StixModule is instantiated as one of several types (e.g., WorkbenchRepository,
+         * MitreAttackRepository). The type selection is determined by the StixConnectOptions parameter
+         * (specifically its useType property, sourced from the TAXII_STIX_DATA_SRC environment variable),
+         * which itself is defined by the configuration service (AppConfigService).
          *
-         * NOTE: FileRepository and OrmRepository is not yet implemented. Only WorkbenchRepository is
-         * supported at this time.
+         * NOTE: WorkbenchRepository (hydrates from a running ATT&CK Workbench instance) and
+         * MitreAttackRepository (hydrates from the official ATT&CK releases on GitHub) are supported at
+         * this time.
          **/
         StixModule.register(connectOptions.stixConnectOptions),
       ],

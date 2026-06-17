@@ -30,6 +30,7 @@ export class VersionService {
     limit?: number,
     next?: number,
     match?: MatchDto,
+    release?: string,
   ) {
     const filters = new ObjectFiltersDto({
       collectionId,
@@ -37,6 +38,7 @@ export class VersionService {
       addedAfter,
       limit,
       match,
+      release,
     });
 
     // Hard-code filter DTO to retrieve all available versions of the target object

@@ -7,6 +7,7 @@ export interface ObjectFiltersOptions {
   addedAfter?: string;
   limit?: number;
   match?: MatchDto;
+  release?: string;
 }
 
 export class ObjectFiltersDto {
@@ -15,6 +16,14 @@ export class ObjectFiltersDto {
    */
   @Type(() => String)
   collectionId?: string;
+
+  /**
+   * Refers to the ATT&CK release (e.g. "19.1") the request is scoped to, as determined by the API
+   * root the request arrived on. Undefined means the default (latest-tracking) API root; the
+   * latest release of the collection is resolved at query time.
+   */
+  @Type(() => String)
+  release?: string;
 
   /**
    * TODO add description

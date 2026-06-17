@@ -57,7 +57,8 @@ At present, the following environment variables are supported:
 | `TAXII_CACHE_MEM_SIZE`        | int  | 4096                                                                                      | Sets the amount of memory allocated to memcached for object storage. ONLY USED BY MEMCACHED.                                                                                                                                              |
 | `TAXII_CORS_ENABLED`          | bool | false                                                                                     | Specifies whether CORS should be enabled on the server                                                                                                                                                                                    |
 | `TAXII_STIX_SRC_URL`          | str  | <http://localhost:3000>                                                                   | Specifies the address and port on which the Workbench REST API is listening.                                                                                                                                                              |
-| `TAXII_STIX_DATA_SRC`         | str  | workbench                                                                                 | Specifies how the server will source/ingest STIX data. At the moment, only 'workbench' is supported.                                                                                                                                      |
+| `TAXII_STIX_DATA_SRC`         | str  | workbench                                                                                 | Specifies how the server will source/ingest STIX data. Supported values: 'workbench' (hydrate from a running ATT&CK Workbench REST API instance) and 'mitre-attack' (hydrate from the official MITRE ATT&CK releases on GitHub).          |
+| `TAXII_MITRE_ATTACK_DATA_URL` | str  | <https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master>                  | Only used when `TAXII_STIX_DATA_SRC` is 'mitre-attack'. Specifies the base URL from which the ATT&CK collection index (index.json) and STIX bundles are retrieved. Override to point at a mirror of mitre-attack/attack-stix-data.        |
 | `TAXII_WORKBENCH_AUTH_HEADER` | str  | dGF4aWktc2VydmVyOnNlY3JldC1zcXVpcnJlbA==                                                  | Specifies the base64-encoded portion of the Authorization header that should be used on HTTP requests to the Workbench REST API.                                                                                                          |
 | `TAXII_MONGO_URI`             | str  | mongodb://localhost:27017/taxii                                                           | Specifies the URI of the MongoDB instance.                                                                                                                                                                                                |
 | `TAXII_LOG_LEVEL`             | str  | info                                                                                      | Default winston logging level. Conforms to RFC5424                                                                                                                                                                                        |
@@ -188,9 +189,17 @@ serves STIX data from an instance of MongoDB (as defined by the `TAXII_MONGO_URI
 
 2. TAXII Collector (`taxii21-collector`) : Initialized by `src/hydrate.ts`, this process is responsible for synchronizing
 and hydrating the Mongo database. This process is expected to run in the background and operates on a timer via the
-Nest.js native [task scheduler](https://docs.nestjs.com/techniques/task-scheduling). It retrieves STIX objects from an
-instance of Workbench (as determined by the `TAXII_STIX_SRC_URL` environment variable) and writes them to Mongo
-Collections that the `taxii21-server` process queries resources from.
+Nest.js native [task scheduler](https://docs.nestjs.com/techniques/task-scheduling). It retrieves STIX objects from the
+configured STIX data source (as determined by the `TAXII_STIX_DATA_SRC` environment variable: an ATT&CK Workbench
+instance, or the official MITRE ATT&CK releases on GitHub) and writes them to Mongo Collections that the
+`taxii21-server` process queries resources from.
+
+Hydration is additive: every (collection, release) pair advertised by the STIX data source is hydrated exactly once and
+exposed through its own TAXII API root (e.g. `api/v21/attack-19.1`), while the default API root (`api/v21`) always
+tracks the latest release. When the ATT&CK team publishes a new release, the collector picks it up automatically on the
+next scheduled run — no operator involvement required. Note that the first hydration against the GitHub source
+downloads every historical release bundle (a few GB in total); this is a one-time cost, as published releases are
+immutable and never re-downloaded.
 
 ```text
 /app # pm2 list

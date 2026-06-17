@@ -11,6 +11,9 @@ export const DEFAULT_CONTACT_EMAIL = 'no-reply@your-company.tld';
 export const DEFAULT_CORS_ENABLED = false;
 export const DEFAULT_WORKBENCH_REST_API_URL = 'http://localhost:3000';
 export const DEFAULT_WORKBENCH_AUTH_HEADER = 'dGF4aWktc2VydmVyOnNlY3JldC1zcXVpcnJlbA=='; // taxii-server:secret-squirrel
+export const DEFAULT_STIX_DATA_SRC = 'workbench';
+export const DEFAULT_MITRE_ATTACK_DATA_URL =
+  'https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master';
 export const DEFAULT_LOG_LEVEL = 'info';
 export const DEFAULT_LOG_TO_FILE = false;
 export const DEFAULT_HTTPS_ENABLED = false;

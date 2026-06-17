@@ -2,7 +2,7 @@ import { Injectable, LogLevel } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import { TaxiiConfigServiceInterface } from './interfaces/taxii-config.service.interface';
-import { StixConnectOptions } from '../stix/interfaces';
+import { StixConnectOptions, StixDataSource } from '../stix/interfaces';
 import { isDefined } from 'class-validator';
 import { AppConnectOptions } from '../interfaces';
 import { DatabaseConnectOptions } from '../interfaces/database-connect-options.interface';
@@ -37,9 +37,13 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
 
   createStixConnectOptions(): StixConnectOptions {
     return {
+      useType: this.STIX_DATA_SRC,
       workbench: {
         baseUrl: this.WORKBENCH_REST_API_URL,
         authorization: this.WORKBENCH_AUTH_HEADER,
+      },
+      mitreAttack: {
+        baseUrl: this.MITRE_ATTACK_DATA_URL,
       },
     };
   }
@@ -86,6 +90,14 @@ export class TaxiiConfigService implements TaxiiConfigServiceInterface {
 
   get WORKBENCH_AUTH_HEADER(): string {
     return this.configService.get<string>('app.workbenchAuthHeader');
+  }
+
+  get STIX_DATA_SRC(): StixDataSource {
+    return this.configService.get<StixDataSource>('app.stixDataSrc');
+  }
+
+  get MITRE_ATTACK_DATA_URL(): string {
+    return this.configService.get<string>('app.mitreAttackDataUrl');
   }
 
   get HTTPS_ENABLED(): boolean {

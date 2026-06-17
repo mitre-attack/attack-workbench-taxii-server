@@ -30,9 +30,6 @@ export class ObjectMetaDataEntity {
 
   @Prop({ type: mongoose.Schema.Types.Date, required: true })
   createdAt: Date;
-
-  @Prop({ type: mongoose.Schema.Types.Boolean, required: true, default: true })
-  active: boolean;
 }
 
 export const ObjectMetaDataSchema = SchemaFactory.createForClass(ObjectMetaDataEntity);
@@ -72,11 +69,12 @@ AttackObjectSchema.index(
   },
 );
 
-// Required for "Get Objects" endpoint
+// Required for "Get Objects" endpoint (queries are always scoped to a single release)
 AttackObjectSchema.index(
   {
     '_meta.collectionRef.id': 1,
-    '_meta.active': 1,
+    '_meta.collectionRef.version': 1,
+    '_meta.createdAt': 1,
   },
   {
     background: true,
@@ -84,12 +82,28 @@ AttackObjectSchema.index(
   },
 );
 
+// Required for "Get Objects" endpoint default latest-version grouping
+AttackObjectSchema.index(
+  {
+    '_meta.collectionRef.id': 1,
+    '_meta.collectionRef.version': 1,
+    'stix.id': 1,
+    'stix.modified': -1,
+    'stix.created': -1,
+    '_meta.createdAt': -1,
+  },
+  {
+    background: true,
+    name: 'taxii_latest_objects_by_collection',
+  },
+);
+
 // Required for "Get An Object" endpoint
 AttackObjectSchema.index(
   {
     '_meta.collectionRef.id': 1,
+    '_meta.collectionRef.version': 1,
     'stix.id': 1,
-    '_meta.active': 1,
   },
   {
     background: true,

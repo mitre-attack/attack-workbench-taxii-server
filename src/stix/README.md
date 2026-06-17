@@ -6,14 +6,36 @@ STIX data is retrieved.
 The STIX module was designed to be dynamic in that users can select one of three ways to source their STIX data.
 They are summarized below:
 
-| Provider Name       | Description                                                    | Status          |
-| ------------------- | -------------------------------------------------------------- | --------------- |
-| WorkbenchRepository | Retrieves STIX data from an instance of the Workbench REST API | Implemented     |
-| FileRepository      | Retrieves STIX data from one or more JSON files                | Not Implemented |
-| OrmRepository       | Retrieves STIX data from a relational database                 | Not Implemented |
+| Provider Name         | Description                                                                              | Status          |
+| --------------------- | ---------------------------------------------------------------------------------------- | --------------- |
+| WorkbenchRepository   | Retrieves STIX data from an instance of the Workbench REST API                           | Implemented     |
+| MitreAttackRepository | Retrieves STIX data from the official MITRE ATT&CK releases on GitHub (attack-stix-data) | Implemented     |
+| FileRepository        | Retrieves STIX data from one or more JSON files                                          | Not Implemented |
+| OrmRepository         | Retrieves STIX data from a relational database                                           | Not Implemented |
 
-At the time of this writing, only one of the STIX providers has been fully implemented. The other two may be
-implemented in future releases.
+The active provider is selected at boot time via the `TAXII_STIX_DATA_SRC` environment variable (`workbench`
+or `mitre-attack`). The remaining providers may be implemented in future releases.
+
+## MitreAttackRepository
+
+The `MitreAttackRepository` sources STIX 2.1 content from the official MITRE ATT&CK releases published on
+GitHub at [mitre-attack/attack-stix-data](https://github.com/mitre-attack/attack-stix-data), removing the need
+to run an ATT&CK Workbench instance altogether. It is driven entirely by the repository's collection index
+([index.json](https://github.com/mitre-attack/attack-stix-data/blob/master/index.json)), which documents every
+STIX bundle that is available as a distinct ATT&CK release, organized by collection (one collection per ATT&CK
+domain: `enterprise-attack`, `mobile-attack`, and `ics-attack`).
+
+To use it, set:
+
+```dotenv
+TAXII_STIX_DATA_SRC=mitre-attack
+# Optional. Defaults to the raw GitHub content URL for mitre-attack/attack-stix-data. Useful for mirrors.
+TAXII_MITRE_ATTACK_DATA_URL=https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master
+```
+
+Because ATT&CK releases are immutable once published, the repository caches fetched resources (the collection
+index and STIX bundles) in memory for a configurable TTL (10 minutes by default) to avoid re-downloading
+multi-megabyte bundles on every hydration pass.
 
 # Design
 

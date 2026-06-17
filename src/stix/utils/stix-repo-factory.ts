@@ -1,9 +1,11 @@
 import { StixModule } from '../stix.module';
-import { STIX_REPO_TOKEN, WORKBENCH_OPTIONS } from '../constants';
+import { MITRE_ATTACK_OPTIONS, STIX_REPO_TOKEN, WORKBENCH_OPTIONS } from '../constants';
+import { MitreAttackRepository } from '../providers/mitre-attack/mitre-attack.repository';
 import { WorkbenchRepository } from '../providers/workbench/workbench.repository';
 import { ConsoleLogger, DynamicModule } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { StixConnectOptions } from '../interfaces';
+import { MitreAttackConnectOptionsInterface } from '../interfaces/mitre-attack-connect-options.interface';
 import { WorkbenchConnectOptionsInterface } from '../interfaces/workbench-connect-options.interface';
 
 /**
@@ -14,7 +16,13 @@ import { WorkbenchConnectOptionsInterface } from '../interfaces/workbench-connec
  */
 export class StixRepoFactory {
   static register(options: StixConnectOptions): DynamicModule {
-    return useWorkbenchRepository(options.workbench);
+    switch (options.useType) {
+      case 'mitre-attack':
+        return useMitreAttackRepository(options.mitreAttack);
+      case 'workbench':
+      default:
+        return useWorkbenchRepository(options.workbench);
+    }
   }
 }
 
@@ -38,5 +46,28 @@ const useWorkbenchRepository = (options: WorkbenchConnectOptionsInterface): Dyna
       ConsoleLogger,
     ],
     exports: [STIX_REPO_TOKEN, WorkbenchRepository],
+  };
+};
+
+/**
+ * Instantiates an instance of the StixModule with MitreAttackRepository as the provider. The
+ * MitreAttackRepository sources STIX 2.1 content from the official MITRE ATT&CK releases published
+ * on GitHub (github.com/mitre-attack/attack-stix-data).
+ * @param options  Configuration parameters, e.g. an alternative base URL for the collection index
+ * and STIX bundles (useful for mirrors of attack-stix-data).
+ */
+const useMitreAttackRepository = (
+  options: MitreAttackConnectOptionsInterface = {},
+): DynamicModule => {
+  return {
+    module: StixModule,
+    imports: [HttpModule.register({})],
+    providers: [
+      { provide: MITRE_ATTACK_OPTIONS, useValue: options },
+      { provide: STIX_REPO_TOKEN, useClass: MitreAttackRepository },
+      MitreAttackRepository,
+      ConsoleLogger,
+    ],
+    exports: [STIX_REPO_TOKEN, MitreAttackRepository],
   };
 };

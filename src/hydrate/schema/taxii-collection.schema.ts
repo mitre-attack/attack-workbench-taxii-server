@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 
 @Schema()
-export class WorkbenchCollectionEntity {
+export class CollectionReleaseEntity {
   @Prop({ type: mongoose.Schema.Types.String, required: true })
   version: string;
 
@@ -11,18 +11,15 @@ export class WorkbenchCollectionEntity {
   modified: Date;
 }
 
-export const WorkbenchCollectionSchema = SchemaFactory.createForClass(WorkbenchCollectionEntity);
+export const CollectionReleaseSchema = SchemaFactory.createForClass(CollectionReleaseEntity);
 
 @Schema()
 export class CollectionMetaDataEntity {
-  @Prop({ type: WorkbenchCollectionSchema, required: true })
-  workbenchCollection: WorkbenchCollectionEntity;
+  @Prop({ type: CollectionReleaseSchema, required: true })
+  release: CollectionReleaseEntity;
 
   @Prop({ type: mongoose.Schema.Types.Date, required: true })
   createdAt: Date;
-
-  @Prop({ type: mongoose.Schema.Types.Boolean, required: true, default: true })
-  active: boolean;
 }
 
 export const CollectionMetaDataSchema = SchemaFactory.createForClass(CollectionMetaDataEntity);
@@ -33,7 +30,7 @@ export const CollectionMetaDataSchema = SchemaFactory.createForClass(CollectionM
 export class TaxiiCollectionEntity {
   @Prop({
     required: true,
-    unique: false, // Changed to false since same ID can exist across versions
+    unique: false, // Not unique on its own: the same collection ID exists once per release
     type: mongoose.Schema.Types.String,
   })
   id: string;
@@ -64,20 +61,14 @@ export type TaxiiCollectionDocument = TaxiiCollectionEntity & Document;
 
 export const TaxiiCollectionSchema = SchemaFactory.createForClass(TaxiiCollectionEntity);
 
-// Required for "Get A Collection" endpoint
+// One collection document per (collection, release) pair. Doubles as the hydration commit marker:
+// the document is written only after all of the release's objects, so its presence means the
+// release is fully hydrated, and the unique constraint makes additive hydration idempotent.
 TaxiiCollectionSchema.index(
-  { id: 1, '_meta.active': 1 },
+  { id: 1, '_meta.release.version': 1 },
   {
     background: true,
-    name: 'taxii_collection_lookup',
-  },
-);
-
-// Required for collision detection in hydration
-TaxiiCollectionSchema.index(
-  { title: 1, '_meta.active': 1 },
-  {
-    background: true,
-    name: 'collection_title_lookup',
+    unique: true,
+    name: 'taxii_collection_release_lookup',
   },
 );

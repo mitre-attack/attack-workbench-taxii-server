@@ -16,6 +16,22 @@ The MITRE ATT&CK® TAXII 2.1 API root is `/api/v21/`.
 
 Thus, the base URL all requests (excluding those sent to the [Discovery Endpoint](#endpoint-discovery)) is [https://attack-taxii.mitre.org/api/v21/](https://attack-taxii.mitre.org/api/v21/)
 
+## API Roots and ATT&CK Releases
+
+The server exposes one API root per published ATT&CK release, plus a default root that always
+tracks the latest release:
+
+| API Root | Content |
+| --- | --- |
+| `api/v21` | The **latest** ATT&CK release (default). Always up to date; ideal for evergreen integrations. |
+| `api/v21/attack-<x.y>` | ATT&CK release `x.y`, e.g. `api/v21/attack-19.1`. Immutable; ideal for pinning to a specific release. |
+
+Every API root hosts the same three collections (Enterprise, Mobile, and ICS ATT&CK) under the
+same collection IDs; only the URL prefix changes. Any given request — including "Get Objects" —
+returns content constrained to exactly one ATT&CK release: the pinned release for `attack-<x.y>`
+roots, or the most recent release for `api/v21`. Use the [Discovery Endpoint](#endpoint-discovery)
+to enumerate the available API roots.
+
 ## Headers
 
 A valid Accept header is required. The client must specify a media type supported by the TAXII 2.1 server. These include the following:
@@ -49,11 +65,14 @@ Example response:
   "description": "This API Root contains TAXII 2.1 REST API endpoints that serve MITRE ATT&CK STIX 2.1 data",
   "default": "api/v21",
   "api_roots": [
-    "api/v21"
+    "api/v21",
+    "api/v21/attack-1.0",
+    "api/v21/attack-19.0",
+    "api/v21/attack-19.1"
   ]
 }
 ```
-* In the example response above, the API root (`<api-root>`) is listed as `api/v21`. This is the API root used by the [MITRE ATT&CK® TAXII 2.1 Server](https://attack-taxii.mitre.org). We'll use this in subsequent examples.
+* In the example response above, the default API root (`<api-root>`) is listed as `api/v21`, followed by one pinned API root per ATT&CK release (truncated here for brevity). See [API Roots and ATT&CK Releases](#api-roots-and-attck-releases). We'll use the default root in subsequent examples.
 
 ### Endpoint: Get API Root Information
 ```

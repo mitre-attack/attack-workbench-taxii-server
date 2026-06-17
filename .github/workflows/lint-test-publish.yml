@@ -33,7 +33,15 @@ jobs:
         run: npm ci
 
       - name: Validate all commits
-        run: npx commitlint --from ${{ github.event.pull_request.base.sha || github.event.before }} --to ${{ github.event.pull_request.head.sha || github.sha }} --verbose
+        run: |
+          FROM='${{ github.event.pull_request.base.sha || github.event.before }}'
+          TO='${{ github.event.pull_request.head.sha || github.sha }}'
+          # github.event.before is unreachable after a force-push and all-zeros on a branch's
+          # first push; fall back to the head's parent so the range is always valid.
+          if ! git cat-file -e "${FROM}^{commit}" 2>/dev/null; then
+            FROM="$(git rev-parse "${TO}~1")"
+          fi
+          npx commitlint --from "$FROM" --to "$TO" --verbose
 
   # Job 2: Static Checks (Linting, Security Scanning)
   static-checks:

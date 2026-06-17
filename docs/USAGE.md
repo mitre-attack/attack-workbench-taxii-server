@@ -1,36 +1,43 @@
 # TAXII 2.1 API User Guide
 
 > [!WARNING]
-> The TAXII server hosted at `https://attack-taxii.mitre.org` is rate limited to only accept 10 requests per 10 minute period per source IP address.
+> The TAXII server hosted at `https://attack-taxii.mitre.org` is rate limited to only accept 50 requests per 10 minute period per source IP address.
 > If you find yourself needing to query ATT&CK's content more frequently, please consider downloading the STIX/JSON bundles
 > and parsing them directly. More information on this process can be found [here](https://github.com/mitre-attack/attack-stix-data/blob/master/USAGE.md)
 
 ## Introduction
 
-TAXII (Trusted Automated eXchange of Intelligence Information) is a protocol used to exchange cyber threat intelligence over HTTPS. TAXII 2.1 is the latest version of this protocol.
+[TAXII (Trusted Automated eXchange of Intelligence Information)](https://oasis-open.github.io/cti-documentation/taxii/intro.html) is a protocol used to exchange cyber threat intelligence over HTTPS. [TAXII 2.1](https://www.oasis-open.org/standard/taxii-version-2-1/) is the latest version of this protocol.
 
 ## Base URL
 The MITRE ATT&CK® TAXII 2.1 API is available at `https://attack-taxii.mitre.org`. 
 
-The MITRE ATT&CK® TAXII 2.1 API root is `/api/v21/`.
+The default MITRE ATT&CK® TAXII 2.1 API root is [/api/v21/](https://attack-taxii.mitre.org/api/v21/). This API root always serves STIX content from the **latest** ATT&CK® release.
 
-Thus, the base URL all requests (excluding those sent to the [Discovery Endpoint](#endpoint-discovery)) is [https://attack-taxii.mitre.org/api/v21/](https://attack-taxii.mitre.org/api/v21/)
+## API Roots and ATT&CK® Releases
 
-## API Roots and ATT&CK Releases
-
-The server exposes one API root per published ATT&CK release, plus a default root that always
-tracks the latest release:
+The server exposes one API root per published ATT&CK release, plus a default root that always tracks the latest release:
 
 | API Root | Content |
 | --- | --- |
 | `api/v21` | The **latest** ATT&CK release (default). Always up to date; ideal for evergreen integrations. |
 | `api/v21/attack-<x.y>` | ATT&CK release `x.y`, e.g. `api/v21/attack-19.1`. Immutable; ideal for pinning to a specific release. |
 
-Every API root hosts the same three collections (Enterprise, Mobile, and ICS ATT&CK) under the
-same collection IDs; only the URL prefix changes. Any given request — including "Get Objects" —
-returns content constrained to exactly one ATT&CK release: the pinned release for `attack-<x.y>`
-roots, or the most recent release for `api/v21`. Use the [Discovery Endpoint](#endpoint-discovery)
-to enumerate the available API roots.
+Every API root hosts the same three collections (Enterprise, Mobile, and ICS ATT&CK) under the same collection IDs; only the URL prefix changes.
+
+Any given request - including ["Get Objects"](#endpoint-get-objects) - returns content constrained to exactly one ATT&CK release: the pinned release for `attack-<x.y>` roots, or the most recent release for `api/v21`. 
+
+Use the [Discovery Endpoint](#endpoint-discovery) to enumerate the available API roots.
+
+
+Examples:
+
+- https://attack-taxii.mitre.org/api/v21/attack-17.0
+- https://attack-taxii.mitre.org/api/v21/attack-17.1
+- https://attack-taxii.mitre.org/api/v21/attack-18.0
+- https://attack-taxii.mitre.org/api/v21/attack-18.1
+- https://attack-taxii.mitre.org/api/v21/attack-19.0
+- https://attack-taxii.mitre.org/api/v21/attack-19.1
 
 ## Headers
 
@@ -63,12 +70,52 @@ Example response:
 {
   "title": "MITRE ATT&CK TAXII 2.1",
   "description": "This API Root contains TAXII 2.1 REST API endpoints that serve MITRE ATT&CK STIX 2.1 data",
-  "default": "api/v21",
+  "default": "/api/v21",
   "api_roots": [
-    "api/v21",
-    "api/v21/attack-1.0",
-    "api/v21/attack-19.0",
-    "api/v21/attack-19.1"
+    "/api/v21",
+    "/api/v21/attack-1.0",
+    "/api/v21/attack-2.0",
+    "/api/v21/attack-3.0",
+    "/api/v21/attack-4.0",
+    "/api/v21/attack-5.0",
+    "/api/v21/attack-5.1",
+    "/api/v21/attack-5.2",
+    "/api/v21/attack-6.0",
+    "/api/v21/attack-6.1",
+    "/api/v21/attack-6.2",
+    "/api/v21/attack-6.3",
+    "/api/v21/attack-7.0",
+    "/api/v21/attack-7.1",
+    "/api/v21/attack-7.2",
+    "/api/v21/attack-8.0",
+    "/api/v21/attack-8.1",
+    "/api/v21/attack-8.2",
+    "/api/v21/attack-9.0",
+    "/api/v21/attack-10.0",
+    "/api/v21/attack-10.1",
+    "/api/v21/attack-11.0-beta",
+    "/api/v21/attack-11.0",
+    "/api/v21/attack-11.1",
+    "/api/v21/attack-11.1-beta",
+    "/api/v21/attack-11.2-beta",
+    "/api/v21/attack-11.2",
+    "/api/v21/attack-11.3",
+    "/api/v21/attack-12.0",
+    "/api/v21/attack-12.1",
+    "/api/v21/attack-13.0",
+    "/api/v21/attack-13.1",
+    "/api/v21/attack-14.0",
+    "/api/v21/attack-14.1",
+    "/api/v21/attack-15.0",
+    "/api/v21/attack-15.1",
+    "/api/v21/attack-16.0",
+    "/api/v21/attack-16.1",
+    "/api/v21/attack-17.0",
+    "/api/v21/attack-17.1",
+    "/api/v21/attack-18.0",
+    "/api/v21/attack-18.1",
+    "/api/v21/attack-19.0",
+    "/api/v21/attack-19.1"
   ]
 }
 ```

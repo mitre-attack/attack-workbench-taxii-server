@@ -72,6 +72,27 @@ describe('ReleaseService', () => {
     expect(releases.map((release) => release.version)).toEqual(['9.0', '19.1']);
   });
 
+  it('ignores legacy documents with no release version (no bogus "null" release)', async () => {
+    // A document written under the pre-per-release schema: version lived under
+    // _meta.workbenchCollection, so _meta.release.version is absent. Inserted through the native
+    // driver to bypass the current schema's required-field validation. Without the guard it would
+    // group under a null version and surface as an "attack-null" API root.
+    await collectionModel.collection.insertOne({
+      id: ENTERPRISE,
+      title: 'Enterprise ATT&CK',
+      canRead: true,
+      canWrite: false,
+      _meta: {
+        workbenchCollection: { version: '8.0', modified: new Date('2020-10-27T14:49:39.188Z') },
+        active: true,
+        createdAt: new Date(),
+      },
+    });
+
+    const releases = await releaseService.listReleases();
+    expect(releases.map((release) => release.version)).toEqual(['9.0', '19.1']);
+  });
+
   it('reports whether a release exists', async () => {
     expect(await releaseService.releaseExists('19.1')).toBe(true);
     expect(await releaseService.releaseExists('1.0')).toBe(false);

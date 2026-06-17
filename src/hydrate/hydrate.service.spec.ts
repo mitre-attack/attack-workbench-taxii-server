@@ -169,6 +169,37 @@ describe('HydrateService', () => {
     expect(await objectModel.countDocuments()).toBe(2);
   });
 
+  it("removes legacy collection documents without wiping the live collection's objects", async () => {
+    mockStixRepo.getCollections.mockResolvedValue([
+      sourceCollection('19.1', '2026-05-12T14:00:00.188Z'),
+    ]);
+    await hydrateService.hydrate();
+
+    // Seed a pre-per-release-schema collection document for the SAME collection id: version lived
+    // under _meta.workbenchCollection, so _meta.release is absent. Inserted via the native driver
+    // to bypass the current schema's required-field validation.
+    await collectionModel.collection.insertOne({
+      id: COLLECTION_ID,
+      title: 'Enterprise ATT&CK',
+      canRead: true,
+      canWrite: false,
+      _meta: {
+        workbenchCollection: { version: '8.0', modified: new Date('2020-10-27T14:49:39.188Z') },
+        active: true,
+        createdAt: new Date(),
+      },
+    });
+    expect(await collectionModel.countDocuments()).toBe(2);
+
+    await hydrateService.hydrate();
+
+    // The legacy commit marker is gone, but the live 19.1 release and its objects are untouched -
+    // a version-scoped object deletion must not strip the undefined filter and wipe live objects.
+    expect(await collectionModel.countDocuments()).toBe(1);
+    expect(await collectionModel.countDocuments({ '_meta.release.version': '19.1' })).toBe(1);
+    expect(await objectModel.countDocuments({ '_meta.collectionRef.version': '19.1' })).toBe(2);
+  });
+
   it('hard-deletes releases that disappear from the source', async () => {
     mockStixRepo.getCollections.mockResolvedValue([
       sourceCollection('19.0', '2026-04-22T14:00:00.188Z'),

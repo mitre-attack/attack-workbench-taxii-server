@@ -286,7 +286,23 @@ export class HydrateService implements OnModuleInit {
 
     let removed = 0;
     for (const pair of hydratedPairs) {
-      const version = pair._meta.release.version;
+      const version = pair._meta?.release?.version;
+
+      // A document without a string release version predates the per-release schema (its version
+      // lived under _meta.workbenchCollection). It can never match a source pair, so it is always
+      // orphaned; remove its commit marker so it stops polluting discovery. Its objects are NOT
+      // deleted here: the legacy version is unknown at this point, so a version-scoped deleteMany
+      // would pass an undefined filter that Mongoose strips, wiping every object of a still-live
+      // collection. Operators clear legacy objects out of band (see the upgrade runbook).
+      if (typeof version !== 'string') {
+        this.logger.warn(
+          `Removing legacy collection document ${pair.id} with no release version (pre-per-release schema)`,
+        );
+        await this.collectionModel.deleteOne({ _id: pair._id });
+        removed += 1;
+        continue;
+      }
+
       if (sourcePairs.has(`${pair.id}::${version}`)) {
         continue;
       }

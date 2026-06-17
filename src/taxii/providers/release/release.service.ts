@@ -36,9 +36,16 @@ export class ReleaseService {
    * Lists every fully hydrated release, ordered oldest to newest by publication timestamp.
    * Releases are deduplicated across collections (e.g. Enterprise 19.1 and Mobile 19.1 are the
    * same release).
+   *
+   * The leading $match discards collection documents that carry no string release version. Such
+   * documents are not produced by the current hydration path; they only appear when a database
+   * predates the per-release schema (versions written under _meta.workbenchCollection rather than
+   * _meta.release). Without the guard those legacy documents group under a null version and surface
+   * as a bogus "attack-null" API root in the discovery response.
    */
   async listReleases(): Promise<ReleaseSummary[]> {
     const releases: Array<{ _id: string; modified: Date }> = await this.collectionModel.aggregate([
+      { $match: { '_meta.release.version': { $type: 'string' } } },
       {
         $group: {
           _id: '$_meta.release.version',

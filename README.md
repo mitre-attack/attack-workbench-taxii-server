@@ -73,6 +73,9 @@ to deploy the entire ATT&CK Workbench is via the [Docker Compose](https://github
 
 ### Docker
 
+For Docker Compose setup and local development, see the
+[deployment repository](https://github.com/mitre-attack/attack-workbench-deployment).
+
 #### Container Registry
 
 The ATT&CK Workbench TAXII server is packaged as a Docker image in the GitHub Container registry:
@@ -105,8 +108,7 @@ export TAXII_APP_PORT=8000
 
 #### Requirements
 
-- [Node.js](https://nodejs.org) version `14.20.0` or greater
-- [Node.js](https://nodejs.org) version must support `AsyncLocalStorage`
+- [Node.js](https://nodejs.org) version `22.x`
 
 #### Installation
 

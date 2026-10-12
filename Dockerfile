@@ -1,8 +1,3 @@
-# First, we tell Docker to use an official Node.js image available in the public stix.
-# We specify the 12.13 version of Node and choose an Alpine image. Alpine images are lighter, but using them can have
-# unexpected behavior.
-# Since we are using the multi-stage build feature, we are also using the AS statement to name the image development.
-# The name here can be anything; it is only to reference the image later on.
 FROM node:22-alpine AS development
 
 # Set the working directory within the container to /app. After setting WORKDIR, each command Docker executes (defined
@@ -16,13 +11,10 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-RUN mkdir -p /app-seed && cp -R src /app-seed/src
-
-ENV CHOKIDAR_USEPOLLING=true
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "if [ ! -f src/main.ts ]; then cp -R /app-seed/src/. src/; fi; exec npm run start:dev"]
+CMD ["sh", "-c", "npm run build && exec ./node_modules/.bin/pm2-runtime ecosystem.config.js"]
 
 # Finally, we make sure the app is built in the /dist folder. Since our application uses TypeScript and other build-time
 # dependencies, we have to execute this command in a build image derived from the development image.
@@ -67,13 +59,8 @@ WORKDIR /app
 
 COPY package*.json ./
 
-# Now this part is exactly the same as the one above, but this time, we are making sure that we install only
-# dependencies defined in dependencies in package.json by using the --only=production argument. This way we don’t install
-# packages such as TypeScript that would cause our final image to increase in size.
-RUN npm install --only=production
-
-# Install PM2 globally
-RUN npm install pm2 -g
+# Install the locked runtime dependencies, including PM2.
+RUN npm ci --omit=dev
 
 # Copy over the PM2 configuration file. We will need this to start the container.
 COPY ecosystem.config.js .
@@ -87,4 +74,4 @@ RUN mkdir config
 RUN cp config/*pem dist/config/ | true
 
 # Here we define the default command to execute when the image is run.
-CMD ["pm2-runtime", "ecosystem.config.js"]
+CMD ["./node_modules/.bin/pm2-runtime", "ecosystem.config.js"]

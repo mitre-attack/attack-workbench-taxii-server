@@ -59,6 +59,7 @@
     "mongoose": "^9.0.1",
     "nest-winston": "^1.10.2",
     "object-hash": "^3.0.0",
+    "pm2": "7.0.4",
     "reflect-metadata": "^0.2.2",
     "rimraf": "^6.1.2",
     "rxjs": "^7.8.2",
